@@ -40,7 +40,14 @@
               <li class="nav-item px-2"><a class="nav-link" aria-current="page" href="{% url 'pricing' %}">Pricing</a></li>
               <li class="nav-item px-2"><a class="nav-link" aria-current="page" href="{% url 'web-development' %}">Web Development</a></li>
               <li class="nav-item px-2"><a class="nav-link" aria-current="page" href="{% url 'user-research' %}">User Research</a></li>
-            </ul><a class="btn btn-primary order-1 order-lg-0" href="{% url 'login' %}">Sign In </a>
+            </ul>
+            {% if user.is_authenticated %}
+            <span class="me-2">Hello, {{ user.username }}</span>
+            <a class="btn btn-primary order-1 order-lg-0" href="{% url 'logout' %}">Logout</a>
+          {% else %}
+            <a class="btn btn-primary order-1 order-lg-0"href="{% url 'login' %}">Sign In</a>
+          {% endif %}
+
             <form class="d-flex my-3 d-block d-lg-none">
               <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" />
               <button class="btn btn-outline-primary" type="submit">Search</button>

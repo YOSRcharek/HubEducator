@@ -89,7 +89,7 @@
                         <img src="{% static 'dashboard/images/faces/face3.jpg' %}" alt="image" class="profile-pic">
                     </div>
                     <div class="preview-item-content flex-grow">
-                        <h6 class="preview-subject ellipsis font-weight-normal"> Johnson
+                        <h6 class="preview-subject ellipsis font-weight-normal"> {{ user.username }}
                         </h6>
                         <p class="font-weight-light small-text text-muted mb-0">
                           Upcoming board meeting
@@ -117,7 +117,7 @@
             <ul class="navbar-nav navbar-nav-right">
                 <li class="nav-item nav-profile dropdown">
                   <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" id="profileDropdown">
-                    <span class="nav-profile-name">Johnson</span>
+                    <span class="nav-profile-name">{{ user.username }}</span>
                     <span class="online-status"></span>
                     <img src="{% static 'dashboard/images/faces/face28.png' %}" alt="profile"/>
                   </a>
@@ -126,10 +126,11 @@
                         <i class="mdi mdi-settings text-primary"></i>
                         Settings
                       </a>
-                      <a class="dropdown-item">
+                      <a class="dropdown-item" href="{% url 'logout' %}">
                         <i class="mdi mdi-logout text-primary"></i>
                         Logout
                       </a>
+
                   </div>
                 </li>
             </ul>
