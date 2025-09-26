@@ -1,0 +1,38 @@
+{% extends 'baseF.html' %}
+{% load static %}
+
+{% block title %}Sign In Page{% endblock %}
+
+{% block content %}
+  <div class="container py-5">
+    <div class="row justify-content-center align-items-center">
+      <!-- Image Section -->
+      <div class="col-md-6 col-lg-5 mb-5 text-center">
+        <img src="{% static 'website/img/gallery/cta.png' %}" width="300" alt="cta" />
+      </div>
+
+      <!-- Form Section -->
+      <div class="col-md-6 col-lg-5">
+        <h5 class="text-primary font-sans-serif fw-bold">Welcome Back</h5>
+        <h1 class="mb-4">Sign in to your account</h1>
+
+        <!-- Sign In Form -->
+        <form method="POST" action="{% url 'login' %}" class="mb-4">
+          {% csrf_token %}
+          <div class="form-floating mb-3">
+            <input type="email" name="email" class="form-control" id="signinEmail" placeholder="Email">
+      
+          </div>
+          <div class="form-floating mb-3">
+            <input type="password" name="password" class="form-control" id="signinPassword" placeholder="Password">
+           
+          </div>
+          <button class="btn btn-primary w-100 mb-3" type="submit">Sign In</button>
+          <p class="text-center">Don't have an account? <a href="{% url 'register' %}">Sign Up</a></p>
+        </form>
+
+      </div>
+    </div>
+  </div>
+
+{%endblock%}

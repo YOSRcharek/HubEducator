@@ -1,0 +1,191 @@
+{% extends 'baseB.html' %}
+{% load static %}
+
+{% block title %}Users{% endblock %}
+
+{% block content %}
+
+    <div class="col-lg-12 grid-margin stretch-card">
+        <div class="card">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <h4 class="card-title mb-0">Users List</h4>
+                  <a href="{% url 'adduser' %}" class="btn btn-outline-success btn-icon-text">
+                    <i class="mdi mdi-account-multiple-plus btn-icon-prepend"></i>
+                    Add User
+                  </a>
+                </div>
+                  <div class="table-responsive">
+                    <table class="table table-striped">
+                      <thead>
+                        <tr>
+                          <th>
+                            User
+                          </th>
+                          <th>
+                            First name
+                          </th>
+                          <th>
+                            Progress
+                          </th>
+                          <th>
+                            Amount
+                          </th>
+                          <th>
+                            Deadline
+                          </th>
+                             <th>
+                           Actions
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td class="py-1">
+                            <img src="{% static 'dashboard/images/faces/face1.jpg' %}" alt="image"/>
+                          </td>
+                          <td>
+                            Herman Beck
+                          </td>
+                          <td>
+                            <div class="progress">
+                              <div class="progress-bar bg-success" role="progressbar" style="width: 25%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                          </td>
+                          <td>
+                            $ 77.99
+                          </td>
+                          <td>
+                            May 15, 2015
+                          </td>
+                          <td>
+                          <div class="input-group mb-2 mr-sm-2">
+                          <button type="button" class="btn btn-outline-secondary" data-bs-toggle="dropdown">
+                            <i class="mdi mdi-dots-vertical"></i>
+                          </button>
+                          <div class="dropdown-menu">
+                            <button class="dropdown-item btn btn-outline-primary btn-icon-text">
+                              <i class="mdi mdi-account-edit btn-icon-prepend"></i> Edit
+                            </button>
+                            <button class="dropdown-item btn btn-outline-danger btn-icon-text">
+                              <i class="mdi mdi-delete btn-icon-prepend"></i> Delete
+                            </button>
+                          </div>                          
+                        </div>
+
+                        </td>
+                        </tr>
+                        <tr>
+                          <td class="py-1">
+                            <img src="{% static 'dashboard/images/faces/face2.jpg' %}" alt="image"/>
+                          </td>
+                          <td>
+                            Messsy Adam
+                          </td>
+                          <td>
+                            <div class="progress">
+                              <div class="progress-bar bg-danger" role="progressbar" style="width: 75%" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                          </td>
+                          <td>
+                            $245.30
+                          </td>
+                          <td>
+                            July 1, 2015
+                          </td>
+                            <td>
+                          <div class="input-group mb-2 mr-sm-2">
+                          <button type="button" class="btn btn-outline-secondary" data-bs-toggle="dropdown">
+                            <i class="mdi mdi-dots-vertical"></i>
+                          </button>
+                          <div class="dropdown-menu">
+                            <button class="dropdown-item btn btn-outline-primary btn-icon-text">
+                              <i class="mdi mdi-account-edit btn-icon-prepend"></i> Edit
+                            </button>
+                            <button class="dropdown-item btn btn-outline-danger btn-icon-text">
+                              <i class="mdi mdi-delete btn-icon-prepend"></i> Delete
+                            </button>
+                          </div>                          
+                        </div>
+
+                        </td>
+                        </tr>
+                        <tr>
+                          <td class="py-1">
+                            <img src="{% static 'dashboard/images/faces/face3.jpg' %}" alt="image"/>
+                          </td>
+                          <td>
+                            John Richards
+                          </td>
+                          <td>
+                            <div class="progress">
+                              <div class="progress-bar bg-warning" role="progressbar" style="width: 90%" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                          </td>
+                          <td>
+                            $138.00
+                          </td>
+                          <td>
+                            Apr 12, 2015
+                          </td>
+                            <td>
+                          <div class="input-group mb-2 mr-sm-2">
+                          <button type="button" class="btn btn-outline-secondary" data-bs-toggle="dropdown">
+                            <i class="mdi mdi-dots-vertical"></i>
+                          </button>
+                          <div class="dropdown-menu">
+                            <button class="dropdown-item btn btn-outline-primary btn-icon-text">
+                              <i class="mdi mdi-account-edit btn-icon-prepend"></i> Edit
+                            </button>
+                            <button class="dropdown-item btn btn-outline-danger btn-icon-text">
+                              <i class="mdi mdi-delete btn-icon-prepend"></i> Delete
+                            </button>
+                          </div>                          
+                        </div>
+
+                        </td>
+                        </tr>
+                        <tr>
+                          <td class="py-1">
+                            <img src="{% static 'dashboard/images/faces/face4.jpg' %}" alt="image"/>
+                          </td>
+                          <td>
+                            Peter Meggik
+                          </td>
+                          <td>
+                            <div class="progress">
+                              <div class="progress-bar bg-primary" role="progressbar" style="width: 50%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                          </td>
+                          <td>
+                            $ 77.99
+                          </td>
+                          <td>
+                            May 15, 2015
+                          </td>
+                            <td>
+                          <div class="input-group mb-2 mr-sm-2">
+                          <button type="button" class="btn btn-outline-secondary" data-bs-toggle="dropdown">
+                            <i class="mdi mdi-dots-vertical"></i>
+                          </button>
+                          <div class="dropdown-menu">
+                            <button class="dropdown-item btn btn-outline-primary btn-icon-text">
+                              <i class="mdi mdi-account-edit btn-icon-prepend"></i> Edit
+                            </button>
+                            <button class="dropdown-item btn btn-outline-danger btn-icon-text">
+                              <i class="mdi mdi-delete btn-icon-prepend"></i> Delete
+                            </button>
+                          </div>                          
+                        </div>
+
+                        </td>
+                        </tr>
+                       
+                      </tbody>
+                    </table>
+                  </div>
+              </div>
+        </div>
+    </div>
+
+{% endblock %}
