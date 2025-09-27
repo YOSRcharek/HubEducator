@@ -1,3 +1,7 @@
 from django.shortcuts import render
 
-# Create your views here.
+def unauthorized (request):
+    return render(request, 'unauthorized.html',{})
+
+def profil (request):
+    return render(request, 'profil.html',{})

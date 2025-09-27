@@ -113,7 +113,8 @@
             <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-center">
                 <a class="navbar-brand brand-logo" href="{% url "dashboard" %}"><img src="{% static 'dashboard/images/logo.svg ' %}" alt="logo"/></a>
                 <a class="navbar-brand brand-logo-mini" href="{% url "dashboard" %}"><img src="{% static 'dashboard/images/logo-mini.svg' %}" alt="logo"/></a>
-            </div>
+          
+              </div>
             <ul class="navbar-nav navbar-nav-right">
                 <li class="nav-item nav-profile dropdown">
                   <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" id="profileDropdown">
@@ -122,7 +123,11 @@
                     <img src="{% static 'dashboard/images/faces/face28.png' %}" alt="profile"/>
                   </a>
                   <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="profileDropdown">
-                      <a class="dropdown-item">
+                      <a class="dropdown-item" href="{% url 'profil' %}">
+                        <i class="mdi mdi-account text-primary"></i>
+                        Profil
+                      </a>
+                         <a class="dropdown-item">
                         <i class="mdi mdi-settings text-primary"></i>
                         Settings
                       </a>
@@ -143,18 +148,20 @@
       <nav class="bottom-navbar">
         <div class="container">
             <ul class="nav page-navigation">
-              <li class="nav-item">
-                <a class="nav-link" href="{% url "dashboard" %}">
-                  <i class="mdi mdi-file-document-box menu-icon"></i>
-                  <span class="menu-title">Dashboard</span>
-                </a>
-              </li>
-                  <li class="nav-item">
-                <a class="nav-link" href="{% url "users" %}">
-                  <i class="mdi mdi-account-multiple menu-icon"></i>
-                  <span class="menu-title">Users</span>
-                </a>
-              </li>
+            <li class="nav-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+            <a class="nav-link" href="{% url 'dashboard' %}">
+              <i class="mdi mdi-file-document-box menu-icon"></i>
+              <span class="menu-title">Dashboard</span>
+            </a>
+          </li>
+
+          <li class="nav-item {% if request.resolver_match.url_name == 'users' %}active{% endif %}">
+            <a class="nav-link" href="{% url 'users' %}">
+              <i class="mdi mdi-account-multiple menu-icon"></i>
+              <span class="menu-title">Users</span>
+            </a>
+          </li>
+
               <li class="nav-item">
                   <a href="pages/forms/basic_elements.html" class="nav-link">
                     <i class="mdi mdi-chart-areaspline menu-icon"></i>

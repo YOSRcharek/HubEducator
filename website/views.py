@@ -1,7 +1,9 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout, get_user_model
 from django.contrib import messages
-
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .forms import RegisterForm
 from core.models import User
 
 # Create your views here.
@@ -45,37 +47,22 @@ def logout_view(request):
     return redirect("login")
 
 
+
 def register(request):
     if request.method == "POST":
-        username = request.POST.get("username", "").strip()
-        email = request.POST.get("email", "").strip()
-        password1 = request.POST.get("password1")
-        password2 = request.POST.get("password2")
-        role = request.POST.get("role", "student")
-
-        if not username or not email or not password1:
-            messages.error(request, "Remplis tous les champs requis.")
-            return redirect("register")
-        if password1 != password2:
-            messages.error(request, "Les mots de passe ne correspondent pas.")
-            return redirect("register")
-        if User.objects.filter(username=username).exists():
-            messages.error(request, "Nom d'utilisateur déjà pris.")
-            return redirect("register")
-        if User.objects.filter(email=email).exists():
-            messages.error(request, "Email déjà utilisé.")
-            return redirect("register")
-
-        user = User.objects.create_user(username=username, email=email, password=password1)
-        user.role = role
-        # gérer upload d'image si présent
-        if request.FILES.get("profile_picture"):
-            user.profile_picture = request.FILES["profile_picture"]
-        user.save()
-
-        messages.success(request, "Compte créé — connecte-toi.")
-        return redirect("login")
-    return render(request, "register.html")
+        form = RegisterForm(request.POST, request.FILES)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.set_password(form.cleaned_data["password1"])
+            user.save()
+            messages.success(request, "Compte créé — connecte-toi.")
+            return redirect("login")
+        else:
+            # Les erreurs s'afficheront automatiquement dans le template
+            pass
+    else:
+        form = RegisterForm()
+    return render(request, "register.html", {"form": form})
 
 def courseDetails(request):
     return render(request, 'courseDetails.html',{})

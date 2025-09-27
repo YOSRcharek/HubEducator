@@ -8734,6 +8734,21 @@ hr {
   border: 0;
   opacity: 0.25;
 }
+.pagination .page-link {
+    color: #20c997 !important;   /* turquoise */
+    border: 1px solid #20c997 !important;
+}
+
+.pagination .page-link:hover {
+    background-color: #20c997 !important;
+    color: #fff !important;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #20c997 !important;
+    border-color: #20c997 !important;
+    color: #fff !important;
+}
 
 hr:not([size]) {
   height: 1px;
