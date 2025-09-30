@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     'core', 
     'website',
     'dashboard',
+    'TeacherDash',
 ]
 
 MIDDLEWARE = [

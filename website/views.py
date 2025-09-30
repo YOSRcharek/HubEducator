@@ -5,8 +5,8 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from .forms import RegisterForm
 from core.models import User
+from core.decorators import unauthenticated_user
 
-# Create your views here.
 def home (request):
     return render(request, 'home.html',{})
 
@@ -19,6 +19,7 @@ def web_development(request):
 def user_research(request):
     return render(request, 'user-research.html',{})
 
+@unauthenticated_user
 def login_view(request):
     if request.method == "POST":
         email = request.POST.get("email", "").strip()
@@ -29,9 +30,7 @@ def login_view(request):
             if user is not None:
                 auth_login(request, user)
                 messages.success(request, "Connecté avec succès.")
-                if user.role == 'admin':
-                    return redirect('dashboard')
-                elif user.role == 'teacher':
+                if user.role in ['admin', 'teacher']:
                     return redirect('dashboard')
                 else: 
                     return redirect('home')
@@ -41,13 +40,7 @@ def login_view(request):
             messages.error(request, "Aucun compte avec cet email.")
     return render(request, "login.html")
 
-# LOGOUT
-def logout_view(request):
-    auth_logout(request)
-    return redirect("login")
-
-
-
+@unauthenticated_user
 def register(request):
     if request.method == "POST":
         form = RegisterForm(request.POST, request.FILES)
@@ -57,12 +50,15 @@ def register(request):
             user.save()
             messages.success(request, "Compte créé — connecte-toi.")
             return redirect("login")
-        else:
-            # Les erreurs s'afficheront automatiquement dans le template
-            pass
     else:
         form = RegisterForm()
     return render(request, "register.html", {"form": form})
+
+# LOGOUT
+def logout_view(request):
+    auth_logout(request)
+    return redirect("login")
+
 
 def courseDetails(request):
     return render(request, 'courseDetails.html',{})

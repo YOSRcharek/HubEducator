@@ -8,6 +8,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('website.urls')),
     path('dashboard/', include('dashboard.urls')),
+    path('teacherDash/', include('TeacherDash.urls')),
     path('core/', include('core.urls')),
 ]
 if settings.DEBUG:

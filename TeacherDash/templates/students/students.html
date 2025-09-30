@@ -1,0 +1,109 @@
+{% extends 'baseT.html' %}
+{% load static %}
+
+{% block title %}Students{% endblock %}
+
+{% block content %}
+<div class="col-lg-12 grid-margin stretch-card">
+    <div class="card">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="card-title mb-0">Students List</h4>
+              <!--  <a href="{% url 'add_student' %}" class="btn btn-outline-success btn-icon-text">
+                    <i class="mdi mdi-account-multiple-plus btn-icon-prepend"></i>
+                    Add Student
+                </a> -->
+            </div>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Picture</th>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student in page_obj %}
+                        <tr>
+                            <td class="py-1">
+                                {% if student.profile_picture %}
+                                    <img src="{{ student.profile_picture.url }}" alt="image" style="width:40px; height:40px; border-radius:50%;">
+                                {% else %}
+                                    <img src="{% static 'dashboard/images/faces/defaultuser.jpg' %}" alt="image">
+                                {% endif %}
+                            </td>
+                            <td>{{ student.username }}</td>
+                            <td>{{ student.email }}</td>
+                            <td>{{ student.role|capfirst }}</td>
+                            <td>
+                                <div class="input-group mb-2 mr-sm-2">
+                                    <button type="button" class="btn btn-outline-secondary" data-bs-toggle="dropdown">
+                                        <i class="mdi mdi-dots-vertical"></i>
+                                    </button>
+                                   <div class="dropdown">
+                                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                        <i class="mdi mdi-dots-vertical"></i>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                       <!-- <li><a class="dropdown-item" href="{% url 'edit_student' student.id %}">Edit</a></li>
+                                        <li><a class="dropdown-item" href="{% url 'delete_student' student.id %}" onclick="return confirm('Are you sure?');">Delete</a></li>
+                                        -->
+                                        <li><a class="dropdown-item" href="{% url 'student_detail' student.id %}" >Delete</a></li>
+                                    </ul>
+                                    </div>
+                     
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center">No students found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                <div class="d-flex justify-content-center mt-3">
+                    <nav>
+                        <ul class="pagination">
+                            {% if page_obj.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=1">First</a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                                </li>
+                            {% endif %}
+
+                            {% for num in page_obj.paginator.page_range %}
+                                {% if page_obj.number == num %}
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ num }}</span>
+                                    </li>
+                                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if page_obj.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

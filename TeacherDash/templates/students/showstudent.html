@@ -1,0 +1,44 @@
+{% extends 'baseT.html' %}
+{% load static %}
+
+{% block title %}Student Details{% endblock %}
+
+{% block content %}
+<div class="col-12 grid-margin stretch-card">
+  <div class="card">
+    <div class="card-body">
+      <h4 class="card-title">Student Details</h4>
+
+      <div class="d-flex align-items-center mb-4">
+        {% if student.profile_picture %}
+          <img src="{{ student.profile_picture.url }}" alt="Profile Picture" 
+               style="width:120px; height:120px; border-radius:8px; margin-right:20px;">
+        {% else %}
+          <img src="{% static 'dashboard/images/faces/defaultuser.jpg' %}" alt="Profile Picture" 
+               style="width:120px; height:120px; border-radius:8px; margin-right:20px;">
+        {% endif %}
+        <div>
+          <h5>{{ student.username|capfirst }}</h5>
+          <p><strong>Email:</strong> {{ student.email }}</p>
+          <p><strong>Role:</strong> {{ student.role|capfirst }}</p>
+        </div>
+      </div>
+
+      <h5 class="mt-4">Courses Assigned</h5>
+      <ul class="list-group mb-3">
+        {% for course in courses %}
+          <li class="list-group-item">{{ course.name }}</li>
+        {% empty %}
+          <li class="list-group-item text-muted">No courses assigned by you.</li>
+        {% endfor %}
+      </ul>
+
+      <div class="d-flex justify-content-between">
+        <a href="{% url 'students' %}" class="btn btn-outline-primary btn-fw">Back to Students</a>
+        <a href="{% url 'edit_student' student.id %}" class="btn btn-primary btn-fw">Edit Student</a>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

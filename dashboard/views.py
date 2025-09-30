@@ -8,13 +8,13 @@ from django.core.paginator import Paginator
 
 @login_required
 def dashboard(request):
-    if request.user.role not in ['admin', 'teacher']:
+    if request.user.role not in ['admin']:
         return redirect(reverse('unauthorized'))  # 'unauthorized' is the URL name
     return render(request, 'dashboard.html', {})
 
 @login_required
 def users(request):
-    if request.user.role not in ['admin', 'teacher']:
+    if request.user.role not in ['admin']:
         return redirect(reverse('unauthorized'))
     
     users_list = User.objects.exclude(role='admin')  # exclure admin si tu veux
