@@ -30,8 +30,10 @@ def login_view(request):
             if user is not None:
                 auth_login(request, user)
                 messages.success(request, "Connecté avec succès.")
-                if user.role in ['admin', 'teacher']:
+                if user.role == 'admin':
                     return redirect('dashboard')
+                if user.role == 'teacher':
+                    return redirect('teacherDash')
                 else: 
                     return redirect('home')
             else:

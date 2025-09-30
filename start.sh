@@ -3,6 +3,7 @@
 # Install dependencies
 pip install -r requirements.txt
 
+pip install gunicorn
 # Apply migrations
 python manage.py migrate --noinput
 
