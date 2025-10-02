@@ -126,7 +126,7 @@ USE_TZ = True
 
 #STATIC_URL = 'static/'
 #STATICFILES_DIRS = [
-#    os.path.join(BASE_DIR, 'static')
+#   os.path.join(BASE_DIR, 'static')
 #]
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -144,7 +144,18 @@ print("DB_HOST:", os.getenv("DB_HOST"))
 
 
 
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+# Static files (CSS, JavaScript, Images)
 STATIC_URL = "/static/"
-STATIC_ROOT = os.path.join(BASE_DIR, "static")  
+
+# Local static files (development)
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),  # your dev CSS/JS/images
+]
+
+# Folder where collectstatic puts files for production
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")  # must be different from STATICFILES_DIRS
+
+# WhiteNoise for serving static files in production
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
 
