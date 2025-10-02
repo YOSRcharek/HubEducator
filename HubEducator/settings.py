@@ -17,7 +17,12 @@ SECRET_KEY = 'django-insecure-f%eq!cm##$5fd$+d0%4y%ps%8$e9xu7t16xjz-250yn5(^%y6_
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
+    "hubeducator-production.up.railway.app",  # add your Railway domain
+]
+
 
 
 # Application definition
