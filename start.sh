@@ -2,8 +2,6 @@
 
 # Install dependencies
 pip install -r requirements.txt
-
-pip install gunicorn
 # Apply migrations
 python manage.py migrate --noinput
 
@@ -12,16 +10,3 @@ python manage.py collectstatic --noinput
 
 # Start the Django app on the port Railway provides
 python manage.py runserver 0.0.0.0:$PORT
-#!/bin/bash
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Apply migrations
-python3 manage.py migrate --noinput
-
-# Collect static files
-python3 manage.py collectstatic --noinput
-
-# Run Django with Railway's PORT
-python3 manage.py runserver 0.0.0.0:$PORT
