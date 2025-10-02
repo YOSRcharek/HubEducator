@@ -12,3 +12,16 @@ python manage.py collectstatic --noinput
 
 # Start the Django app on the port Railway provides
 python manage.py runserver 0.0.0.0:$PORT
+#!/bin/bash
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Apply migrations
+python3 manage.py migrate --noinput
+
+# Collect static files
+python3 manage.py collectstatic --noinput
+
+# Run Django with Railway's PORT
+python3 manage.py runserver 0.0.0.0:$PORT

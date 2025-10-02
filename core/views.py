@@ -5,3 +5,4 @@ def unauthorized (request):
 
 def profil (request):
     return render(request, 'profil.html',{})
+

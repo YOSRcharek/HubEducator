@@ -1,0 +1,308 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<base href="../"/>
+		<meta charset="utf-8" />
+           <title>HubEducator | Dashboard</title>
+        <link rel="icon" type="image/png" sizes="32x32" href="{% static 'website/img/favicons/favicon-32x32.png' %}">
+        <link rel="icon" type="image/png" sizes="16x16" href="{% static 'website/img/favicons/favicon-16x16.png' %}">
+        <link rel="shortcut icon" type="image/x-icon" href="{% static 'website/img/favicons/favicon.ico' %}">
+    
+        <link rel="stylesheet" href="{% static 'dashboard/vendors/mdi/css/materialdesignicons.min.css' %}">
+        <link rel="stylesheet" href="{% static 'dashboard/vendors/base/vendor.bundle.base.css' %}">
+
+        <link rel="stylesheet" href="{% static 'dashboard/css/style.css' %}">
+		<meta name="description" content="Axel admin core live demo. Check out all the features of the admin panel. A large number of settings, additional services and widgets." />
+		<meta name="keywords" content="Axel theme, bootstrap, bootstrap 5, admin themes, free admin themes, bootstrap admin, bootstrap core" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link rel="canonical" href="https://preview.keenthemes.com/axel-html-free" />
+		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700" />
+		<link href="{% static 'core/assets/plugins/global/plugins.bundle.css' %}" rel="stylesheet" type="text/css" />
+		<link href="{% static 'core/assets/css/style.bundle.css' %}" rel="stylesheet" type="text/css" />
+    
+  </head>
+
+    {% include 'includes/navbar.html' %}
+	<body id="kt_body" data-kt-app-header-stacked="true" data-kt-app-header-primary-enabled="true" data-kt-app-header-secondary-enabled="true" data-kt-app-toolbar-enabled="true" class="app-default">
+				<div class="d-flex flex-column flex-root app-root" id="kt_app_root">
+			<div class="app-page flex-column flex-column-fluid" id="kt_app_page">
+				
+				<div class="app-wrapper flex-column flex-row-fluid" id="kt_app_wrapper">
+					<div class="app-container container-xxl d-flex flex-row flex-column-fluid">
+						<div class="app-main flex-column flex-row-fluid" id="kt_app_main">
+							<div class="d-flex flex-column flex-column-fluid">
+								<div id="kt_app_toolbar" class="app-toolbar pt-lg-9 pt-6">
+									<div id="kt_app_toolbar_container" class="app-container container-fluid d-flex flex-stack flex-wrap">
+										<div class="d-flex flex-stack flex-wrap gap-4 w-100">
+											<div class="page-title d-flex flex-column gap-3 me-3">
+												<h1 class="page-heading d-flex flex-column justify-content-center text-dark fw-bolder fs-2x my-0">My Courses</h1>
+												
+											</div>
+											<div class="d-flex align-items-center gap-3 gap-lg-5">
+												<div class="m-0">
+													<a href="#" class="btn btn-flex btn-sm btn-color-gray-700 bg-body fw-bold px-4" data-bs-toggle="modal" data-bs-target="#kt_modal_create_project">New Course</a>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div id="kt_app_content" class="app-content pb-0">
+									
+									<div class="d-flex flex-wrap flex-stack my-5">
+										<h2 class="fs-2 fw-semibold my-2">Courses
+										<span class="fs-6 text-gray-400 ms-1">by Status</span></h2>
+										<div class="d-flex flex-wrap my-1">
+											<div class="m-0">
+												<select name="status" data-control="select2" data-hide-search="true" class="form-select form-select-sm bg-body border-body fw-bold w-125px">
+													<option value="Active" selected="selected">Active</option>
+													<option value="Approved">In Progress</option>
+													<option value="Declined">To Do</option>
+													<option value="In Progress">Completed</option>
+												</select>
+											</div>
+										</div>
+									</div>
+									<div class="row g-6 g-xl-9">
+										<div class="col-md-6 col-xl-4">
+											<a href="#" class="card border-hover-primary">
+												<div class="card-header border-0 pt-9">
+													<div class="card-title m-0">
+														<div class="symbol symbol-50px w-50px bg-light">
+															<img src="assets/media/svg/brand-logos/plurk.svg" alt="image" class="p-3" />
+														</div>
+													</div>
+													<div class="card-toolbar">
+														<span class="badge badge-light-primary fw-bold me-auto px-4 py-3">In Progress</span>
+													</div>
+												</div>
+												<div class="card-body p-9">
+													<div class="fs-3 fw-bold text-dark">Fitnes App</div>
+													<p class="text-gray-400 fw-semibold fs-5 mt-1 mb-7">CRM App application to HR efficiency</p>
+													<div class="d-flex flex-wrap mb-5">
+														<div class="border border-gray-300 border-dashed rounded min-w-125px py-3 px-4 me-7 mb-3">
+															<div class="fs-6 text-gray-800 fw-bold">Feb 21, 2023</div>
+															<div class="fw-semibold text-gray-400">Due Date</div>
+														</div>
+														<div class="border border-gray-300 border-dashed rounded min-w-125px py-3 px-4 mb-3">
+															<div class="fs-6 text-gray-800 fw-bold">$284,900.00</div>
+															<div class="fw-semibold text-gray-400">Budget</div>
+														</div>
+													</div>
+													<div class="h-4px w-100 bg-light mb-5" data-bs-toggle="tooltip" title="This project 50% completed">
+														<div class="bg-primary rounded h-4px" role="progressbar" style="width: 50%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+													</div>
+													<div class="symbol-group symbol-hover">
+														<div class="symbol symbol-35px symbol-circle" data-bs-toggle="tooltip" title="Emma Smith">
+															<img alt="Pic" src="assets/media/avatars/300-6.jpg" />
+														</div>
+														<div class="symbol symbol-35px symbol-circle" data-bs-toggle="tooltip" title="Rudy Stone">
+															<img alt="Pic" src="assets/media/avatars/300-1.jpg" />
+														</div>
+														<div class="symbol symbol-35px symbol-circle" data-bs-toggle="tooltip" title="Susan Redwood">
+															<span class="symbol-label bg-primary text-inverse-primary fw-bold">S</span>
+														</div>
+													</div>
+												</div>
+											</a>
+										</div>
+										<div class="col-md-6 col-xl-4">
+											<a href="#" class="card border-hover-primary">
+												<div class="card-header border-0 pt-9">
+													<div class="card-title m-0">
+														<div class="symbol symbol-50px w-50px bg-light">
+															<img src="assets/media/svg/brand-logos/disqus.svg" alt="image" class="p-3" />
+														</div>
+													</div>
+													<div class="card-toolbar">
+														<span class="badge badge-light fw-bold me-auto px-4 py-3">Pending</span>
+													</div>
+												</div>
+												<div class="card-body p-9">
+													<div class="fs-3 fw-bold text-dark">Leaf CRM</div>
+													<p class="text-gray-400 fw-semibold fs-5 mt-1 mb-7">CRM App application to HR efficiency</p>
+													<div class="d-flex flex-wrap mb-5">
+														<div class="border border-gray-300 border-dashed rounded min-w-125px py-3 px-4 me-7 mb-3">
+															<div class="fs-6 text-gray-800 fw-bold">May 10, 2021</div>
+															<div class="fw-semibold text-gray-400">Due Date</div>
+														</div>
+														<div class="border border-gray-300 border-dashed rounded min-w-125px py-3 px-4 mb-3">
+															<div class="fs-6 text-gray-800 fw-bold">$36,400.00</div>
+															<div class="fw-semibold text-gray-400">Budget</div>
+														</div>
+													</div>
+													<div class="h-4px w-100 bg-light mb-5" data-bs-toggle="tooltip" title="This project 30% completed">
+														<div class="bg-info rounded h-4px" role="progressbar" style="width: 30%" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100"></div>
+													</div>
+													<div class="symbol-group symbol-hover">
+														<div class="symbol symbol-35px symbol-circle" data-bs-toggle="tooltip" title="Alan Warden">
+															<span class="symbol-label bg-warning text-inverse-warning fw-bold">A</span>
+														</div>
+														<div class="symbol symbol-35px symbol-circle" data-bs-toggle="tooltip" title="Brian Cox">
+															<img alt="Pic" src="assets/media/avatars/300-5.jpg" />
+														</div>
+													</div>
+												</div>
+											</a>
+										</div>
+										<div class="col-md-6 col-xl-4">
+											<a href="#" class="card border-hover-primary">
+												<div class="card-header border-0 pt-9">
+													<div class="card-title m-0">
+														<div class="symbol symbol-50px w-50px bg-light">
+															<img src="assets/media/svg/brand-logos/figma-1.svg" alt="image" class="p-3" />
+														</div>
+													</div>
+													<div class="card-toolbar">
+														<span class="badge badge-light-success fw-bold me-auto px-4 py-3">Completed</span>
+													</div>
+												</div>
+												<div class="card-body p-9">
+													<div class="fs-3 fw-bold text-dark">Atica Banking</div>
+													<p class="text-gray-400 fw-semibold fs-5 mt-1 mb-7">CRM App application to HR efficiency</p>
+													<div class="d-flex flex-wrap mb-5">
+														<div class="border border-gray-300 border-dashed rounded min-w-125px py-3 px-4 me-7 mb-3">
+															<div class="fs-6 text-gray-800 fw-bold">Mar 14, 2021</div>
+															<div class="fw-semibold text-gray-400">Due Date</div>
+														</div>
+														<div class="border border-gray-300 border-dashed rounded min-w-125px py-3 px-4 mb-3">
+															<div class="fs-6 text-gray-800 fw-bold">$605,100.00</div>
+															<div class="fw-semibold text-gray-400">Budget</div>
+														</div>
+													</div>
+													<div class="h-4px w-100 bg-light mb-5" data-bs-toggle="tooltip" title="This project 100% completed">
+														<div class="bg-success rounded h-4px" role="progressbar" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+													</div>
+													<div class="symbol-group symbol-hover">
+														<div class="symbol symbol-35px symbol-circle" data-bs-toggle="tooltip" title="Mad Macy">
+															<img alt="Pic" src="assets/media/avatars/300-2.jpg" />
+														</div>
+														<div class="symbol symbol-35px symbol-circle" data-bs-toggle="tooltip" title="Cris Willson">
+															<img alt="Pic" src="assets/media/avatars/300-9.jpg" />
+														</div>
+														<div class="symbol symbol-35px symbol-circle" data-bs-toggle="tooltip" title="Mike Garcie">
+															<span class="symbol-label bg-info text-inverse-info fw-bold">M</span>
+														</div>
+													</div>
+												</div>
+											</a>
+										</div>
+										
+										
+										<div class="col-md-6 col-xl-4">
+											<a href="#" class="card border-hover-primary">
+												<div class="card-header border-0 pt-9">
+													<!--begin::Card Title-->
+													<div class="card-title m-0">
+														<!--begin::Avatar-->
+														<div class="symbol symbol-50px w-50px bg-light">
+															<img src="assets/media/svg/brand-logos/treva.svg" alt="image" class="p-3" />
+														</div>
+														<!--end::Avatar-->
+													</div>
+													<!--end::Car Title-->
+													<!--begin::Card toolbar-->
+													<div class="card-toolbar">
+														<span class="badge badge-light-danger fw-bold me-auto px-4 py-3">Overdue</span>
+													</div>
+													<!--end::Card toolbar-->
+												</div>
+												<div class="card-body p-9">
+													<div class="fs-3 fw-bold text-dark">Aviasales App</div>
+													<p class="text-gray-400 fw-semibold fs-5 mt-1 mb-7">CRM App application to HR efficiency</p>
+													<div class="d-flex flex-wrap mb-5">
+														<div class="border border-gray-300 border-dashed rounded min-w-125px py-3 px-4 me-7 mb-3">
+															<div class="fs-6 text-gray-800 fw-bold">Jun 20, 2023</div>
+															<div class="fw-semibold text-gray-400">Due Date</div>
+														</div>
+														<div class="border border-gray-300 border-dashed rounded min-w-125px py-3 px-4 mb-3">
+															<div class="fs-6 text-gray-800 fw-bold">$284,900.00</div>
+															<div class="fw-semibold text-gray-400">Budget</div>
+														</div>
+													</div>
+													<div class="h-4px w-100 bg-light mb-5" data-bs-toggle="tooltip" title="This project 10% completed">
+														<div class="bg-danger rounded h-4px" role="progressbar" style="width: 10%" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100"></div>
+													</div>
+													<div class="symbol-group symbol-hover">
+														<div class="symbol symbol-35px symbol-circle" data-bs-toggle="tooltip" title="Alan Warden">
+															<span class="symbol-label bg-warning text-inverse-warning fw-bold">A</span>
+														</div>
+														<div class="symbol symbol-35px symbol-circle" data-bs-toggle="tooltip" title="Brian Cox">
+															<img alt="Pic" src="assets/media/avatars/300-5.jpg" />
+														</div>
+													</div>
+												</div>
+											</a>
+										</div>
+										
+									</div>
+									<div class="d-flex flex-stack flex-wrap pt-10">
+										<div class="fs-6 fw-semibold text-gray-700">Showing 1 to 10 of 50 entries</div>
+										<ul class="pagination">
+											<li class="page-item previous">
+												<a href="#" class="page-link">
+													<i class="previous"></i>
+												</a>
+											</li>
+											<li class="page-item active">
+												<a href="#" class="page-link">1</a>
+											</li>
+											<li class="page-item">
+												<a href="#" class="page-link">2</a>
+											</li>
+											<li class="page-item">
+												<a href="#" class="page-link">3</a>
+											</li>
+											<li class="page-item">
+												<a href="#" class="page-link">4</a>
+											</li>
+											<li class="page-item">
+												<a href="#" class="page-link">5</a>
+											</li>
+											<li class="page-item">
+												<a href="#" class="page-link">6</a>
+											</li>
+											<li class="page-item next">
+												<a href="#" class="page-link">
+													<i class="next"></i>
+												</a>
+											</li>
+										</ul>
+									</div>			
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>	
+		</div>
+		
+			</div>
+		</div>
+ 
+    </body>
+
+     <script src="{% static 'dashboard/vendors/@popperjs/popper.min.js' %}"></script>
+      <script src="{% static 'dashboard/vendors/base/vendor.bundle.base.js' %}"></script>
+
+    <script src="{% static 'dashboard/js/template.js' %}"></script>
+
+    <script src="{% static 'dashboard/vendors/chart.js/Chart.min.js' %}"></script>
+    <script src="{% static 'dashboard/vendors/progressbar.js/progressbar.min.js' %}"></script>
+		<script src="{% static 'dashboard/vendors/chartjs-plugin-datalabels/chartjs-plugin-datalabels.js' %}"></script>
+		<script src="{% static 'dashboard/vendors/justgage/raphael-2.1.4.min.js' %}"></script>
+		<script src="{% static 'dashboard/vendors/justgage/justgage.js' %}"></script>
+    <script src="{% static 'dashboard/js/jquery.cookie.js' %}" type="text/javascript"></script>
+    <!-- Custom js for this page-->
+    <script src="{% static 'dashboard/js/dashboard.js' %}"></script> 
+		<script>var hostUrl = "{% static 'core/assets/ ' %}";</script>
+		<script src="{% static 'core/assets/plugins/global/plugins.bundle.js' %}"></script>
+		<script src="{% static 'core/assets/js/scripts.bundle.js' %}"></script>
+		<script src="{% static 'core/assets/plugins/custom/datatables/datatables.bundle.js' %}"></script>
+		<script src="{% static 'core/assets/js/custom/account/settings/signin-methods.js' %}"></script>
+		<script src="{% static 'core/assets/js/custom/account/settings/profile-details.js' %}"></script>
+		<script src="{% static 'core/assets/js/custom/account/settings/deactivate-account.js' %}"></script>
+		<script src="{% static 'core/assets/js/custom/pages/user-profile/general.js' %}"></script>
+		<script src="{% static 'core/assets/js/widgets.bundle.js' %}"></script>
+	</body>
+</html>

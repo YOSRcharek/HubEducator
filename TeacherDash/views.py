@@ -136,3 +136,8 @@ def courses(request):
     page_obj = paginator.get_page(page_number)
 
     return render(request, 'courses/courses.html', {'page_obj': page_obj})
+
+
+@login_required
+def add_courses(request):
+    return render(request, 'courses/addCourses.html', {})

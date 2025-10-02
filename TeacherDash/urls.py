@@ -12,5 +12,6 @@ urlpatterns = [
 
 
     path('courses/', views.courses, name='courses'),
+    path('courses/add/', views.add_courses, name='add_courses'),
 
 ]
