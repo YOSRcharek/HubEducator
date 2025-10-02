@@ -1,5 +1,5 @@
 #!/bin/bash
-
+pip uninstall whitenoise -y
 # Install dependencies
 pip install -r requirements.txt
 # Apply migrations
