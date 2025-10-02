@@ -71,7 +71,9 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'HubEducator.wsgi.application'
 
-
+CSRF_TRUSTED_ORIGINS = [
+    "https://hubeducator-production.up.railway.app"
+]
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
@@ -145,3 +147,4 @@ print("DB_HOST:", os.getenv("DB_HOST"))
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "static")  
+
