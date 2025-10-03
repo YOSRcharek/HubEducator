@@ -1,0 +1,70 @@
+{% extends 'baseF.html' %}
+{% load static %}
+
+{% block title %}Verify Email{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center align-items-center">
+    
+    <!-- Image Section -->
+    <div class="col-md-6 col-lg-5 mb-5 text-center">
+      <img src="{% static 'website/img/gallery/cta.png' %}" width="300" alt="verify" />
+    </div>
+
+    <!-- Form Section -->
+    <div class="col-md-6 col-lg-5">
+      <h5 class="text-primary font-sans-serif fw-bold">Almost There!</h5>
+      <h1 class="mb-4">Verify Your Email</h1>
+      <p class="mb-4">Please enter the 6-digit code sent to your email address.</p>
+
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+
+      <!-- Verification Form -->
+      <form method="POST" action="{% url 'verify_code' %}" class="mb-4" id="verifyForm">
+        {% csrf_token %}
+        <div class="d-flex justify-content-between mb-3">
+          {% for i in "123456" %}
+          <input type="text" name="code{{ forloop.counter }}" maxlength="1" class="form-control text-center verify-input" style="width: 50px; font-size: 24px;" required>
+          {% endfor %}
+        </div>
+
+        <input type="hidden" name="code" id="hiddenCode">
+
+        <button class="btn btn-primary w-100 mb-3" type="submit">Verify</button>
+        <p class="text-center">Didn't receive the code? 
+          <a href="{% url 'resend_code' %}">Resend</a>
+        </p>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Automatically move focus to next input
+  const inputs = document.querySelectorAll(".verify-input");
+  inputs.forEach((input, index) => {
+    input.addEventListener("input", () => {
+      if (input.value.length === 1 && index < inputs.length - 1) {
+        inputs[index + 1].focus();
+      }
+    });
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Backspace" && input.value === "" && index > 0) {
+        inputs[index - 1].focus();
+      }
+    });
+  });
+
+  // On form submit, combine all inputs into hidden field
+  document.getElementById("verifyForm").addEventListener("submit", (e) => {
+    let code = "";
+    inputs.forEach(input => code += input.value);
+    document.getElementById("hiddenCode").value = code;
+  });
+</script>
+{% endblock %}

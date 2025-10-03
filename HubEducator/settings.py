@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'website',
     'dashboard',
     'TeacherDash',
+    'widget_tweaks',
 ]
 
 MIDDLEWARE = [
@@ -56,7 +57,7 @@ ROOT_URLCONF = 'HubEducator.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+         'DIRS': [BASE_DIR / 'website' / 'templates'],  # <-- ton dossier templates
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -158,4 +159,12 @@ STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")  # must be different from ST
 # WhiteNoise for serving static files in production
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'  # or your SMTP server
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'classyy2023@gmail.com'
+EMAIL_HOST_PASSWORD = 'sqobpmxusgwjheys'
+DEFAULT_FROM_EMAIL = 'HubEducator HubEducator@gmail.com'
 
