@@ -10,10 +10,12 @@ class User(AbstractUser):
         ('teacher', 'Teacher'),
         ('admin', 'Admin'),
     )
+    phone = models.CharField(max_length=20, blank=True, null=True)  # phone number
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='student')
     profile_picture = models.ImageField(upload_to='profiles/', null=True, blank=True)
     email_verified = models.BooleanField(default=False)
     verification_code = models.CharField(max_length=6, blank=True, null=True)
+  
     def __str__(self):
         return self.username
 

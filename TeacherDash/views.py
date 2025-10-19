@@ -111,12 +111,6 @@ def student_detail(request, user_id):
         'courses': courses
     })
 
-# --------------------------
-# Profile view
-# --------------------------
-@login_required
-def profil(request):
-    return render(request, 'profil.html', {})
 
 
 #---------------
@@ -141,3 +135,4 @@ def courses(request):
 @login_required
 def add_courses(request):
     return render(request, 'courses/addCourses.html', {})
+

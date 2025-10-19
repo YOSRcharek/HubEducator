@@ -4,18 +4,23 @@ from django.urls import path
 from . import views
 from django.contrib.auth import views as auth_views
 from django.contrib.auth import views as auth_views
-
+from django.urls import path
+from .views import google_callback
+from core import views as core_views
 urlpatterns = [
     path('', views.home, name='home'),
     path('login/', views.login_view, name='login'),
     path('register/', views.register, name='register'),
     path('logout/', views.logout_view, name='logout'),
+    path('profil/', core_views.profil, name='profil'),
     path('pricing/', views.pricing, name='pricing'),
     path('web-development/', views.web_development, name='web-development'),
     path('course-details/', views.courseDetails, name='courseDetails'),
     path('user-research/', views.user_research, name='user-research'),
     path("verify-code/", views.verify_code_view, name="verify_code"),
     path('resend-code/', views.resend_code_view, name='resend_code'),
+    path('auth/google/callback/', views.google_callback, name='google_callback'),
+
 
     #***********************************************************#
     #****************ResetPassword***********************#

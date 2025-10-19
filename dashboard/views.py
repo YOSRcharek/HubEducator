@@ -5,7 +5,9 @@ from .forms import AddUserForm, EditUserForm, EditUserForm
 from core.models import User
 from django.contrib import messages
 from django.core.paginator import Paginator
-
+from django.contrib import messages
+from core.forms import ProfileUpdateForm
+from django.contrib.auth import get_user_model
 @login_required
 def dashboard(request):
     if request.user.role not in ['admin']:
@@ -66,6 +68,5 @@ def delete_user(request, user_id):
     messages.success(request, "User deleted successfully!")
     return redirect('users')  
 
-@login_required
-def profil(request):
-    return render(request, 'profil.html', {})
+
+

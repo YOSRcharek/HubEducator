@@ -1,9 +1,9 @@
 from django.urls import path
 from . import views
-
+from core import views as core_views
 urlpatterns = [
     path('', views.TeacherDash, name='teacherDash'),
-    path('profil/', views.profil, name='profil'),
+   path('profil/', core_views.profil, name='profil'),
     path('students/', views.students, name='students'),
     path('students/add/', views.add_student, name='add_student'),  # corrigé
     path('students/edit/<int:user_id>/', views.edit_student, name='edit_student'),  # corrigé

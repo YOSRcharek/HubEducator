@@ -11,6 +11,7 @@ from django.utils.encoding import force_bytes
 from django.contrib.auth.tokens import default_token_generator
 from django import forms
 from django.utils.crypto import get_random_string
+import requests
 
 User = get_user_model()  # Always use custom user
 
@@ -68,7 +69,7 @@ def register(request):
             user = form.save(commit=False)
             user.set_password(form.cleaned_data["password1"])
             user.save()
-            request.session['user_id'] = user.id  # Save user id in session
+            
 
             # Send verification code
             send_verification_code(user)
@@ -186,3 +187,49 @@ def custom_password_reset(request):
         form = PasswordResetForm()
 
     return render(request, 'ResetPassword/password_reset.html', {'form': form})
+
+
+# views.py
+import requests
+from django.shortcuts import redirect
+from django.contrib.auth import get_user_model, login
+
+User = get_user_model()
+
+def google_callback(request):
+    code = request.GET.get('code')
+    if not code:
+        return redirect('/')  # Or some error page
+
+    # Exchange the code for an access token
+    token_req = requests.post(
+        'https://oauth2.googleapis.com/token',
+        data={
+            'code': code,
+            'client_id': settings.GOOGLE_CLIENT_ID,
+            'client_secret': settings.GOOGLE_CLIENT_SECRET,
+            'redirect_uri': settings.GOOGLE_REDIRECT_URI,
+            'grant_type': 'authorization_code',
+        }
+        
+    )
+    token_data = token_req.json()
+    access_token = token_data.get('access_token')
+
+    # Get user info
+    user_req = requests.get(
+        'https://www.googleapis.com/oauth2/v1/userinfo',
+        params={'access_token': access_token}
+    )
+    user_data = user_req.json()
+
+    # Create or get user
+    user, created = User.objects.get_or_create(email=user_data['email'])
+    if created:
+        user.username = user_data.get('name', user_data['email'])
+        user.save()
+
+    # Log the user in
+    login(request, user)
+
+    return redirect('/')  # Redirect to homepage after login

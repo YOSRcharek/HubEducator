@@ -10,6 +10,7 @@ urlpatterns = [
     path('dashboard/', include('dashboard.urls')),
     path('teacherDash/', include('TeacherDash.urls')),
     path('core/', include('core.urls')),
+    path('accounts/', include('allauth.urls')),  # routes pour login Go
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

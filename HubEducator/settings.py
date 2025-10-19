@@ -2,6 +2,9 @@
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+from decouple import config
+
+
 
 # Charger le fichier .env
 
@@ -34,6 +37,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',  # nécessaire pour allauth
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',  # pour Google
     'core', 
     'website',
     'dashboard',
@@ -50,6 +58,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     "whitenoise.middleware.WhiteNoiseMiddleware",
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = 'HubEducator.urls'
@@ -159,16 +168,33 @@ STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")  # must be different from ST
 # WhiteNoise for serving static files in production
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
-DEBUG = os.getenv("DEBUG", "True") == "True"
 
-if DEBUG:
-    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-else:
-    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-    EMAIL_HOST = os.getenv("EMAIL_HOST", "smtp.gmail.com")
-    EMAIL_PORT = int(os.getenv("EMAIL_PORT", 587))
-    EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "True") == "True"
-    EMAIL_USE_SSL = os.getenv("EMAIL_USE_SSL", "False") == "True"
-    EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
-    EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
-    DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", EMAIL_HOST_USER)
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'  # or your SMTP server
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'classyy2023@gmail.com'
+EMAIL_HOST_PASSWORD = 'sqobpmxusgwjheys'
+DEFAULT_FROM_EMAIL = 'HubEducator HubEducator@gmail.com'
+
+SITE_ID = 1
+
+# Redirect après login
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
+# Automatically redirect to the provider login
+SOCIALACCOUNT_AUTO_SIGNUP = True
+
+
+# Pour utiliser email comme identifiant
+ACCOUNT_AUTHENTICATION_METHOD = "email"
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_EMAIL_VERIFICATION = "optional"
+
+
+GOOGLE_CLIENT_ID = config("GOOGLE_CLIENT_ID")
+GOOGLE_CLIENT_SECRET = config("GOOGLE_CLIENT_SECRET")
+GOOGLE_REDIRECT_URI = config("GOOGLE_REDIRECT_URI")

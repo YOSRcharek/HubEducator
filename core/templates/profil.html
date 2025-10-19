@@ -11,6 +11,7 @@
     
         <link rel="stylesheet" href="{% static 'dashboard/vendors/mdi/css/materialdesignicons.min.css' %}">
         <link rel="stylesheet" href="{% static 'dashboard/vendors/base/vendor.bundle.base.css' %}">
+       <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
         <link rel="stylesheet" href="{% static 'dashboard/css/style.css' %}">
 		<meta name="description" content="Axel admin core live demo. Check out all the features of the admin panel. A large number of settings, additional services and widgets." />
@@ -20,11 +21,193 @@
 		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700" />
 		<link href="{% static 'core/assets/plugins/global/plugins.bundle.css' %}" rel="stylesheet" type="text/css" />
 		<link href="{% static 'core/assets/css/style.bundle.css' %}" rel="stylesheet" type="text/css" />
-    
+        
+{% if request.user.role == "student" %}
+
+    <link href="{% static 'website/css/studentThemeProfil.css' %}" rel="stylesheet" />
+      <script src="{% static 'website/vendors/@popperjs/popper.min.js' %}"></script>
+    <script src="{% static 'website/vendors/bootstrap/bootstrap.min.js' %}"></script>
+    <script src="{% static 'website/vendors/is/is.min.js' %}"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=window.scroll"></script>
+    <script src="{% static 'website/vendors/fontawesome/all.min.js' %}"></script>
+    <script src="{% static 'website/js/theme.js' %}"></script>
+
+{% endif %}
+
+
+
   </head>
 
+ {% if request.user.role == "admin" %}
     {% include 'includes/navbar.html' %}
-	<body id="kt_body" data-kt-app-header-stacked="true" data-kt-app-header-primary-enabled="true" data-kt-app-header-secondary-enabled="true" data-kt-app-toolbar-enabled="true" class="app-default">
+{% elif request.user.role == "teacher" %}
+    {% include 'includes/navbarTeach.html' %}
+{% elif request.user.role == "student" %}
+   {% load static %}
+    <style>
+			/* Navbar de base */
+		/* Navbar de base */
+		.navbar {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 12px 24px;
+		background-color: #fff;
+		position: sticky;
+		top: 0;
+		z-index: 1000;
+		}
+
+		/* Navigation */
+		.navbar-nav {
+		list-style: none;
+		display: flex;
+		gap: 20px;
+		margin: 0;
+		padding: 0;
+		}
+
+		/* Responsive : menu en colonne sur mobile */
+		@media (max-width: 768px) {
+		.navbar {
+			flex-wrap: wrap;
+		}
+		.navbar-nav {
+			flex-direction: column;
+			width: 100%;
+			margin-top: 10px;
+		}
+		}
+
+		/* Style des liens de la navbar */
+		.navbar .nav-link {
+		font-family: "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+		font-weight:400;
+		font-size: medium;
+		color: #BDBDBD;
+		text-decoration: none;
+		transition: color 0.3s ease;
+		display: block;
+		padding: 0.5rem 1rem;
+		}
+
+		/* Hover et lien actif */
+		.navbar .nav-link:hover,
+		.navbar .nav-link:focus,
+		.navbar .nav-link.active {
+		color: #FDC800 !important; /* couleur primaire */
+		text-decoration: none;
+		}
+
+		/* Lien désactivé */
+		.navbar .nav-link.disabled {
+		color: #F0F4F9;
+		pointer-events: none;
+		cursor: default;
+		}
+
+		/* Réduire les animations si préférence utilisateur */
+		@media (prefers-reduced-motion: reduce) {
+		.navbar .nav-link {
+			transition: none;
+		}
+		}
+
+    </style>
+      <!-- ============================================-->
+      <!-- <section> begin ============================-->
+      <section class="bg-primary py-2 d-none d-sm-block">
+
+        <div class="container">
+          <div class="row align-items-center">
+            <div class="col-auto d-none d-lg-block">
+              <p class="my-2 fs--1"><i class="fas fa-map-marker-alt me-3"></i><span>1600 Amphitheatre Parkway, CA 94043 </span></p>
+            </div>
+            <div class="col-auto ms-md-auto order-md-2 d-none d-sm-block">
+              <ul class="list-unstyled list-inline my-2">
+                <li class="list-inline-item"><a class="text-decoration-none" href="#!"><i class="fab fa-facebook-f text-900"></i></a></li>
+                <li class="list-inline-item"><a class="text-decoration-none" href="#!"><i class="fab fa-pinterest text-900"></i></a></li>
+                <li class="list-inline-item"><a class="text-decoration-none" href="#!"><i class="fab fa-twitter text-900"></i></a></li>
+                <li class="list-inline-item"><a class="text-decoration-none" href="#!"><i class="fab fa-instagram text-900"> </i></a></li>
+              </ul>
+            </div>
+            <div class="col-auto">
+              <p class="my-2 fs--1"><i class="fas fa-envelope me-3"></i><a class="text-900" href="mailto:vctung@outlook.com">vctung@outlook.com </a></p>
+            </div>
+          </div>
+        </div>
+        <!-- end of .container-->
+
+      </section>
+      <!-- <section> close ============================-->
+      <!-- ============================================-->
+
+
+      <nav class="navbar navbar-expand-lg navbar-light sticky-top py-3 d-block" style="background-color: #fff;" data-navbar-on-scroll="data-navbar-on-scroll">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'home' %}">
+            <img src="{% static 'website/img/gallery/logo-n.png' %}" height="45" alt="logo" /></a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"> </span></button>
+          <div class="collapse navbar-collapse border-top border-lg-0 mt-4 mt-lg-0" id="navbarSupportedContent">
+            <ul class="navbar-nav ms-auto pt-2 pt-lg-0 font-base">
+              <li class="nav-item px-2"><a class="nav-link active" aria-current="page" href="{% url 'home' %}">Home</a></li>
+              <li class="nav-item px-2"><a class="nav-link" aria-current="page" href="{% url 'pricing' %}">Pricing</a></li>
+              <li class="nav-item px-2"><a class="nav-link" aria-current="page" href="{% url 'web-development' %}">Web Development</a></li>
+              <li class="nav-item px-2"><a class="nav-link" aria-current="page" href="{% url 'user-research' %}">User Research</a></li>
+            </ul>
+            {% if user.is_authenticated %}
+              <div class="user-dropdown" style="position: relative; display: inline-block;">
+              <!-- Dropdown button -->
+                <button class="dropdown-btn" style="background: none; border: none; cursor: pointer; display: flex; align-items: center;">
+                <img src="{% static 'core/assets/media/avatars/default-user-image2.png' %}"  alt="User Icon" style="width: 30px; height: 30px; border-radius: 50%; margin-right: 8px;">
+                    <span>{{ user.username }}</span>
+                </button>
+
+                <!-- Dropdown content -->
+                <div class="dropdown-content" style="display: none; position: absolute; background-color: #fff; min-width: 120px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-radius: 5px; z-index: 1000;">
+                    <a href="{% url 'profil' %}" style="display: block; padding: 8px 12px; text-decoration: none; color: #333;">Profil</a>
+                    <a href="{% url 'logout' %}" style="display: block; padding: 8px 12px; text-decoration: none; color: #333;">Logout</a>
+                </div>
+              </div>
+          {% else %}
+            <a class="btn btn-primary order-1 order-lg-0"href="{% url 'login' %}">Sign In</a>
+          {% endif %}
+
+            <form class="d-flex my-3 d-block d-lg-none">
+              <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" />
+              <button class="btn btn-outline-primary" type="submit">Search</button>
+            </form>
+            <div class="dropdown d-none d-lg-block">
+              <button class="btn btn-outline-light ms-2" id="dropdownMenuButton1" type="submit" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-search text-800"></i></button>
+              <ul class="dropdown-menu dropdown-menu-lg-end" aria-labelledby="dropdownMenuButton1" style="top:55px">
+                <form>
+                  <input class="form-control" type="search" placeholder="Search" aria-label="Search" />
+                </form>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+
+ <script>
+    const dropdownBtn = document.querySelector('.dropdown-btn');
+    const dropdownContent = document.querySelector('.dropdown-content');
+
+    dropdownBtn.addEventListener('click', function() {
+        dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
+    });
+
+    // Close dropdown if clicked outside
+    window.addEventListener('click', function(e) {
+        if (!dropdownBtn.contains(e.target)) {
+            dropdownContent.style.display = 'none';
+        }
+    });
+</script>
+{% endif %}
+
+	<body id="kt_body" style="background-color: #F4F4F4;" data-kt-app-header-stacked="true" data-kt-app-header-primary-enabled="true" data-kt-app-header-secondary-enabled="true" data-kt-app-toolbar-enabled="true" class="app-default">
 				<div class="app-wrapper flex-column flex-row-fluid" id="kt_app_wrapper">
 					<div class="app-container container-xxl d-flex flex-row flex-column-fluid">
 						<div class="app-main flex-column flex-row-fluid" id="kt_app_main">
@@ -45,7 +228,11 @@
 									        <div class="d-flex flex-wrap flex-sm-nowrap mb-3">
 												<div class="me-7 mb-4">
 													<div class="symbol symbol-100px symbol-lg-160px symbol-fixed position-relative">
-														<img src="{% static 'core/assets/media/avatars/300-1.jpg' %}" alt="image" />
+														    {% if user.profile_picture %}
+																<img src="{{ user.profile_picture.url }}" 	alt="{{ user.username }}" />
+															{% else %}
+															<img src="{% static 'core/assets/media/avatars/default-user-image2.png' %}" alt="image" />
+															{% endif %}
 														<div class="position-absolute translate-middle bottom-0 start-100 mb-6 bg-success rounded-circle border border-4 border-body h-20px w-20px"></div>
 													</div>
 												</div>
@@ -53,7 +240,7 @@
 													<div class="d-flex justify-content-between align-items-start flex-wrap mb-2">
 														<div class="d-flex flex-column">
 															<div class="d-flex align-items-center mb-2">
-																<a href="#" class="text-gray-900 text-hover-primary fs-2 fw-bold me-1">Max Smith</a>
+																<a href="#" class="text-gray-900 text-hover-primary fs-2 fw-bold me-1">{{ user.username }}</a>
 																<a href="#">
 																	<i class="ki-duotone ki-verify fs-1 text-primary">
 																		<span class="path1"></span>
@@ -68,17 +255,15 @@
 																	<span class="path1"></span>
 																	<span class="path2"></span>
 																	<span class="path3"></span>
-																</i>Developer</a>
+																</i>{{ user.role }}</a>
 																<a href="#" class="d-flex align-items-center text-gray-400 text-hover-primary me-5 mb-2">
-																<i class="ki-duotone ki-geolocation fs-4 me-1">
-																	<span class="path1"></span>
-																	<span class="path2"></span>
-																</i>SF, Bay Area</a>
+																
+															
 																<a href="#" class="d-flex align-items-center text-gray-400 text-hover-primary mb-2">
 																<i class="ki-duotone ki-sms fs-4 me-1">
 																	<span class="path1"></span>
 																	<span class="path2"></span>
-																</i>max@kt.com</a>
+																</i>{{ user.email }}</a>
 															</div>
 														</div>
 														<div class="d-flex my-4">
@@ -112,7 +297,7 @@
 																		</i>
 																		<div class="fs-2 fw-bold" data-kt-countup="true" data-kt-countup-value="75">0</div>
 																	</div>
-																	<div class="fw-semibold fs-6 text-gray-400">Projects</div>
+																	<div class="fw-semibold fs-6 text-gray-400">Courses</div>
 																</div>
 																<div class="border border-gray-300 border-dashed rounded min-w-125px py-3 px-4 me-6 mb-3">
 																	<div class="d-flex align-items-center">
@@ -138,15 +323,7 @@
 													</div>
 												</div>
 											</div>
-											<ul class="nav nav-stretch nav-line-tabs nav-line-tabs-2x border-transparent fs-5 fw-bold">
-												<li class="nav-item mt-2">
-													<a class="nav-link text-active-primary ms-0 me-10 py-5" href="../dist/account/overview.html">Overview</a>
-												</li>
-												<li class="nav-item mt-2">
-													<a class="nav-link text-active-primary ms-0 me-10 py-5 active" href="../dist/account/settings.html">Settings</a>
-												</li>
-												
-											</ul>
+											
 										</div>
 									</div>
 								
@@ -157,28 +334,50 @@
 											</div>
 										</div>
 										<div id="kt_account_settings_profile_details" class="collapse show">
-											<form id="kt_account_profile_details_form" class="form">
-												<div class="card-body border-top p-9">
+										<form method="post" enctype="multipart/form-data">
+												{% csrf_token %}
+										
+												{{ form.non_field_errors }}
+											<div class="card-body border-top p-9">
 													<div class="row mb-6">
 														<label class="col-lg-4 col-form-label fw-semibold fs-6">Avatar</label>
 														<div class="col-lg-8">
-															<div class="image-input image-input-outline" data-kt-image-input="true" style="background-image: url('{% static 'core/assets/media/svg/avatars/blank.svg' %}')">
-																<div class="image-input-wrapper w-125px h-125px" style="background-image: url({% static 'core/assets/media/avatars/300-1.jpg' %})"></div>
-																<label class="btn btn-icon btn-circle btn-active-color-primary w-25px h-25px bg-body shadow" data-kt-image-input-action="change" data-bs-toggle="tooltip" title="Change avatar">
+															<div class="image-input image-input-outline" data-kt-image-input="true"
+																style="background-image: url('{% static 'core/assets/media/svg/avatars/blank.svg' %}')">
+
+																<!-- Image preview -->
+																<div class="image-input-wrapper w-125px h-125px"
+																	style="background-image: url(
+																		{% if user.profile_picture %}
+																			{{ user.profile_picture.url }}
+																		{% else %}
+																			{% static 'core/assets/media/avatars/default-user-image2.png' %}
+																		{% endif %}
+																	)"></div>
+
+																<!-- Change avatar -->
+																<label class="btn btn-icon btn-circle btn-active-color-primary w-25px h-25px bg-body shadow"
+																	data-kt-image-input-action="change" data-bs-toggle="tooltip" title="Change avatar">
 																	<i class="ki-duotone ki-pencil fs-7">
 																		<span class="path1"></span>
 																		<span class="path2"></span>
 																	</i>
-																	<input type="file" name="avatar" accept=".png, .jpg, .jpeg" />
+																	<input type="file" name="profile_picture" accept=".png, .jpg, .jpeg" />
 																	<input type="hidden" name="avatar_remove" />
 																</label>
-																<span class="btn btn-icon btn-circle btn-active-color-primary w-25px h-25px bg-body shadow" data-kt-image-input-action="cancel" data-bs-toggle="tooltip" title="Cancel avatar">
+
+																<!-- Cancel -->
+																<span class="btn btn-icon btn-circle btn-active-color-primary w-25px h-25px bg-body shadow"
+																	data-kt-image-input-action="cancel" data-bs-toggle="tooltip" title="Cancel avatar">
 																	<i class="ki-duotone ki-cross fs-2">
 																		<span class="path1"></span>
 																		<span class="path2"></span>
 																	</i>
 																</span>
-																<span class="btn btn-icon btn-circle btn-active-color-primary w-25px h-25px bg-body shadow" data-kt-image-input-action="remove" data-bs-toggle="tooltip" title="Remove avatar">
+
+																<!-- Remove -->
+																<span class="btn btn-icon btn-circle btn-active-color-primary w-25px h-25px bg-body shadow"
+																	data-kt-image-input-action="remove" data-bs-toggle="tooltip" title="Remove avatar">
 																	<i class="ki-duotone ki-cross fs-2">
 																		<span class="path1"></span>
 																		<span class="path2"></span>
@@ -188,18 +387,20 @@
 															<div class="form-text">Allowed file types: png, jpg, jpeg.</div>
 														</div>
 													</div>
+
+											
+													<!-- Username -->
 													<div class="row mb-6">
-														<label class="col-lg-4 col-form-label required fw-semibold fs-6">Full Name</label>
-														<div class="col-lg-8">
-															<div class="row">
-																<div class="col-lg-6 fv-row">
-																	<input type="text" name="fname" class="form-control form-control-lg form-control-solid mb-3 mb-lg-0" placeholder="First name" value="Max" />
-																</div>
-																
-															</div>
+														<label class="col-lg-4 col-form-label required fw-semibold fs-6">Username</label>
+														<div class="col-lg-8 fv-row">
+															<input type="text" name="username"
+																class="form-control form-control-lg form-control-solid mb-3 mb-lg-0"
+																placeholder="Username"
+																value="{{ user.username }}" required />
 														</div>
 													</div>
-													
+
+														<!-- Phone -->
 													<div class="row mb-6">
 														<label class="col-lg-4 col-form-label fw-semibold fs-6">
 															<span class="required">Contact Phone</span>
@@ -212,180 +413,272 @@
 															</span>
 														</label>
 														<div class="col-lg-8 fv-row">
-															<input type="tel" name="phone" class="form-control form-control-lg form-control-solid" placeholder="Phone number" value="044 3276 454 935" />
+															<input type="tel" name="phone"
+																class="form-control form-control-lg form-control-solid"
+																placeholder="Phone number"
+																value="{{ user.phone|default_if_none:'' }}" />
 														</div>
 													</div>
-				
-													<div class="row mb-6">
-														<label class="col-lg-4 col-form-label fw-semibold fs-6">
-															<span class="required">Country</span>
-															<span class="ms-1" data-bs-toggle="tooltip" title="Country of origination">
-																<i class="ki-duotone ki-information-5 text-gray-500 fs-6">
-																	<span class="path1"></span>
-																	<span class="path2"></span>
-																	<span class="path3"></span>
-																</i>
-															</span>
-														</label>
-														<div class="col-lg-8 fv-row">
-															<select name="country" aria-label="Select a Country" data-control="select2" data-placeholder="Select a country..." class="form-select form-select-solid form-select-lg fw-semibold">
-																<option value="">Select a Country...</option>
-															
-																<option data-kt-flag="flags/tunisia.svg" value="TN">Tunisia</option>
-																
-															</select>
-														</div>
-													</div>
-													
-													
-													<div class="row mb-6">
-														<label class="col-lg-4 col-form-label required fw-semibold fs-6">Communication</label>
-														<div class="col-lg-8 fv-row">
-															<div class="d-flex align-items-center mt-3">
-																<label class="form-check form-check-custom form-check-inline form-check-solid me-5">
-																	<input class="form-check-input" name="communication[]" type="checkbox" value="1" />
-																	<span class="fw-semibold ps-2 fs-6">Email</span>
-																</label>
-																<label class="form-check form-check-custom form-check-inline form-check-solid">
-																	<input class="form-check-input" name="communication[]" type="checkbox" value="2" />
-																	<span class="fw-semibold ps-2 fs-6">Phone</span>
-																</label>
-															</div>
-														</div>
-													</div>
-													<div class="row mb-0">
-														<label class="col-lg-4 col-form-label fw-semibold fs-6">Allow Marketing</label>
-														<div class="col-lg-8 d-flex align-items-center">
-															<div class="form-check form-check-solid form-switch form-check-custom fv-row">
-																<input class="form-check-input w-45px h-30px" type="checkbox" id="allowmarketing" checked="checked" />
-																<label class="form-check-label" for="allowmarketing"></label>
-															</div>
-														</div>
-													</div>
-												</div>
-												<div class="card-footer d-flex justify-content-end py-6 px-9">
-													<button type="reset" class="btn btn-light btn-active-light-primary me-2">Discard</button>
-													<button type="submit" class="btn btn-primary" id="kt_account_profile_details_submit">Save Changes</button>
-												</div>
-											</form>
+											</div>
+										  <div class="card-footer d-flex justify-content-end py-6 px-9">
+												<button type="reset" class="btn btn-light btn-active-light-primary me-2">Discard</button>
+												<button type="submit" class="btn btn-primary" name="update_profile" id="kt_account_profile_details_submit">Save Changes</button>
+											</div>
+                                          </form>
+
 										</div>
 									</div>
-									<div class="card mb-5 mb-xl-10">
-										<div class="card-header border-0 cursor-pointer" role="button" data-bs-toggle="collapse" data-bs-target="#kt_account_signin_method">
-											<div class="card-title m-0">
-												<h3 class="fw-bold m-0">Sign-in Method</h3>
-											</div>
-										</div>
-										<div id="kt_account_settings_signin_method" class="collapse show">
-											<div class="card-body border-top p-9">
-												<div class="d-flex flex-wrap align-items-center">
-													<div id="kt_signin_email">
-														<div class="fs-6 fw-bold mb-1">Email Address</div>
-														<div class="fw-semibold text-gray-600">support@keenthemes.com</div>
-													</div>
-													<div id="kt_signin_email_edit" class="flex-row-fluid d-none">
-														<form id="kt_signin_change_email" class="form" novalidate="novalidate">
-															<div class="row mb-6">
-																<div class="col-lg-6 mb-4 mb-lg-0">
-																	<div class="fv-row mb-0">
-																		<label for="emailaddress" class="form-label fs-6 fw-bold mb-3">Enter New Email Address</label>
-																		<input type="email" class="form-control form-control-lg form-control-solid" id="emailaddress" placeholder="Email Address" name="emailaddress" value="support@keenthemes.com" />
-																	</div>
-																</div>
-																<div class="col-lg-6">
-																	<div class="fv-row mb-0">
-																		<label for="confirmemailpassword" class="form-label fs-6 fw-bold mb-3">Confirm Password</label>
-																		<input type="password" class="form-control form-control-lg form-control-solid" name="confirmemailpassword" id="confirmemailpassword" />
-																	</div>
-																</div>
-															</div>
-															<div class="d-flex">
-																<button id="kt_signin_submit" type="button" class="btn btn-primary me-2 px-6">Update Email</button>
-																<button id="kt_signin_cancel" type="button" class="btn btn-color-gray-400 btn-active-light-primary px-6">Cancel</button>
-															</div>
-														</form>
-													</div>
-													<div id="kt_signin_email_button" class="ms-auto">
-														<button class="btn btn-light btn-active-light-primary">Change Email</button>
-													</div>
-												</div>
-												<div class="separator separator-dashed my-6"></div>
-												<div class="d-flex flex-wrap align-items-center mb-10">
-													<div id="kt_signin_password">
-														<div class="fs-6 fw-bold mb-1">Password</div>
-														<div class="fw-semibold text-gray-600">************</div>
-													</div>
-													<div id="kt_signin_password_edit" class="flex-row-fluid d-none">
-														<form id="kt_signin_change_password" class="form" novalidate="novalidate">
-															<div class="row mb-1">
-																<div class="col-lg-4">
-																	<div class="fv-row mb-0">
-																		<label for="currentpassword" class="form-label fs-6 fw-bold mb-3">Current Password</label>
-																		<input type="password" class="form-control form-control-lg form-control-solid" name="currentpassword" id="currentpassword" />
-																	</div>
-																</div>
-																<div class="col-lg-4">
-																	<div class="fv-row mb-0">
-																		<label for="newpassword" class="form-label fs-6 fw-bold mb-3">New Password</label>
-																		<input type="password" class="form-control form-control-lg form-control-solid" name="newpassword" id="newpassword" />
-																	</div>
-																</div>
-																<div class="col-lg-4">
-																	<div class="fv-row mb-0">
-																		<label for="confirmpassword" class="form-label fs-6 fw-bold mb-3">Confirm New Password</label>
-																		<input type="password" class="form-control form-control-lg form-control-solid" name="confirmpassword" id="confirmpassword" />
-																	</div>
-																</div>
-															</div>
-															<div class="form-text mb-5">Password must be at least 8 character and contain symbols</div>
-															<div class="d-flex">
-																<button id="kt_password_submit" type="button" class="btn btn-primary me-2 px-6">Update Password</button>
-																<button id="kt_password_cancel" type="button" class="btn btn-color-gray-400 btn-active-light-primary px-6">Cancel</button>
-															</div>
-														</form>
-													</div>
-													<div id="kt_signin_password_button" class="ms-auto">
-														<button class="btn btn-light btn-active-light-primary">Reset Password</button>
-													</div>
-												</div>
-											</div>
-										</div>
-									</div>
-									<div class="card">
+								<div class="card mb-5 mb-xl-10">
+    <div class="card-header border-0 cursor-pointer" role="button" data-bs-toggle="collapse" data-bs-target="#signin_method_card">
+        <div class="card-title m-0">
+            <h3 class="fw-bold m-0">Sign-in Method</h3>
+        </div>
+    </div>
+
+    <div id="signin_method_card" class="collapse show">
+        <div class="card-body border-top p-9">
+
+            <!-- ================= CHANGE EMAIL ================= -->
+            <div class="d-flex flex-wrap align-items-center">
+                <!-- Current Email Display (hidden when editing) -->
+                <div id="email_display">
+                    <div class="fs-6 fw-bold mb-1">Email Address</div>
+                    <div class="fw-semibold text-gray-600">{{ user.email }}</div>
+                </div>
+
+                <!-- Email Edit Form -->
+                <div id="email_edit_form" class="flex-row-fluid d-none">
+                    <form id="form_change_email" method="post" class="form" novalidate enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {{ email_form.non_field_errors }}
+
+                        <div class="row mb-6">
+                            <div class="col-lg-6 mb-4 mb-lg-0">
+                                <div class="fv-row mb-0">
+                                    <label for="new_email" class="form-label fs-6 fw-bold mb-3">Enter New Email Address</label>
+                                    <input type="email" class="form-control form-control-lg form-control-solid" id="new_email" placeholder="Email Address" name="email" value="{{ email_form.email.value|default:user.email }}" required/>
+                                    {% if email_form.email.errors %}
+                                        <div class="text-danger mt-1">{{ email_form.email.errors|striptags }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="fv-row mb-0">
+                                    <label for="current_email_password" class="form-label fs-6 fw-bold mb-3">Confirm Current Password</label>
+                                    <input type="password" class="form-control form-control-lg form-control-solid" name="current_password" id="current_email_password" required/>
+                                    {% if email_form.current_password.errors %}
+                                        <div class="text-danger mt-1">{{ email_form.current_password.errors|striptags }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex">
+                            <button type="submit" name="update_email" class="btn btn-primary me-2 px-6">Update Email</button>
+                            <button type="button" class="btn btn-color-gray-400 btn-active-light-primary px-6" onclick="toggleEmailForm(false)">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Change Email Button -->
+                <div class="ms-auto" id="btn_email_toggle">
+                    <button class="btn btn-light btn-active-light-primary" onclick="toggleEmailForm(true)">Change Email</button>
+                </div>
+            </div>
+			
+
+            <div class="separator separator-dashed my-6"></div>
+
+            <!-- ================= RESET PASSWORD ================= -->
+            <div class="d-flex flex-wrap align-items-center mb-10">
+                <!-- Current Password Display (hidden when editing) -->
+                <div id="password_display">
+                    <div class="fs-6 fw-bold mb-1">Password</div>
+                    <div class="fw-semibold text-gray-600">************</div>
+                </div>
+
+                <!-- Password Edit Form -->
+                <div id="password_edit_form" class="flex-row-fluid d-none">
+                    <form id="form_change_password" method="post" class="form" novalidate>
+                        {% csrf_token %}
+                        {{ password_form.non_field_errors }}
+
+                        <div class="row mb-1">
+                            <div class="col-lg-4">
+                                <div class="fv-row mb-0">
+                                    <label for="current_password_input" class="form-label fs-6 fw-bold mb-3">Current Password</label>
+                                    <input type="password" class="form-control form-control-lg form-control-solid" name="current_password" id="current_password_input" required/>
+                                    {% if password_form.current_password.errors %}
+                                        <div class="text-danger mt-1">{{ password_form.current_password.errors|striptags }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-lg-4">
+                                <div class="fv-row mb-0">
+                                    <label for="new_password_input" class="form-label fs-6 fw-bold mb-3">New Password</label>
+                                    <input type="password" class="form-control form-control-lg form-control-solid" name="new_password" id="new_password_input" required/>
+                                    {% if password_form.new_password.errors %}
+                                        <div class="text-danger mt-1">{{ password_form.new_password.errors|striptags }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-lg-4">
+                                <div class="fv-row mb-0">
+                                    <label for="confirm_password_input" class="form-label fs-6 fw-bold mb-3">Confirm New Password</label>
+                                    <input type="password" class="form-control form-control-lg form-control-solid" name="confirm_new_password" id="confirm_password_input" required/>
+                                    {% if password_form.confirm_new_password.errors %}
+                                        <div class="text-danger mt-1">{{ password_form.confirm_new_password.errors|striptags }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-text mb-5">Password must be at least 8 characters and contain symbols</div>
+
+                        <div class="d-flex">
+                            <button type="submit" name="update_password" class="btn btn-primary me-2 px-6">Update Password</button>
+                            <button type="button" class="btn btn-color-gray-400 btn-active-light-primary px-6" onclick="togglePasswordForm(false)">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Reset Password Button -->
+                <div class="ms-auto" id="btn_password_toggle">
+                    <button class="btn btn-light btn-active-light-primary" onclick="togglePasswordForm(true)">Reset Password</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+					{% if show_email_success %}
+					<script>
+					Swal.fire({
+						icon: 'success',
+						title: 'Email Updated',
+						text: 'Your email has been successfully updated. You will be redirected to login.',
+						confirmButtonText: 'OK'
+					}).then(() => {
+						window.location.href = "{% url 'login' %}";
+					});
+					</script>
+					{% endif %}
+
+					{% if show_email_error %}
+					<script>
+					Swal.fire({
+						icon: 'error',
+						title: 'Error',
+						text: '{{ show_email_error|escapejs }}',
+						confirmButtonText: 'OK'
+					});
+					</script>
+					{% endif %}
+
+					{% if show_password_success %}
+					<script>
+					Swal.fire({
+						icon: 'success',
+						title: 'Password Updated',
+						text: 'Your password has been successfully updated. Please login again.',
+						confirmButtonText: 'OK'
+					}).then(() => {
+						window.location.href = "{% url 'login' %}";
+					});
+					</script>
+					{% endif %}
+
+					{% if show_password_error %}
+					<script>
+					Swal.fire({
+						icon: 'error',
+						title: 'Error',
+						text: '{{ show_password_error|escapejs }}',
+						confirmButtonText: 'OK'
+					});
+					</script>
+					{% endif %}
+					
+
+						<script>
+						function toggleEmailForm(show) {
+							document.getElementById('email_display').classList.toggle('d-none', show);
+							document.getElementById('email_edit_form').classList.toggle('d-none', !show);
+							document.getElementById('btn_email_toggle').classList.toggle('d-none', show);
+						}
+						function togglePasswordForm(show) {
+							document.getElementById('password_display').classList.toggle('d-none', show);
+							document.getElementById('password_edit_form').classList.toggle('d-none', !show);
+							document.getElementById('btn_password_toggle').classList.toggle('d-none', show);
+						}
+						</script>
+
+
+
+									<div class="card" style="margin-bottom: 50px">
 										<div class="card-header border-0 cursor-pointer" role="button" data-bs-toggle="collapse" data-bs-target="#kt_account_deactivate" aria-expanded="true" aria-controls="kt_account_deactivate">
 											<div class="card-title m-0">
 												<h3 class="fw-bold m-0">Deactivate Account</h3>
 											</div>
 										</div>
 										<div id="kt_account_settings_deactivate" class="collapse show">
-											<form id="kt_account_deactivate_form" class="form">
+											<form enctype="multipart/form-data" class="form" method="post">
+												{% csrf_token %}
 												<div class="card-body border-top p-9">
 													<div class="notice d-flex bg-light-warning rounded border-warning border border-dashed mb-9 p-6">
-														<i class="ki-duotone ki-information fs-2tx text-warning me-4">
-															<span class="path1"></span>
-															<span class="path2"></span>
-															<span class="path3"></span>
-														</i>
+														<i class="ki-duotone ki-information fs-2tx text-warning me-4"></i>
 														<div class="d-flex flex-stack flex-grow-1">
 															<div class="fw-semibold">
 																<h4 class="text-gray-900 fw-bold">You Are Deactivating Your Account</h4>
-																<div class="fs-6 text-gray-700">For extra security, this requires you to confirm your email or phone number when you reset yousignr password.
-																<br />
-																<a class="fw-bold" href="#">Learn more</a></div>
+																<div class="fs-6 text-gray-700">
+																	For extra security, this requires you to confirm your email or phone number when you reset your password.
+																	<br />
+																	<a class="fw-bold" href="#">Learn more</a>
+																</div>
 															</div>
 														</div>
 													</div>
 													<div class="form-check form-check-solid fv-row">
-														<input name="deactivate" class="form-check-input" type="checkbox" value="" id="deactivate" />
+														<input name="deactivate" class="form-check-input" type="checkbox" value="true" id="deactivate" />
 														<label class="form-check-label fw-semibold ps-2 fs-6" for="deactivate">I confirm my account deactivation</label>
 													</div>
 												</div>
 												<div class="card-footer d-flex justify-content-end py-6 px-9">
-													<button id="kt_account_deactivate_account_submit" type="submit" class="btn btn-danger fw-semibold">Deactivate Account</button>
+													<button id="kt_account_deactivate_account_submit" type="submit" name="deactivate_account" class="btn btn-danger fw-semibold">
+														Deactivate Account
+													</button>
+												<div></div>
+
 												</div>
+												<div></div>
+
 											</form>
+											{% if show_deactivate_success %}
+												<script>
+												Swal.fire({
+													icon: 'success',
+													title: 'Account Deactivated',
+													text: 'Your account has been deactivated. You will be logged out.',
+													confirmButtonText: 'OK'
+												}).then(() => {
+													window.location.href = "{% url 'login' %}";
+												});
+												</script>
+											{% endif %}
+
+											{% if show_deactivate_error %}
+												<script>
+												Swal.fire({
+													icon: 'error',
+													title: 'Error',
+													text: '{{ show_deactivate_error|escapejs }}',
+													confirmButtonText: 'OK'
+												});
+												</script>
+											{% endif %}
 										</div>
 									</div>
+
 								</div>
 							</div>
 							
@@ -394,7 +687,10 @@
 				</div>
 			</div>
 		</div>
- 
+ {% if request.user.role == "student" %}
+   {% include 'includes/footer.html' %}
+{% endif %}
+
     </body>
 
      <script src="{% static 'dashboard/vendors/@popperjs/popper.min.js' %}"></script>
@@ -419,5 +715,10 @@
 		<script src="{% static 'core/assets/js/custom/account/settings/deactivate-account.js' %}"></script>
 		<script src="{% static 'core/assets/js/custom/pages/user-profile/general.js' %}"></script>
 		<script src="{% static 'core/assets/js/widgets.bundle.js' %}"></script>
+
+
+
+
+
 	</body>
 </html>

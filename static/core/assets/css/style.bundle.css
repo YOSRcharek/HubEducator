@@ -133,11 +133,11 @@
   --bs-body-bg-rgb: 30, 30, 45;
   --bs-emphasis-color: #ffffff;
   --bs-emphasis-color-rgb: 255, 255, 255;
-  --bs-secondary-color: rgba(255, 255, 255, 0.75);
+  --bs-secondary-color: rgba(255, 255, 255, 0.888);
   --bs-secondary-color-rgb: 255, 255, 255;
   --bs-secondary-bg: #3F4254;
   --bs-secondary-bg-rgb: 63, 66, 84;
-  --bs-tertiary-color: rgba(255, 255, 255, 0.5);
+  --bs-tertiary-color: rgba(255, 255, 255, 0.838);
   --bs-tertiary-color-rgb: 255, 255, 255;
   --bs-tertiary-bg: #2c2f43;
   --bs-tertiary-bg-rgb: 44, 47, 67;
@@ -193,7 +193,7 @@ body {
   line-height: var(--bs-body-line-height);
   color: var(--bs-body-color);
   text-align: var(--bs-body-text-align);
-  background-color: var(--bs-body-bg);
+  background-color: white;
   -webkit-text-size-adjust: 100%;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
@@ -52348,3 +52348,5 @@ body {
 }
 
 /*# sourceMappingURL=style.bundle.css.map*/
+
+
