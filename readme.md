@@ -75,26 +75,26 @@ HubEducator/
 ## 📦 Installation & exécution
 
 
-# 1️⃣ Cloner le projet
+### 1️⃣ Cloner le projet
 ```bash
 git clone https://github.com/YOSRcharek/HubEducator
 cd HubEducator
 ```
-# 2️⃣ Créer un environnement virtuel
+### 2️⃣ Créer un environnement virtuel
 ```bash
 python -m venv venv
 source venv/Scripts/activate  # Windows
 ```
-# 3️⃣ Installer les dépendances
+### 3️⃣ Installer les dépendances
 ```bash
 pip install -r requirements.txt
 ```
-# 4️⃣ Lancer la base de données et effectuer les migrations
+### 4️⃣ Lancer la base de données et effectuer les migrations
 ```bash
 python manage.py makemigrations
 python manage.py migrate
 ```
-# 5️⃣ Démarrer le serveur
+### 5️⃣ Démarrer le serveur
 ```bash
 python manage.py runserver
 ```
