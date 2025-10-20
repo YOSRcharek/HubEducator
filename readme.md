@@ -1,6 +1,6 @@
-# 📚 HubEducator
+
 <p align="center">
-  <img src="website/img/gallery/logo-n.png" alt="HubEducator Logo" width="200"/>
+  <img src="static/website/img/gallery/logo-n.png" alt="HubEducator Logo" width="200"/>
 </p>
 
 <h1 align="center">HubEducator</h1>
