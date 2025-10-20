@@ -1,4 +1,4 @@
-# <img src="static/website/img/favicons/android-chrome-192x192.png" alt="HubEducator Logo" width="200"/> HubEducator
+# <img src="static/website/img/favicons/favicon-32x32.png" alt="HubEducator Logo" /> HubEducator
 
 HubEducator est une plateforme éducative développée avec **Django**, permettant d’offrir un espace numérique d’apprentissage moderne, sécurisé et intelligent.  
 Le projet inclut un **système d’authentification avancé**, une **gestion personnalisée des utilisateurs**, et une **architecure extensible pour intégrer à terme une IA éducative (assistant intelligent)**.
