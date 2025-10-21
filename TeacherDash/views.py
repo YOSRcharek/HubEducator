@@ -4,8 +4,7 @@ from django.urls import reverse
 from django.contrib import messages
 from django.core.paginator import Paginator
 from .forms import AddUserForm, EditUserForm
-from core.models import User, Course
-
+from core.models import User, Course,CourseCategory, Lesson, SubLesson, Resource
 
 # --------------------------
 # Teacher Dashboard
@@ -111,11 +110,6 @@ def student_detail(request, user_id):
         'courses': courses
     })
 
-
-
-#---------------
-# courses
-#-------------
 @login_required
 def courses(request):
     if request.user.role != 'teacher':
@@ -134,5 +128,58 @@ def courses(request):
 
 @login_required
 def add_courses(request):
-    return render(request, 'courses/addCourses.html', {})
+    if request.method == 'POST':
+        # 1️⃣ Enregistrer le cours de l’étape 1
+        title = request.POST.get('title')
+        description = request.POST.get('description')
+        capacity = request.POST.get('capacity', 30)
+        category = request.POST.get('category')
+        category_obj = CourseCategory.objects.filter(name=category).first() if category else None
 
+        course = Course.objects.create(
+            title=title,
+            description=description,
+            capacity=capacity,
+            category=category_obj,
+            teacher=request.user
+        )
+
+        # 2️⃣ Ajouter les lessons dynamiques (LESSON_TITLE_1, LESSON_TITLE_2, ...)
+        lesson_count = int(request.POST.get('lesson_count', 0))
+        lessons_dict = {}  # mapping ID temporaire → objet Lesson réel
+
+        for i in range(1, lesson_count + 1):
+            lesson_title = request.POST.get(f'LESSON_TITLE_{i}')
+            lesson_description = request.POST.get(f'LESSON_DESCRIPTION_{i}', '')
+            lesson_order = request.POST.get(f'LESSON_ORDER_{i}', 0)
+
+            lesson_obj = Lesson.objects.create(
+                course=course,
+                title=lesson_title,
+                description=lesson_description,
+                order=lesson_order
+            )
+            lessons_dict[str(i)] = lesson_obj  # stocker pr lier les SubLessons
+
+        # 3️⃣ Ajouter les sub-lessons dynamiques (pareil structure)
+        sublesson_count = int(request.POST.get('sublesson_count', 0))
+
+        for j in range(1, sublesson_count + 1):
+            sub_title = request.POST.get(f'SUBLESSON_TITLE_{j}')
+            sub_content = request.POST.get(f'SUBLESSON_CONTENT_{j}')
+            attach_lesson_index = request.POST.get(f'SUBLESSON_LESSON_{j}')
+            attach_lesson = lessons_dict.get(attach_lesson_index)
+
+            SubLesson.objects.create(
+                lesson=attach_lesson,
+                title=sub_title,
+                content=sub_content
+            )
+
+        # ✅ 4️⃣ (optionnel pour l’instant) : gérer les fichiers Dropzone ici
+
+        return redirect('courses')  # Nom de ta page après succès
+
+    else:
+        categories = CourseCategory.objects.all()
+        return render(request, 'courses/addCourses.html', {'categories': categories})
