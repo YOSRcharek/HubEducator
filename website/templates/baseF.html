@@ -1,0 +1,46 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>HubEducator</title>
+    
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'website/img/favicons/apple-touch-icon.png' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'website/img/favicons/favicon-32x32.png' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'website/img/favicons/favicon-16x16.png' %}">
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'website/img/favicons/favicon.ico' %}">
+    <link rel="manifest" href="{% static 'website/img/favicons/manifest.json' %}">
+    <meta name="msapplication-TileImage" content="{% static 'website/img/favicons/mstile-150x150.png' %}">  
+    <meta name="theme-color" content="#ffffff">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <link href="{% static 'website/css/theme.css' %}" rel="stylesheet" />
+
+  </head>
+<body>
+
+    <!-- Navbar -->
+    {% include 'includes/nav.html' %}
+
+    <!-- Page Content -->
+    <main>
+        {% block content %}
+        <!-- chaque page met son contenu ici -->
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    {% include 'includes/footer.html' %}
+
+     <script src="{% static 'website/vendors/@popperjs/popper.min.js' %}"></script>
+    <script src="{% static 'website/vendors/bootstrap/bootstrap.min.js' %}"></script>
+    <script src="{% static 'website/vendors/is/is.min.js' %}"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=window.scroll"></script>
+    <script src="{% static 'website/vendors/fontawesome/all.min.js' %}"></script>
+    <script src="{% static 'website/js/theme.js' %}"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&amp;family=Rubik:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet">
+  
+</body>
+</html>
