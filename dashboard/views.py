@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect,get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from .forms import AddUserForm, EditUserForm, SubscriptionForm
-from core.models import User, Subscription, UserSubscription
+from core.models import User, Subscription, UserSubscription, Transaction
 from django.contrib import messages
 from django.core.paginator import Paginator
 from core.forms import ProfileUpdateForm
@@ -213,12 +213,46 @@ def user_subscriptions(request):
     # Get all user subscriptions
     user_subscriptions_list = UserSubscription.objects.all().select_related('user', 'subscription', 'transaction').order_by('-created_at')
     
-    # Pagination: 10 user subscriptions per page
-    paginator = Paginator(user_subscriptions_list, 10)
+    # Pagination: 6 user subscriptions per page
+    paginator = Paginator(user_subscriptions_list, 6)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     
     return render(request, 'user_subscriptions/user_subscriptions.html', {
+        'page_obj': page_obj
+    })
+
+
+@login_required
+def delete_user_subscription(request, subscription_id):
+    """Delete a user subscription"""
+    if request.user.role != 'admin':
+        return redirect(reverse('unauthorized'))
+    
+    user_subscription = get_object_or_404(UserSubscription, id=subscription_id)
+    username = user_subscription.user.username
+    
+    user_subscription.delete()
+    messages.success(request, f'Subscription for {username} has been deleted successfully.')
+    
+    return redirect('user_subscriptions')
+
+
+@login_required
+def transactions(request):
+    """List all transactions"""
+    if request.user.role != 'admin':
+        return redirect(reverse('unauthorized'))
+    
+    # Get all transactions
+    transactions_list = Transaction.objects.all().select_related('user', 'subscription').order_by('-created_at')
+    
+    # Pagination: 10 transactions per page
+    paginator = Paginator(transactions_list, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    return render(request, 'transactions/transactions.html', {
         'page_obj': page_obj
     })
 

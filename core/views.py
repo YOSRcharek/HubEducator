@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth import logout
 from .forms import EmailForm, ProfileUpdateForm, PasswordForm
-from .models import UserSubscription, Transaction
+from .models import UserSubscription, Transaction, Subscription
 
 
 def unauthorized (request):
@@ -109,9 +109,16 @@ def my_subscription_teacher(request):
         is_active=True
     ).select_related('subscription').first()
     
+    # Get all available teacher subscriptions
+    available_subscriptions = Subscription.objects.filter(
+        user_type='teacher',
+        is_active=True
+    ).order_by('price')
+    
     return render(request, 'my_subscription_teacher.html', {
         'user_subscription': active_subscription,
-        'user_type': 'teacher'
+        'user_type': 'teacher',
+        'available_subscriptions': available_subscriptions
     })
 
 
@@ -127,9 +134,16 @@ def my_subscription_student(request):
         is_active=True
     ).select_related('subscription').first()
     
+    # Get all available student subscriptions
+    available_subscriptions = Subscription.objects.filter(
+        user_type='student',
+        is_active=True
+    ).order_by('price')
+    
     return render(request, 'my_subscription_student.html', {
         'user_subscription': active_subscription,
-        'user_type': 'student'
+        'user_type': 'student',
+        'available_subscriptions': available_subscriptions
     })
 
 
@@ -173,3 +187,36 @@ def payment_history_student(request):
         'total_spent': total_spent,
         'user_type': 'student'
     })
+
+
+@login_required
+def unsubscribe(request):
+    """Unsubscribe user from their current active subscription"""
+    if request.user.role not in ['student', 'teacher']:
+        return redirect('unauthorized')
+    
+    # Get the active subscription for this user
+    active_subscription = UserSubscription.objects.filter(
+        user=request.user,
+        is_active=True
+    ).first()
+    
+    if active_subscription:
+        # Deactivate the subscription
+        active_subscription.is_active = False
+        active_subscription.save()
+        
+        messages.success(request, 'You have successfully unsubscribed. Your subscription is now inactive.')
+    else:
+        messages.info(request, 'You do not have an active subscription.')
+    
+    # Redirect based on user type with a timestamp to force reload
+    from django.http import HttpResponseRedirect
+    from django.urls import reverse
+    
+    if request.user.role == 'teacher':
+        url = reverse('my_subscription_teacher')
+    else:
+        url = reverse('my_subscription_student')
+    
+    return HttpResponseRedirect(url)
