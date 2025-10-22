@@ -1,0 +1,48 @@
+INSTRUCTIONS POUR AJOUTER LA FONCTIONNALITÉ UNSUBSCRIBE
+=========================================================
+
+✅ DÉJÀ FAIT :
+1. Template my_subscription.html modifié avec bouton Unsubscribe
+2. Vues my_subscription_teacher et my_subscription_student modifiées pour inclure available_subscriptions
+3. Fonction unsubscribe ajoutée dans core/views.py
+
+❌ À FAIRE MANUELLEMENT :
+
+Ouvrez le fichier : core/urls.py
+
+Ajoutez cette ligne APRÈS la ligne 10 (my-subscription/student/) :
+
+    path('unsubscribe/', views.unsubscribe, name='unsubscribe'),
+
+Le fichier devrait ressembler à ceci :
+
+urlpatterns = [
+    path('unauthorized/',views.unauthorized, name='unauthorized'),
+    path('profil/',views.profil, name='profil'),
+    path('my-subscription/teacher/', views.my_subscription_teacher, name='my_subscription_teacher'),
+    path('my-subscription/student/', views.my_subscription_student, name='my_subscription_student'),
+    path('unsubscribe/', views.unsubscribe, name='unsubscribe'),  ← AJOUTEZ CETTE LIGNE
+    path('payment-history/teacher/', views.payment_history_teacher, name='payment_history_teacher'),
+    path('payment-history/student/', views.payment_history_student, name='payment_history_student'),
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+FONCTIONNALITÉS IMPLÉMENTÉES :
+================================
+
+1. ✅ Bouton "Unsubscribe" sur la page my_subscription
+2. ✅ Confirmation avant désabonnement
+3. ✅ Désactivation de l'abonnement (is_active = False)
+4. ✅ Message de succès après désabonnement
+5. ✅ Redirection vers la page qui affiche :
+   - Message "No Active Subscription"
+   - Liste de TOUS les abonnements disponibles (teacher ou student selon le rôle)
+   - Cartes avec prix, durée, description et features
+
+COMMENT TESTER :
+================
+1. Ajoutez la ligne dans core/urls.py
+2. Connectez-vous en tant que student ou teacher
+3. Allez sur "My Subscription"
+4. Cliquez sur "Unsubscribe"
+5. Confirmez
+6. Vous verrez la page avec tous les abonnements disponibles

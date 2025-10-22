@@ -175,6 +175,13 @@
             </a>
           </li>
 
+          <li class="nav-item {% if request.resolver_match.url_name == 'transactions' %}active{% endif %}">
+            <a class="nav-link" href="{% url 'transactions' %}">
+              <i class="mdi mdi-cash-multiple menu-icon"></i>
+              <span class="menu-title">Transactions</span>
+            </a>
+          </li>
+
               <li class="nav-item">
                   <a href="pages/forms/basic_elements.html" class="nav-link">
                     <i class="mdi mdi-chart-areaspline menu-icon"></i>
