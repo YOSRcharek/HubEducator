@@ -1,0 +1,143 @@
+{% extends 'baseB.html' %}
+{% load static %}
+
+{% block title %}User Subscriptions - HubEducator{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+    <div class="row">
+        <div class="col-lg-12 grid-margin stretch-card">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h4 class="card-title mb-0">
+                            <i class="mdi mdi-account-check text-primary"></i> User Subscriptions
+                        </h4>
+                        <div>
+                            <span class="badge bg-primary">{{ page_obj.paginator.count }} Total</span>
+                        </div>
+                    </div>
+
+                    {% if page_obj %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>User</th>
+                                        <th>Email</th>
+                                        <th>Subscription Plan</th>
+                                        <th>Start Date</th>
+                                        <th>End Date</th>
+                                        <th>Status</th>
+                                        <th>Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for user_sub in page_obj %}
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <img src="{% static 'dashboard/images/faces/face1.jpg' %}" alt="image" class="me-2" style="width: 30px; height: 30px; border-radius: 50%;">
+                                                    <span class="font-weight-medium">{{ user_sub.user.username }}</span>
+                                                </div>
+                                            </td>
+                                            <td>{{ user_sub.user.email }}</td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <i class="mdi mdi-crown text-warning me-2"></i>
+                                                    <span>{{ user_sub.subscription.name }}</span>
+                                                </div>
+                                            </td>
+                                            <td>{{ user_sub.start_date|date:"d M Y" }}</td>
+                                            <td>{{ user_sub.end_date|date:"d M Y" }}</td>
+                                            <td>
+                                                {% if user_sub.is_active %}
+                                                    <span class="badge bg-success">
+                                                        <i class="mdi mdi-check-circle"></i> Active
+                                                    </span>
+                                                {% else %}
+                                                    <span class="badge bg-danger">
+                                                        <i class="mdi mdi-close-circle"></i> Inactive
+                                                    </span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <span class="font-weight-bold text-success">
+                                                    ${{ user_sub.subscription.price }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        {% if page_obj.has_other_pages %}
+                            <nav aria-label="Page navigation" class="mt-4">
+                                <ul class="pagination justify-content-center">
+                                    {% if page_obj.has_previous %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page=1">First</a>
+                                        </li>
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                                        </li>
+                                    {% endif %}
+
+                                    {% for num in page_obj.paginator.page_range %}
+                                        {% if page_obj.number == num %}
+                                            <li class="page-item active">
+                                                <span class="page-link">{{ num }}</span>
+                                            </li>
+                                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                            <li class="page-item">
+                                                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                            </li>
+                                        {% endif %}
+                                    {% endfor %}
+
+                                    {% if page_obj.has_next %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                                        </li>
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+                                        </li>
+                                    {% endif %}
+                                </ul>
+                            </nav>
+                        {% endif %}
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="mdi mdi-alert-circle-outline" style="font-size: 4rem; color: #ccc;"></i>
+                            <h5 class="mt-3">No User Subscriptions Found</h5>
+                            <p class="text-muted">There are no user subscriptions in the system yet.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.table thead th {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    font-weight: 600;
+    border: none;
+}
+
+.table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.badge {
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.8rem;
+}
+</style>
+{% endblock %}

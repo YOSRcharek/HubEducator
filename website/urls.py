@@ -37,5 +37,13 @@ urlpatterns = [
     path('reset/done/', 
          auth_views.PasswordResetCompleteView.as_view(template_name='ResetPassword/password_reset_complete.html'), 
          name='password_reset_complete'),
+    
+    #***********************************************************#
+    #****************Payment System***********************#
+    path('payment/initiate/<int:subscription_id>/', views.initiate_payment, name='initiate_payment'),
+    path('payment/process/', views.process_payment, name='process_payment'),
+    path('payment/success/', views.payment_success, name='payment_success'),
+    path('payment/failed/', views.payment_failed, name='payment_failed'),
+    path('payment/webhook/', views.stripe_webhook, name='stripe_webhook'),
 ]
 
