@@ -1,8 +1,42 @@
 {% load static %}
 
+<style>
+  .navbar.sticky-top {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1030;
+    background-color: white !important;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+  }
+  
+  /* Add padding to body to prevent content from going under navbar */
+  body {
+    padding-top: 80px;
+  }
+  
+  .top-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1031;
+  }
+  
+  body.with-top-bar {
+    padding-top: 120px;
+  }
+  
+  body.with-top-bar .navbar.sticky-top {
+    top: 40px;
+  }
+</style>
+
       <!-- ============================================-->
       <!-- <section> begin ============================-->
-      <section class="bg-primary py-2 d-none d-sm-block">
+      <section class="bg-primary py-2 d-none d-sm-block top-bar">
 
         <div class="container">
           <div class="row align-items-center">
@@ -80,14 +114,24 @@
     const dropdownBtn = document.querySelector('.dropdown-btn');
     const dropdownContent = document.querySelector('.dropdown-content');
 
-    dropdownBtn.addEventListener('click', function() {
-        dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
-    });
+    if (dropdownBtn && dropdownContent) {
+        dropdownBtn.addEventListener('click', function() {
+            dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
+        });
 
-    // Close dropdown if clicked outside
-    window.addEventListener('click', function(e) {
-        if (!dropdownBtn.contains(e.target)) {
-            dropdownContent.style.display = 'none';
+        // Close dropdown if clicked outside
+        window.addEventListener('click', function(e) {
+            if (!dropdownBtn.contains(e.target)) {
+                dropdownContent.style.display = 'none';
+            }
+        });
+    }
+    
+    // Check if top bar exists and add class to body
+    document.addEventListener('DOMContentLoaded', function() {
+        const topBar = document.querySelector('.top-bar');
+        if (topBar && window.getComputedStyle(topBar).display !== 'none') {
+            document.body.classList.add('with-top-bar');
         }
     });
 </script>

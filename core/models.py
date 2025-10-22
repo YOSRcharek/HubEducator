@@ -6,12 +6,13 @@ from django.contrib.auth.models import AbstractUser
 # --------------------------
 class User(AbstractUser):
     ROLE_CHOICES = (
+        ('user', 'User'),
         ('student', 'Student'),
         ('teacher', 'Teacher'),
         ('admin', 'Admin'),
     )
     phone = models.CharField(max_length=20, blank=True, null=True)  # phone number
-    role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='student')
+    role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='user')
     profile_picture = models.ImageField(upload_to='profiles/', null=True, blank=True)
     email_verified = models.BooleanField(default=False)
     verification_code = models.CharField(max_length=6, blank=True, null=True)
@@ -135,3 +136,92 @@ class Exercise(models.Model):
     def __str__(self):
         return f"{self.title} - {self.lesson.title}"
 
+
+# --------------------------
+# Subscription model
+# --------------------------
+class Subscription(models.Model):
+    USER_TYPE_CHOICES = (
+        ('student', 'Student'),
+        ('teacher', 'Teacher'),
+    )
+    
+    name = models.CharField(max_length=200)
+    description = models.TextField()
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    duration = models.CharField(max_length=100, help_text="e.g., 30 days, 3 months, 1 year")
+    features = models.TextField(help_text="Enter features separated by new lines")
+    user_type = models.CharField(max_length=20, choices=USER_TYPE_CHOICES, default='student', help_text="Type of user this subscription is for")
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['price']
+
+    def __str__(self):
+        return f"{self.name} - {self.get_user_type_display()} - {self.duration}"
+    
+    def get_features_list(self):
+        """Return features as a list"""
+        return [feature.strip() for feature in self.features.split('\n') if feature.strip()]
+
+
+# --------------------------
+# Transaction model (for payment tracking)
+# --------------------------
+class Transaction(models.Model):
+    STATUS_CHOICES = (
+        ('pending', 'Pending'),
+        ('completed', 'Completed'),
+        ('failed', 'Failed'),
+        ('refunded', 'Refunded'),
+    )
+    
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='transactions')
+    subscription = models.ForeignKey(Subscription, on_delete=models.SET_NULL, null=True, related_name='transactions')
+    
+    # Stripe information
+    stripe_payment_intent_id = models.CharField(max_length=255, unique=True)
+    stripe_customer_id = models.CharField(max_length=255, blank=True, null=True)
+    
+    # Transaction details
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    currency = models.CharField(max_length=3, default='usd')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    
+    # Metadata
+    description = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"{self.user.email} - {self.subscription.name if self.subscription else 'N/A'} - ${self.amount} - {self.status}"
+
+
+# --------------------------
+# UserSubscription model (to track active subscriptions)
+# --------------------------
+class UserSubscription(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_subscriptions')
+    subscription = models.ForeignKey(Subscription, on_delete=models.CASCADE, related_name='user_subscriptions')
+    transaction = models.ForeignKey(Transaction, on_delete=models.SET_NULL, null=True, blank=True)
+    
+    start_date = models.DateTimeField(auto_now_add=True)
+    end_date = models.DateTimeField()
+    is_active = models.BooleanField(default=True)
+    auto_renew = models.BooleanField(default=False)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+        unique_together = ['user', 'subscription', 'start_date']
+    
+    def __str__(self):
+        return f"{self.user.email} - {self.subscription.name} - {'Active' if self.is_active else 'Inactive'}"

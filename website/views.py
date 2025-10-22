@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout, get_user_model
 from django.contrib import messages
 from .forms import RegisterForm
@@ -11,7 +11,11 @@ from django.utils.encoding import force_bytes
 from django.contrib.auth.tokens import default_token_generator
 from django import forms
 from django.utils.crypto import get_random_string
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
 import requests
+import json
+from core.models import Subscription
 
 User = get_user_model()  # Always use custom user
 
@@ -20,7 +24,14 @@ def home(request):
     return render(request, 'home.html', {})
 
 def pricing(request):
-    return render(request, 'pricing.html', {})
+    """Display all active subscriptions for users, separated by type"""
+    student_subscriptions = Subscription.objects.filter(is_active=True, user_type='student').order_by('created_at')
+    teacher_subscriptions = Subscription.objects.filter(is_active=True, user_type='teacher').order_by('created_at')
+    
+    return render(request, 'pricing.html', {
+        'student_subscriptions': student_subscriptions,
+        'teacher_subscriptions': teacher_subscriptions,
+    })
 
 def web_development(request):
     return render(request, 'web-development.html', {})
@@ -233,3 +244,222 @@ def google_callback(request):
     login(request, user)
 
     return redirect('/')  # Redirect to homepage after login
+
+
+# ----------------------------- Payment System -----------------------------
+@login_required
+def initiate_payment(request, subscription_id):
+    """Initiate payment for a subscription"""
+    subscription = get_object_or_404(Subscription, id=subscription_id, is_active=True)
+    
+    try:
+        import stripe
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        
+        # Create a PaymentIntent
+        payment_intent = stripe.PaymentIntent.create(
+            amount=int(subscription.price * 100),  # Amount in cents
+            currency='usd',
+            metadata={
+                'subscription_id': subscription.id,
+                'user_id': request.user.id,
+                'user_email': request.user.email
+            },
+            description=f'{subscription.name} subscription for {request.user.email}'
+        )
+        
+        # Store info in session
+        request.session['subscription_id'] = subscription.id
+        request.session['payment_intent_id'] = payment_intent.id
+        request.session['client_secret'] = payment_intent.client_secret
+        
+        return render(request, 'payment/checkout.html', {
+            'subscription': subscription,
+            'client_secret': payment_intent.client_secret,
+            'stripe_public_key': settings.STRIPE_PUBLIC_KEY,
+        })
+        
+    except Exception as e:
+        messages.error(request, f"Error initiating payment: {str(e)}")
+        return redirect('pricing')
+
+
+@login_required
+def process_payment(request):
+    """Confirm payment after Stripe Elements submission"""
+    if request.method == 'POST':
+        try:
+            import stripe
+            from core.models import Transaction, UserSubscription
+            from datetime import timedelta
+            from django.utils import timezone
+            
+            stripe.api_key = settings.STRIPE_SECRET_KEY
+            
+            # Get payment intent ID from session
+            payment_intent_id = request.session.get('payment_intent_id')
+            subscription_id = request.session.get('subscription_id')
+            
+            if not payment_intent_id or not subscription_id:
+                messages.error(request, "Invalid payment session")
+                return redirect('pricing')
+            
+            # Retrieve the PaymentIntent to check its status
+            payment_intent = stripe.PaymentIntent.retrieve(payment_intent_id)
+            subscription = get_object_or_404(Subscription, id=subscription_id)
+            
+            if payment_intent.status == 'succeeded':
+                # Create transaction record
+                transaction, created = Transaction.objects.get_or_create(
+                    stripe_payment_intent_id=payment_intent.id,
+                    defaults={
+                        'user': request.user,
+                        'subscription': subscription,
+                        'amount': subscription.price,
+                        'currency': 'usd',
+                        'status': 'completed',
+                        'description': f'{subscription.name} subscription',
+                        'completed_at': timezone.now()
+                    }
+                )
+                
+                if created:
+                    # Calculate end date based on duration
+                    # Simple parsing - you can make this more sophisticated
+                    duration_days = 30  # Default
+                    if 'month' in subscription.duration.lower():
+                        duration_days = 30
+                    elif 'year' in subscription.duration.lower():
+                        duration_days = 365
+                    elif 'day' in subscription.duration.lower():
+                        import re
+                        days_match = re.search(r'(\d+)', subscription.duration)
+                        if days_match:
+                            duration_days = int(days_match.group(1))
+                    
+                    # Create user subscription
+                    UserSubscription.objects.create(
+                        user=request.user,
+                        subscription=subscription,
+                        transaction=transaction,
+                        end_date=timezone.now() + timedelta(days=duration_days),
+                        is_active=True
+                    )
+                    
+                    messages.success(request, f"Payment successful! You are now subscribed to {subscription.name}")
+                else:
+                    messages.info(request, "This payment has already been processed")
+                
+                    # Clear session
+                for key in ['subscription_id', 'payment_intent_id', 'client_secret']:
+                    if key in request.session:
+                        del request.session[key]
+                
+                # Update user role based on subscription type
+                if subscription.user_type == 'teacher':
+                    request.user.role = 'teacher'
+                    request.user.save()
+                    return redirect('teacherDash')
+                else:  # student subscription
+                    request.user.role = 'student'
+                    request.user.save()
+                    return redirect('home')
+            else:
+                messages.error(request, f"Payment status: {payment_intent.status}")
+                return redirect('payment_failed')
+            
+        except Exception as e:
+            messages.error(request, f"Payment processing error: {str(e)}")
+            return redirect('payment_failed')
+    
+    return redirect('pricing')
+
+
+@login_required
+def payment_success(request):
+    """Payment success page"""
+    if request.user.role == 'teacher':
+        return render(request, 'payment/success_teacher.html')
+    else:
+        return render(request, 'payment/success_student.html')
+
+
+@login_required
+def payment_failed(request):
+    """Payment failed page"""
+    return render(request, 'payment/failed.html')
+
+
+# ----------------------------- Stripe Webhook -----------------------------
+from django.views.decorators.csrf import csrf_exempt
+from django.http import HttpResponse
+
+@csrf_exempt
+def stripe_webhook(request):
+    """Handle Stripe webhook events"""
+    import stripe
+    from core.models import Transaction, UserSubscription
+    from datetime import timedelta
+    from django.utils import timezone
+    
+    stripe.api_key = settings.STRIPE_SECRET_KEY
+    endpoint_secret = getattr(settings, 'STRIPE_WEBHOOK_SECRET', None)
+    
+    payload = request.body
+    sig_header = request.META.get('HTTP_STRIPE_SIGNATURE')
+    
+    try:
+        if endpoint_secret:
+            event = stripe.Webhook.construct_event(
+                payload, sig_header, endpoint_secret
+            )
+        else:
+            event = json.loads(payload)
+        
+        # Handle the event
+        if event['type'] == 'payment_intent.succeeded':
+            payment_intent = event['data']['object']
+            
+            # Update transaction status
+            try:
+                transaction = Transaction.objects.get(
+                    stripe_payment_intent_id=payment_intent['id']
+                )
+                transaction.status = 'completed'
+                transaction.completed_at = timezone.now()
+                transaction.save()
+                
+                print(f"✅ Payment succeeded for transaction {transaction.id}")
+                
+            except Transaction.DoesNotExist:
+                print(f"⚠️ Transaction not found for payment_intent: {payment_intent['id']}")
+        
+        elif event['type'] == 'payment_intent.payment_failed':
+            payment_intent = event['data']['object']
+            
+            # Update transaction status
+            try:
+                transaction = Transaction.objects.get(
+                    stripe_payment_intent_id=payment_intent['id']
+                )
+                transaction.status = 'failed'
+                transaction.save()
+                
+                print(f"❌ Payment failed for transaction {transaction.id}")
+                
+            except Transaction.DoesNotExist:
+                print(f"⚠️ Transaction not found for payment_intent: {payment_intent['id']}")
+        
+        return HttpResponse(status=200)
+        
+    except ValueError as e:
+        # Invalid payload
+        print(f"❌ Invalid payload: {e}")
+        return HttpResponse(status=400)
+    except stripe.error.SignatureVerificationError as e:
+        # Invalid signature
+        print(f"❌ Invalid signature: {e}")
+        return HttpResponse(status=400)
+    except Exception as e:
+        print(f"❌ Webhook error: {e}")
+        return HttpResponse(status=500)
