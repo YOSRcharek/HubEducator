@@ -20,19 +20,6 @@
             </div>
         </div>
 
-        <!-- Current Subscription Info (if exists) -->
-        {% if user_subscription %}
-        <div class="row justify-content-center mb-4">
-            <div class="col-lg-10">
-                <div class="alert alert-info">
-                    <i class="mdi mdi-information-outline"></i>
-                    <strong>Current Plan:</strong> {{ user_subscription.subscription.name }} - 
-                    Expires on {{ user_subscription.end_date|date:"d/m/Y" }}
-                </div>
-            </div>
-        </div>
-        {% endif %}
-
         <!-- Currency Selector -->
         <div class="row mb-4">
             <div class="col text-center">

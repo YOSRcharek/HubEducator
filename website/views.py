@@ -378,10 +378,6 @@ def process_payment(request):
                         end_date=timezone.now() + timedelta(days=duration_days),
                         is_active=True
                     )
-                    
-                    messages.success(request, f"Payment successful! You are now subscribed to {subscription.name}")
-                else:
-                    messages.info(request, "This payment has already been processed")
                 
                     # Clear session
                 for key in ['subscription_id', 'payment_intent_id', 'client_secret']:

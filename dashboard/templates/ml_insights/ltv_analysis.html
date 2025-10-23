@@ -1,0 +1,157 @@
+{% extends 'baseB.html' %}
+{% load static %}
+
+{% block title %}LTV Analysis{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-0">💎 Lifetime Value Analysis</h1>
+                    <p class="text-muted">Customer lifetime value predictions</p>
+                </div>
+                <a href="{% url 'ml_insights' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to ML Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- LTV Statistics -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h6 class="text-muted mb-1">Total Current LTV</h6>
+                    <h4 class="mb-0 text-primary">${{ total_current_ltv|floatformat:2 }}</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h6 class="text-muted mb-1">Total Predicted LTV</h6>
+                    <h4 class="mb-0 text-success">${{ total_predicted_ltv|floatformat:2 }}</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h6 class="text-muted mb-1">Total Potential</h6>
+                    <h4 class="mb-0 text-warning">${{ total_potential|floatformat:2 }}</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h6 class="text-muted mb-1">Avg Predicted LTV</h6>
+                    <h4 class="mb-0 text-info">${{ avg_predicted_ltv|floatformat:2 }}</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- LTV Table -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0">User Lifetime Value Predictions</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th>Rank</th>
+                                    <th>User</th>
+                                    <th>Email</th>
+                                    <th>Plan</th>
+                                    <th>Current LTV</th>
+                                    <th>Predicted LTV</th>
+                                    <th>Potential</th>
+                                    <th>Value Score</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for prediction in page_obj %}
+                                <tr>
+                                    <td>
+                                        {% if forloop.counter <= 3 %}
+                                            <span class="badge bg-warning">
+                                                {% if forloop.counter == 1 %}🥇
+                                                {% elif forloop.counter == 2 %}🥈
+                                                {% else %}🥉{% endif %}
+                                            </span>
+                                        {% else %}
+                                            {{ forloop.counter }}
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ prediction.username }}</td>
+                                    <td>{{ prediction.email }}</td>
+                                    <td>
+                                        <span class="badge bg-primary">{{ prediction.plan }}</span>
+                                    </td>
+                                    <td class="text-primary fw-bold">${{ prediction.current_ltv|floatformat:2 }}</td>
+                                    <td class="text-success fw-bold">${{ prediction.predicted_ltv|floatformat:2 }}</td>
+                                    <td class="text-warning fw-bold">${{ prediction.ltv_potential|floatformat:2 }}</td>
+                                    <td>
+                                        {% if prediction.predicted_ltv > 500 %}
+                                            <span class="badge bg-success">Premium</span>
+                                        {% elif prediction.predicted_ltv > 150 %}
+                                            <span class="badge bg-info">High</span>
+                                        {% elif prediction.predicted_ltv > 50 %}
+                                            <span class="badge bg-warning">Medium</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Low</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="8" class="text-center py-4">
+                                        <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                                        <p class="text-muted">No LTV predictions available</p>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Pagination -->
+                {% if page_obj.has_other_pages %}
+                <div class="card-footer bg-white">
+                    <nav>
+                        <ul class="pagination justify-content-center mb-0">
+                            {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                            </li>
+                            {% endif %}
+                            
+                            {% for num in page_obj.paginator.page_range %}
+                            <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                            </li>
+                            {% endfor %}
+                            
+                            {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
