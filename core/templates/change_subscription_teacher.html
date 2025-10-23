@@ -1,0 +1,559 @@
+{% extends 'baseF.html' %}
+{% load static %}
+
+{% block title %}Change Subscription - HubEducator{% endblock %}
+
+{% block content %}
+<div style="background: #f5f7fa; min-height: 100vh; padding-top: 20px;">
+    <div class="container-fluid py-4">
+        <!-- Page Header -->
+        <div class="page-header-modern mb-5">
+            <div class="header-content">
+                <div class="header-text">
+                    <h1 class="page-title">Change Your Subscription</h1>
+                    <p class="page-subtitle">Browse and select a new subscription plan</p>
+                </div>
+                <a href="{% url 'my_subscription_teacher' %}" class="btn-payment-history">
+                    <i class="mdi mdi-arrow-left"></i>
+                    <span>Back to My Subscription</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Current Subscription Info (if exists) -->
+        {% if user_subscription %}
+        <div class="row justify-content-center mb-4">
+            <div class="col-lg-10">
+                <div class="alert alert-info">
+                    <i class="mdi mdi-information-outline"></i>
+                    <strong>Current Plan:</strong> {{ user_subscription.subscription.name }} - 
+                    Expires on {{ user_subscription.end_date|date:"d/m/Y" }}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Currency Selector -->
+        <div class="row mb-4">
+            <div class="col text-center">
+                <div class="currency-selector" style="display: inline-block; background: white; padding: 15px 25px; border-radius: 50px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                    <label for="currencySelect" style="font-weight: 600; margin-right: 10px; color: #2c3e50;">
+                        <i class="fas fa-globe"></i> Currency:
+                    </label>
+                    <select id="currencySelect" class="form-select d-inline-block" style="width: auto; border: 2px solid #667eea; border-radius: 25px; padding: 8px 20px; font-weight: 600; color: #667eea;">
+                        <option value="USD" data-symbol="$" data-rate="1">USD ($)</option>
+                        <option value="EUR" data-symbol="€" data-rate="0.92">EUR (€)</option>
+                        <option value="GBP" data-symbol="£" data-rate="0.79">GBP (£)</option>
+                        <option value="TND" data-symbol="TND" data-rate="3.1">TND</option>
+                        <option value="MAD" data-symbol="MAD" data-rate="10.2">MAD</option>
+                        <option value="CAD" data-symbol="C$" data-rate="1.36">CAD (C$)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Available Subscriptions Carousel -->
+        <div class="row">
+            <div class="col-12 mb-4">
+                <div class="section-header text-center">
+                    <div class="section-icon">
+                        <i class="mdi mdi-credit-card-multiple"></i>
+                    </div>
+                    <h2 class="section-title">Available Subscription Plans</h2>
+                    <p class="section-subtitle">Choose the plan that best fits your needs</p>
+                </div>
+            </div>
+            <div class="col-12">
+                {% if available_subscriptions %}
+                <div class="position-relative">
+                    <div class="subscription-carousel-container overflow-hidden">
+                        <div class="subscription-carousel-track d-flex" id="subscriptionTrackTeacher">
+                            {% for subscription in available_subscriptions %}
+                            <div class="subscription-card-wrapper">
+                                <div class="card modern-card h-100 mx-2 {% if user_subscription and user_subscription.subscription.id == subscription.id %}current-plan{% endif %}">
+                                    {% if user_subscription and user_subscription.subscription.id == subscription.id %}
+                                    <div class="card-badge" style="background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);">Current Plan</div>
+                                    {% else %}
+                                    <div class="card-badge">{{ subscription.get_user_type_display }}</div>
+                                    {% endif %}
+                                    <div class="card-body text-center p-4">
+                                        <div class="plan-icon mb-3">
+                                            <i class="mdi mdi-crown"></i>
+                                        </div>
+                                        <h4 class="plan-name mb-3">{{ subscription.name }}</h4>
+                                        <div class="price-section mb-4 price-amount">
+                                            <span class="currency price-currency">$</span>
+                                            <span class="price">{{ subscription.price }}</span>
+                                            <span class="period">/ {{ subscription.duration }}</span>
+                                        </div>
+                                        <p class="plan-description text-muted mb-4">{{ subscription.description|truncatewords:12 }}</p>
+                                        <div class="features-list text-start mb-4">
+                                            {% for feature in subscription.get_features_list %}
+                                                <div class="feature-item">
+                                                    <i class="mdi mdi-check-circle"></i>
+                                                    <span>{{ feature }}</span>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                        {% if user_subscription and user_subscription.subscription.id == subscription.id %}
+                                        <button class="btn-subscribe" style="background: #48bb78; cursor: default;" disabled>
+                                            <span>Current Plan</span>
+                                            <i class="mdi mdi-check"></i>
+                                        </button>
+                                        {% else %}
+                                        <a href="{% url 'initiate_payment' subscription.id %}" class="btn-subscribe" data-base-url="{% url 'initiate_payment' subscription.id %}" data-original-price="{{ subscription.price }}">
+                                            <span>Subscribe Now</span>
+                                            <i class="mdi mdi-arrow-right"></i>
+                                        </a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <button class="carousel-nav-btn carousel-nav-prev" id="prevBtnTeacher">
+                        <i class="mdi mdi-chevron-left"></i>
+                    </button>
+                    <button class="carousel-nav-btn carousel-nav-next" id="nextBtnTeacher">
+                        <i class="mdi mdi-chevron-right"></i>
+                    </button>
+                </div>
+
+                <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const track = document.getElementById('subscriptionTrackTeacher');
+                    const prevBtn = document.getElementById('prevBtnTeacher');
+                    const nextBtn = document.getElementById('nextBtnTeacher');
+                    const cards = track.querySelectorAll('.subscription-card-wrapper');
+                    
+                    let currentIndex = 0;
+                    const visibleCards = 3;
+                    const maxIndex = Math.max(0, cards.length - visibleCards);
+                    
+                    function updateCarousel() {
+                        cards.forEach(card => {
+                            card.style.display = 'block';
+                        });
+                        
+                        const cardWidth = cards[0].offsetWidth + 16;
+                        const offset = -currentIndex * cardWidth;
+                        track.style.transform = `translateX($${offset}px)`;
+                        
+                        prevBtn.disabled = currentIndex === 0;
+                        nextBtn.disabled = currentIndex >= maxIndex;
+                        
+                        if (cards.length <= visibleCards) {
+                            prevBtn.style.display = 'none';
+                            nextBtn.style.display = 'none';
+                        }
+                    }
+                    
+                    prevBtn.addEventListener('click', function() {
+                        if (currentIndex > 0) {
+                            currentIndex--;
+                            updateCarousel();
+                        }
+                    });
+                    
+                    nextBtn.addEventListener('click', function() {
+                        if (currentIndex < maxIndex) {
+                            currentIndex++;
+                            updateCarousel();
+                        }
+                    });
+                    
+                    updateCarousel();
+                });
+                </script>
+
+                <style>
+                .subscription-carousel-container {
+                    position: relative;
+                    padding: 0 50px;
+                }
+                
+                .subscription-carousel-track {
+                    transition: transform 0.5s ease;
+                }
+                
+                .subscription-card-wrapper {
+                    flex: 0 0 calc(33.333% - 16px);
+                    min-width: calc(33.333% - 16px);
+                }
+                
+                .carousel-nav-btn {
+                    position: absolute;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    border: none;
+                    color: white;
+                    width: 40px;
+                    height: 40px;
+                    border-radius: 50%;
+                    cursor: pointer;
+                    z-index: 10;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 24px;
+                    transition: all 0.3s ease;
+                }
+                
+                .carousel-nav-btn:hover:not(:disabled) {
+                    transform: translateY(-50%) scale(1.1);
+                    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+                }
+                
+                .carousel-nav-btn:disabled {
+                    opacity: 0.3;
+                    cursor: not-allowed;
+                }
+                
+                .carousel-nav-prev {
+                    left: 0;
+                }
+                
+                .carousel-nav-next {
+                    right: 0;
+                }
+
+                .current-plan {
+                    border: 3px solid #48bb78 !important;
+                    box-shadow: 0 10px 40px rgba(72, 187, 120, 0.2) !important;
+                }
+                </style>
+                {% else %}
+                <div class="alert alert-info text-center">
+                    <p class="mb-0">No subscription plans available at the moment.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Page Header Modern Styles */
+.page-header-modern {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 20px;
+    padding: 30px 40px;
+    box-shadow: 0 10px 40px rgba(102, 126, 234, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.page-header-modern::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    border-radius: 50%;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+}
+
+.header-text {
+    flex: 1;
+}
+
+.page-title {
+    font-size: 32px;
+    font-weight: 800;
+    color: white;
+    margin-bottom: 8px;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.page-subtitle {
+    font-size: 16px;
+    color: rgba(255,255,255,0.9);
+    margin-bottom: 0;
+}
+
+.btn-payment-history {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: white;
+    color: #667eea;
+    padding: 12px 24px;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 15px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.btn-payment-history:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    color: #667eea;
+    background: rgba(255,255,255,0.95);
+}
+
+.btn-payment-history i {
+    font-size: 20px;
+}
+
+/* Section Header Styles */
+.section-header {
+    margin-bottom: 40px;
+}
+
+.section-icon {
+    display: inline-block;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+}
+
+.section-icon i {
+    font-size: 32px;
+    color: white;
+}
+
+.section-title {
+    font-size: 32px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 10px;
+}
+
+.section-subtitle {
+    font-size: 16px;
+    color: #6c757d;
+    margin-bottom: 0;
+}
+
+/* Modern Card Styles */
+.modern-card {
+    border: none;
+    border-radius: 20px;
+    background: white;
+    position: relative;
+    overflow: visible;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    animation: fadeInUp 0.6s ease;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+}
+
+.modern-card:hover {
+    transform: translateY(-15px) scale(1.02);
+    box-shadow: 0 20px 60px rgba(102, 126, 234, 0.25) !important;
+}
+
+.card-badge {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 6px 15px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.plan-icon {
+    width: 70px;
+    height: 70px;
+    margin: 0 auto;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+}
+
+.plan-icon i {
+    font-size: 36px;
+    color: white;
+}
+
+.plan-name {
+    font-size: 24px;
+    font-weight: 700;
+    color: #2d3748;
+}
+
+.price-section {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 5px;
+}
+
+.currency {
+    font-size: 24px;
+    font-weight: 600;
+    color: #667eea;
+}
+
+.price {
+    font-size: 48px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+}
+
+.period {
+    font-size: 14px;
+    color: #718096;
+}
+
+.plan-description {
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 40px;
+}
+
+.features-list {
+    padding: 0 20px;
+}
+
+.feature-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    font-size: 14px;
+    color: #4a5568;
+}
+
+.feature-item i {
+    color: #48bb78;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.btn-subscribe {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 14px 32px;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 15px;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+    position: relative;
+    overflow: hidden;
+    border: none;
+}
+
+.btn-subscribe:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px rgba(102, 126, 234, 0.4);
+    color: white;
+}
+
+.btn-subscribe::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s;
+}
+
+.btn-subscribe:hover::before {
+    left: 100%;
+}
+
+.btn-subscribe i {
+    transition: transform 0.3s ease;
+}
+
+.btn-subscribe:hover i {
+    transform: translateX(5px);
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Currency Conversion
+    const currencySelect = document.getElementById('currencySelect');
+    
+    if (!currencySelect) {
+        return;
+    }
+    
+    const priceElements = document.querySelectorAll('.price-amount');
+    const subscribeButtons = document.querySelectorAll('.btn-subscribe[data-base-url]');
+    
+    // Store original prices in USD ONCE at page load
+    const originalPrices = [];
+    priceElements.forEach(priceEl => {
+        const priceText = priceEl.querySelector('.price').textContent.replace(/[^0-9.]/g, '');
+        originalPrices.push(parseFloat(priceText));
+    });
+    
+    currencySelect.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        const rate = parseFloat(selectedOption.dataset.rate);
+        const symbol = selectedOption.dataset.symbol;
+        const currency = selectedOption.value;
+        
+        // Update prices
+        priceElements.forEach((priceEl, index) => {
+            const convertedPrice = (originalPrices[index] * rate).toFixed(2);
+            priceEl.querySelector('.price-currency').textContent = symbol;
+            priceEl.querySelector('.price').textContent = convertedPrice;
+        });
+        
+        // Update subscribe button URLs
+        subscribeButtons.forEach((btn) => {
+            const baseUrl = btn.dataset.baseUrl;
+            const originalPrice = parseFloat(btn.dataset.originalPrice);
+            const convertedAmount = (originalPrice * rate).toFixed(2);
+            btn.href = `${baseUrl}?currency=${currency}&amount=${convertedAmount}`;
+        });
+    });
+});
+</script>
+{% endblock %}

@@ -247,8 +247,8 @@ def transactions(request):
     # Get all transactions
     transactions_list = Transaction.objects.all().select_related('user', 'subscription').order_by('-created_at')
     
-    # Pagination: 10 transactions per page
-    paginator = Paginator(transactions_list, 10)
+    # Pagination: 6 transactions per page
+    paginator = Paginator(transactions_list, 6)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     
