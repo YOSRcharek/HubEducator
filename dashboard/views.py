@@ -217,8 +217,19 @@ def user_subscriptions(request):
     if request.user.role != 'admin':
         return redirect(reverse('unauthorized'))
     
-    # Get all user subscriptions
-    user_subscriptions_list = UserSubscription.objects.all().select_related('user', 'subscription', 'transaction').order_by('-created_at')
+    # Get filter parameter from URL
+    user_type = request.GET.get('type', 'all')
+    
+    # Get all user subscriptions with optional filtering
+    user_subscriptions_list = UserSubscription.objects.all().select_related('user', 'subscription', 'transaction')
+    
+    # Apply filter based on user type
+    if user_type == 'student':
+        user_subscriptions_list = user_subscriptions_list.filter(user__role='student')
+    elif user_type == 'teacher':
+        user_subscriptions_list = user_subscriptions_list.filter(user__role='teacher')
+    
+    user_subscriptions_list = user_subscriptions_list.order_by('-created_at')
     
     # Pagination: 6 user subscriptions per page
     paginator = Paginator(user_subscriptions_list, 6)
@@ -226,7 +237,8 @@ def user_subscriptions(request):
     page_obj = paginator.get_page(page_number)
     
     return render(request, 'user_subscriptions/user_subscriptions.html', {
-        'page_obj': page_obj
+        'page_obj': page_obj,
+        'current_filter': user_type
     })
 
 
