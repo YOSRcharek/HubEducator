@@ -253,6 +253,25 @@
       <section class="pricing-section" style="padding: 80px 0;">
 
         <div class="container">
+          <!-- Currency Selector -->
+          <div class="row mb-5">
+            <div class="col text-center">
+              <div class="currency-selector" style="display: inline-block; background: white; padding: 15px 25px; border-radius: 50px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                <label for="currencySelect" style="font-weight: 600; margin-right: 10px; color: #2c3e50;">
+                  <i class="fas fa-globe"></i> Currency:
+                </label>
+                <select id="currencySelect" class="form-select d-inline-block" style="width: auto; border: 2px solid #667eea; border-radius: 25px; padding: 8px 20px; font-weight: 600; color: #667eea;">
+                  <option value="USD" data-symbol="$" data-rate="1">USD ($)</option>
+                  <option value="EUR" data-symbol="€" data-rate="0.92">EUR (€)</option>
+                  <option value="GBP" data-symbol="£" data-rate="0.79">GBP (£)</option>
+                  <option value="TND" data-symbol="TND" data-rate="3.1">TND</option>
+                  <option value="MAD" data-symbol="MAD" data-rate="10.2">MAD</option>
+                  <option value="CAD" data-symbol="C$" data-rate="1.36">CAD (C$)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
           <!-- Student Subscriptions Section -->
           {% if student_subscriptions %}
           <div class="mb-5">
@@ -309,7 +328,11 @@
                         
                         <!-- Purchase Button -->
                         <div class="mt-4">
-                          <a class="btn purchase-btn w-100" href="{% url 'initiate_payment' subscription.id %}">Purchase now</a>
+                          {% if user.is_authenticated %}
+                          <a class="btn purchase-btn w-100" href="{% url 'initiate_payment' subscription.id %}" data-base-url="{% url 'initiate_payment' subscription.id %}" data-original-price="{{ subscription.price }}">Purchase now</a>
+                          {% else %}
+                          <a class="btn purchase-btn w-100" href="{% url 'login' %}?next={% url 'initiate_payment' subscription.id %}" data-login-url="{% url 'login' %}" data-base-url="{% url 'initiate_payment' subscription.id %}" data-original-price="{{ subscription.price }}">Purchase now</a>
+                          {% endif %}
                         </div>
                       </div>
                     </div>
@@ -377,7 +400,11 @@
                         
                         <!-- Purchase Button -->
                         <div class="mt-4">
-                          <a class="btn purchase-btn w-100" href="{% url 'initiate_payment' subscription.id %}">Purchase now</a>
+                          {% if user.is_authenticated %}
+                          <a class="btn purchase-btn w-100" href="{% url 'initiate_payment' subscription.id %}" data-base-url="{% url 'initiate_payment' subscription.id %}" data-original-price="{{ subscription.price }}">Purchase now</a>
+                          {% else %}
+                          <a class="btn purchase-btn w-100" href="{% url 'login' %}?next={% url 'initiate_payment' subscription.id %}" data-login-url="{% url 'login' %}" data-base-url="{% url 'initiate_payment' subscription.id %}" data-original-price="{{ subscription.price }}">Purchase now</a>
+                          {% endif %}
                         </div>
                       </div>
                     </div>
@@ -497,6 +524,64 @@
         // Initialize both carousels
         initCarousel('studentCarousel', 'prevBtnStudent', 'nextBtnStudent');
         initCarousel('teacherCarousel', 'prevBtnTeacher', 'nextBtnTeacher');
+        
+        // Currency Conversion
+        const currencySelect = document.getElementById('currencySelect');
+        
+        if (!currencySelect) {
+          console.error('Currency select not found!');
+          return;
+        }
+        
+        const priceElements = document.querySelectorAll('.price-amount');
+        const purchaseButtons = document.querySelectorAll('.purchase-btn');
+        
+        // Store original prices in USD ONCE at page load
+        const originalPrices = [];
+        priceElements.forEach(priceEl => {
+          const priceText = priceEl.textContent.replace(/[^0-9.]/g, '');
+          originalPrices.push(parseFloat(priceText));
+        });
+        
+        console.log('Original prices:', originalPrices);
+        console.log('Purchase buttons found:', purchaseButtons.length);
+        
+        currencySelect.addEventListener('change', function() {
+          const selectedOption = this.options[this.selectedIndex];
+          const rate = parseFloat(selectedOption.dataset.rate);
+          const symbol = selectedOption.dataset.symbol;
+          const currency = selectedOption.value;
+          
+          priceElements.forEach((priceEl, index) => {
+            const convertedPrice = (originalPrices[index] * rate).toFixed(2);
+            const [whole, decimal] = convertedPrice.split('.');
+            
+            // Update price display
+            priceEl.innerHTML = `<span class="price-currency">${symbol}</span>${whole}<span style="font-size: 2rem;">.${decimal}</span>`;
+          });
+          
+          // Update all purchase button URLs with currency and amount
+          console.log('Updating buttons, count:', purchaseButtons.length);
+          
+          purchaseButtons.forEach((btn, index) => {
+            const baseUrl = btn.dataset.baseUrl;
+            const loginUrl = btn.dataset.loginUrl;
+            const originalPrice = parseFloat(btn.dataset.originalPrice);
+            const convertedAmount = (originalPrice * rate).toFixed(2);
+            
+            console.log(`Button ${index}:`, {baseUrl, loginUrl, originalPrice, convertedAmount});
+            
+            if (loginUrl) {
+              // For non-authenticated users
+              btn.href = `${loginUrl}?next=${encodeURIComponent(baseUrl + '?currency=' + currency + '&amount=' + convertedAmount)}`;
+            } else {
+              // For authenticated users
+              btn.href = `${baseUrl}?currency=${currency}&amount=${convertedAmount}`;
+            }
+            
+            console.log(`Updated href:`, btn.href);
+          });
+        });
       });
     </script>
    
