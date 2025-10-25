@@ -84,54 +84,25 @@ class Speciality(models.Model):
 # Certificate model
 # --------------------------
 class Certificate(models.Model):
-    title = models.CharField(max_length=150)
-    speciality = models.ForeignKey(Speciality, on_delete=models.SET_NULL, null=True, related_name='certificates')
-    students = models.ManyToManyField(User, related_name='certificates', limit_choices_to={'role': 'student'}, blank=True)
-    date_created = models.DateField(default=timezone.now)
-    valid = models.BooleanField(default=False)
-    pdf_file = models.FileField(upload_to='certificates/', blank=True, null=True)
-
-    def __str__(self):
-        return f"{self.title} - {self.speciality.name if self.speciality else 'No Speciality'}"
-
-
-# --------------------------
-# Certificate Block model
-# --------------------------
-class CertificateBlock(models.Model):
-    certificate = models.ForeignKey(Certificate, on_delete=models.CASCADE, related_name='blocks')
-    title = models.CharField(max_length=150)
-    description = models.TextField(blank=True)
-
-    def __str__(self):
-        return f"{self.title} ({self.certificate.title})"
-
-
-# --------------------------
-# Question model (for Certificate)
-# --------------------------
-class Question(models.Model):
-    QUESTION_TYPE_CHOICES = [
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    speciality = models.ForeignKey('Speciality', on_delete=models.CASCADE)
+    cover_image = models.URLField()  # Champ image ajouté
+class CertificatExercise(models.Model):
+    TYPE_CHOICES = [
+        ('qcu', 'QCU'),  # Changed 'qcm' to 'qcu' here
+        ('truefalse', 'True/False'),
         ('text', 'Text'),
-        ('mcq', 'Multiple Choice'),
-        ('checkbox', 'Checkbox')
     ]
-    block = models.ForeignKey(CertificateBlock, on_delete=models.CASCADE, related_name='questions')
-    text = models.CharField(max_length=500)
-    question_type = models.CharField(max_length=10, choices=QUESTION_TYPE_CHOICES, default='text')
-    options = models.JSONField(blank=True, null=True)  # for MCQ or Checkbox
+
+    certificate = models.ForeignKey(Certificate, on_delete=models.CASCADE, related_name='exercises')
+    exercise_type = models.CharField(max_length=20, choices=TYPE_CHOICES)
+    question = models.CharField(max_length=500, blank=True, null=True)
+    correct_answer = models.CharField(max_length=200, blank=True, null=True)
+    option1 = models.CharField(max_length=200, blank=True, null=True)
+    option2 = models.CharField(max_length=200, blank=True, null=True)
+    option3 = models.CharField(max_length=200, blank=True, null=True)
+    option4 = models.CharField(max_length=200, blank=True, null=True)
 
     def __str__(self):
-        return f"{self.text} ({self.block.title})"
-
-
-# --------------------------
-# Answer model
-# --------------------------
-class Answer(models.Model):
-    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='answers')
-    student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='answers', limit_choices_to={'role': 'student'})
-    answer = models.TextField()
-
-    def __str__(self):
-        return f"Answer by {self.student.username} to {self.question.text}"
+        return f"Exercise for {self.certificate.title} - {self.exercise_type}"
