@@ -7,79 +7,48 @@
 <div class="content-wrapper" style="background: #f5f7fa;">
     <div class="container-fluid py-4">
         <!-- Page Header -->
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div class="text-center flex-grow-1">
-                <h4 class="font-weight-bold mb-1" style="color: #2d3748;">My Subscriptions</h4>
-                <p class="text-muted mb-0" style="font-size: 0.9rem;">Manage your subscription plans</p>
+        <div class="page-header-modern mb-5">
+            <div class="header-content">
+                <div class="header-text">
+                    <h1 class="page-title">My Subscriptions</h1>
+                    <p class="page-subtitle">Manage your subscription plans and billing</p>
+                </div>
+                <a href="{% url 'payment_history_student' %}" class="btn-payment-history">
+                    <i class="mdi mdi-history"></i>
+                    <span>Payment History</span>
+                </a>
             </div>
-            <a href="{% url 'payment_history_student' %}" class="btn btn-primary btn-sm px-4 py-2" style="border-radius: 8px; font-weight: 500;">
-                <i class="mdi mdi-history"></i> Payment History
-            </a>
         </div>
 
         {% if user_subscription %}
-            <!-- Current Subscription Banner -->
-            <div class="subscription-banner mb-4">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="d-flex align-items-center mb-2">
-                            <i class="mdi mdi-crown text-warning me-2" style="font-size: 1.5rem;"></i>
-                            <span class="badge bg-white text-primary px-3 py-1">Current Subscription</span>
-                        </div>
-                        <h2 class="text-white mb-1 font-weight-bold">{{ user_subscription.subscription.name }}</h2>
-                        <p class="text-white mb-0 opacity-75">{{ user_subscription.subscription.description|truncatewords:10 }}</p>
-                    </div>
-                    <div class="text-end">
-                        <div class="text-white">
-                            <small class="d-block opacity-75">Expires on</small>
-                            <h5 class="mb-0 font-weight-bold">{{ user_subscription.end_date|date:"d/m/Y" }}</h5>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <!-- Subscription Card -->
             <div class="row justify-content-center">
                 <div class="col-lg-6 col-md-8">
-                    <div class="subscription-card">
-                        <!-- Icon -->
-                        <div class="text-center mb-4">
-                            <div class="subscription-icon mx-auto">
-                                <i class="mdi mdi-crown text-warning"></i>
+                    <div class="card modern-card active-subscription">
+                        <div class="card-badge">Current Plan</div>
+                        <div class="expiry-badge">
+                            <i class="mdi mdi-calendar-clock"></i>
+                            <span>Expires on {{ user_subscription.end_date|date:"d/m/Y" }}</span>
+                        </div>
+                        <div class="card-body text-center p-4">
+                            <div class="plan-icon mb-3">
+                                <i class="mdi mdi-crown"></i>
                             </div>
-                        </div>
-
-                        <!-- Plan Name -->
-                        <div class="text-center mb-3">
-                            <h3 class="font-weight-bold mb-2" style="color: #2d3748;">{{ user_subscription.subscription.name }}</h3>
-                            <p class="text-muted mb-0">{{ user_subscription.subscription.description|truncatewords:8 }}</p>
-                        </div>
-
-                        <!-- Price -->
-                        <div class="text-center mb-4">
-                            <div class="price-display">
+                            <h4 class="plan-name mb-3">{{ user_subscription.subscription.name }}</h4>
+                            <div class="price-section mb-4">
                                 <span class="currency">$</span>
-                                <span class="amount">{{ user_subscription.subscription.price }}</span>
-                                <span class="duration">/{{ user_subscription.subscription.duration }}</span>
+                                <span class="price">{{ user_subscription.subscription.price }}</span>
+                                <span class="period">/ {{ user_subscription.subscription.duration }}</span>
                             </div>
-                        </div>
-
-                        <!-- Features List -->
-                        <div class="features-list mb-4">
-                            {% for feature in user_subscription.subscription.get_features_list %}
-                                <div class="feature-item">
-                                    <i class="mdi mdi-check-circle text-success"></i>
-                                    <span>{{ feature }}</span>
-                                </div>
-                            {% endfor %}
-                        </div>
-
-                        <!-- Current Plan Badge -->
-                        <div class="text-center mb-3">
-                            <button class="btn btn-success btn-block current-plan-btn" disabled>
-                                <i class="mdi mdi-check-circle"></i> Current Plan
-                            </button>
-                        </div>
+                            <p class="plan-description text-muted mb-4">{{ user_subscription.subscription.description|truncatewords:12 }}</p>
+                            <div class="features-list text-start mb-4">
+                                {% for feature in user_subscription.subscription.get_features_list %}
+                                    <div class="feature-item">
+                                        <i class="mdi mdi-check-circle"></i>
+                                        <span>{{ feature }}</span>
+                                    </div>
+                                {% endfor %}
+                            </div>
 
                         <!-- Action Buttons -->
                         <div class="row g-2 justify-content-center">
@@ -89,31 +58,209 @@
                                 </button>
                             </div>
                             <div class="col-5">
-                                <button class="btn btn-outline-danger btn-block btn-sm" disabled>
+                                <a href="{% url 'unsubscribe' %}" 
+                                   class="btn btn-outline-danger btn-block btn-sm"
+                                   onclick="return confirm('Are you sure you want to unsubscribe? Your subscription will be deactivated.');">
                                     <i class="mdi mdi-close-circle"></i> Unsubscribe
-                                </button>
+                                </a>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         {% else %}
-            <!-- No Subscription -->
-            <div class="row justify-content-center">
-                <div class="col-lg-6 col-md-8">
-                    <div class="subscription-card text-center py-5">
-                        <div class="empty-icon mx-auto mb-4">
+            <!-- No Subscription Alert -->
+            <div class="row justify-content-center mb-5">
+                <div class="col-lg-10">
+                    <div class="no-subscription-alert">
+                        <div class="alert-icon-wrapper">
                             <i class="mdi mdi-alert-circle-outline"></i>
                         </div>
-                        <h4 class="font-weight-bold mb-3">No Active Subscription</h4>
-                        <p class="text-muted mb-4">
-                            You don't have an active subscription at the moment.<br>
-                            Please contact the administrator to subscribe to a plan.
-                        </p>
-                        <a href="{% url 'dashboard' %}" class="btn btn-primary">
-                            <i class="mdi mdi-arrow-left"></i> Back to Dashboard
-                        </a>
+                        <h3 class="alert-title">No Active Subscription</h3>
+                        <p class="alert-description">You don't have an active subscription. Choose a plan below to unlock all features!</p>
+                        <div class="alert-decoration">
+                            <div class="decoration-circle"></div>
+                            <div class="decoration-circle"></div>
+                            <div class="decoration-circle"></div>
+                        </div>
                     </div>
+                </div>
+            </div>
+
+            <!-- Available Subscriptions Carousel -->
+            <div class="row">
+                <div class="col-12 mb-4">
+                    <div class="section-header text-center">
+                        <div class="section-icon">
+                            <i class="mdi mdi-credit-card-multiple"></i>
+                        </div>
+                        <h2 class="section-title">Choose Your Perfect Plan</h2>
+                        <p class="section-subtitle">Select the subscription that best fits your needs</p>
+                    </div>
+                </div>
+                <div class="col-12">
+                    {% if available_subscriptions %}
+                    <div class="position-relative">
+                        <div class="subscription-carousel-container overflow-hidden">
+                            <div class="subscription-carousel-track d-flex" id="subscriptionTrack">
+                                {% for subscription in available_subscriptions %}
+                                <div class="subscription-card-wrapper">
+                                    <div class="card modern-card h-100 mx-2">
+                                        <div class="card-badge">{{ subscription.get_user_type_display }}</div>
+                                        <div class="card-body text-center p-4">
+                                            <div class="plan-icon mb-3">
+                                                <i class="mdi mdi-crown"></i>
+                                            </div>
+                                            <h4 class="plan-name mb-3">{{ subscription.name }}</h4>
+                                            <div class="price-section mb-4">
+                                                <span class="currency">$</span>
+                                                <span class="price">{{ subscription.price }}</span>
+                                                <span class="period">/ {{ subscription.duration }}</span>
+                                            </div>
+                                            <p class="plan-description text-muted mb-4">{{ subscription.description|truncatewords:12 }}</p>
+                                            <div class="features-list text-start mb-4">
+                                                {% for feature in subscription.get_features_list %}
+                                                    <div class="feature-item">
+                                                        <i class="mdi mdi-check-circle"></i>
+                                                        <span>{{ feature }}</span>
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                            <a href="{% url 'initiate_payment' subscription.id %}" class="btn-subscribe">
+                                                <span>Subscribe</span>
+                                                <i class="mdi mdi-arrow-right"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <button class="carousel-nav-btn carousel-nav-prev" id="prevBtn">
+                            <i class="mdi mdi-chevron-left"></i>
+                        </button>
+                        <button class="carousel-nav-btn carousel-nav-next" id="nextBtn">
+                            <i class="mdi mdi-chevron-right"></i>
+                        </button>
+                    </div>
+
+                    <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const track = document.getElementById('subscriptionTrack');
+                        const prevBtn = document.getElementById('prevBtn');
+                        const nextBtn = document.getElementById('nextBtn');
+                        const cards = document.querySelectorAll('.subscription-card-wrapper');
+                        
+                        // Masquer les cartes au-delà de la 3ème
+                        if (cards.length > 3) {
+                            for (let i = 3; i < cards.length; i++) {
+                                cards[i].style.display = 'none';
+                            }
+                        }
+                        
+                        let currentIndex = 0;
+                        const visibleCards = Math.min(cards.length, 3);
+                        const cardWidth = cards[0].offsetWidth + 16;
+                        const maxIndex = Math.max(0, cards.length - visibleCards);
+                        
+                        function updateCarousel() {
+                            // Afficher seulement 3 cartes à la fois
+                            for (let i = 0; i < cards.length; i++) {
+                                if (i >= currentIndex && i < currentIndex + 3) {
+                                    cards[i].style.display = 'block';
+                                } else {
+                                    cards[i].style.display = 'none';
+                                }
+                            }
+                            
+                            const offset = -currentIndex * cardWidth;
+                            track.style.transform = `translateX(${offset}px)`;
+                            
+                            prevBtn.disabled = currentIndex === 0;
+                            nextBtn.disabled = currentIndex >= maxIndex;
+                            
+                            // Masquer les boutons si 3 cartes ou moins
+                            if (cards.length <= 3) {
+                                prevBtn.style.display = 'none';
+                                nextBtn.style.display = 'none';
+                            }
+                        }
+                        
+                        prevBtn.addEventListener('click', function() {
+                            if (currentIndex > 0) {
+                                currentIndex--;
+                                updateCarousel();
+                            }
+                        });
+                        
+                        nextBtn.addEventListener('click', function() {
+                            if (currentIndex < maxIndex) {
+                                currentIndex++;
+                                updateCarousel();
+                            }
+                        });
+                        
+                        updateCarousel();
+                    });
+                    </script>
+
+                    <style>
+                    .subscription-carousel-container {
+                        position: relative;
+                        padding: 0 50px;
+                    }
+                    
+                    .subscription-carousel-track {
+                        transition: transform 0.5s ease;
+                    }
+                    
+                    .subscription-card-wrapper {
+                        flex: 0 0 calc(33.333% - 16px);
+                        min-width: calc(33.333% - 16px);
+                    }
+                    
+                    .carousel-nav-btn {
+                        position: absolute;
+                        top: 50%;
+                        transform: translateY(-50%);
+                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                        border: none;
+                        color: white;
+                        width: 40px;
+                        height: 40px;
+                        border-radius: 50%;
+                        cursor: pointer;
+                        z-index: 10;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 24px;
+                        transition: all 0.3s ease;
+                    }
+                    
+                    .carousel-nav-btn:hover:not(:disabled) {
+                        transform: translateY(-50%) scale(1.1);
+                        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+                    }
+                    
+                    .carousel-nav-btn:disabled {
+                        opacity: 0.3;
+                        cursor: not-allowed;
+                    }
+                    
+                    .carousel-nav-prev {
+                        left: 0;
+                    }
+                    
+                    .carousel-nav-next {
+                        right: 0;
+                    }
+                    </style>
+                    {% else %}
+                    <div class="alert alert-info text-center">
+                        <p class="mb-0">No subscription plans available at the moment.</p>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         {% endif %}
@@ -121,6 +268,384 @@
 </div>
 
 <style>
+/* Page Header Modern Styles */
+.page-header-modern {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 20px;
+    padding: 30px 40px;
+    box-shadow: 0 10px 40px rgba(102, 126, 234, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.page-header-modern::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    border-radius: 50%;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+}
+
+.header-text {
+    flex: 1;
+}
+
+.page-title {
+    font-size: 32px;
+    font-weight: 800;
+    color: white;
+    margin-bottom: 8px;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.page-subtitle {
+    font-size: 16px;
+    color: rgba(255,255,255,0.9);
+    margin-bottom: 0;
+}
+
+.btn-payment-history {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: white;
+    color: #667eea;
+    padding: 12px 24px;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 15px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.btn-payment-history:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    color: #667eea;
+    background: rgba(255,255,255,0.95);
+}
+
+.btn-payment-history i {
+    font-size: 20px;
+}
+
+/* No Subscription Alert Styles */
+.no-subscription-alert {
+    background: linear-gradient(135deg, #fff5e6 0%, #ffe8cc 100%);
+    border-radius: 15px;
+    padding: 25px 30px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 5px 20px rgba(255, 152, 0, 0.15);
+    border: 2px solid #ffd699;
+}
+
+.alert-icon-wrapper {
+    display: inline-block;
+    background: linear-gradient(135deg, #ff9800 0%, #ff6f00 100%);
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 12px;
+    box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
+    animation: pulse 2s infinite;
+}
+
+.alert-icon-wrapper i {
+    font-size: 28px;
+    color: white;
+}
+
+.alert-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #e65100;
+    margin-bottom: 8px;
+}
+
+.alert-description {
+    font-size: 14px;
+    color: #f57c00;
+    margin-bottom: 0;
+}
+
+.alert-decoration {
+    position: absolute;
+    bottom: 10px;
+    right: 20px;
+    display: flex;
+    gap: 8px;
+}
+
+.decoration-circle {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: rgba(255, 152, 0, 0.3);
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+/* Section Header Styles */
+.section-header {
+    margin-bottom: 40px;
+}
+
+.section-icon {
+    display: inline-block;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+}
+
+.section-icon i {
+    font-size: 32px;
+    color: white;
+}
+
+.section-title {
+    font-size: 32px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 10px;
+}
+
+.section-subtitle {
+    font-size: 16px;
+    color: #6c757d;
+    margin-bottom: 0;
+}
+
+/* Modern Card Styles */
+.modern-card {
+    border: none;
+    border-radius: 20px;
+    background: white;
+    position: relative;
+    overflow: visible;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    animation: fadeInUp 0.6s ease;
+}
+
+.modern-card:hover {
+    transform: translateY(-15px) scale(1.02);
+    box-shadow: 0 20px 60px rgba(102, 126, 234, 0.25) !important;
+}
+
+.active-subscription {
+    border: 3px solid #48bb78;
+    box-shadow: 0 10px 40px rgba(72, 187, 120, 0.15) !important;
+}
+
+.card-badge {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+    color: white;
+    padding: 6px 15px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 15px rgba(72, 187, 120, 0.3);
+}
+
+.expiry-badge {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: linear-gradient(135deg, #f6ad55 0%, #ed8936 100%);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 4px 15px rgba(246, 173, 85, 0.3);
+}
+
+.expiry-badge i {
+    font-size: 16px;
+}
+
+.plan-icon {
+    width: 70px;
+    height: 70px;
+    margin: 0 auto;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+}
+
+.plan-icon i {
+    font-size: 36px;
+    color: white;
+}
+
+.plan-name {
+    font-size: 24px;
+    font-weight: 700;
+    color: #2d3748;
+}
+
+.price-section {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 5px;
+}
+
+.currency {
+    font-size: 24px;
+    font-weight: 600;
+    color: #667eea;
+}
+
+.price {
+    font-size: 48px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+}
+
+.period {
+    font-size: 14px;
+    color: #718096;
+}
+
+.plan-description {
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 40px;
+}
+
+.features-list {
+    padding: 0 20px;
+}
+
+.feature-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    font-size: 14px;
+    color: #4a5568;
+}
+
+.feature-item i {
+    color: #48bb78;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.btn-subscribe {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 14px 32px;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 15px;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-subscribe:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px rgba(102, 126, 234, 0.4);
+    color: white;
+}
+
+.btn-subscribe::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s;
+}
+
+.btn-subscribe:hover::before {
+    left: 100%;
+}
+
+.btn-subscribe i {
+    transition: transform 0.3s ease;
+}
+
+.btn-subscribe:hover i {
+    transform: translateX(5px);
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes shine {
+    0% {
+        left: -50%;
+    }
+    100% {
+        left: 150%;
+    }
+}
+
 /* Subscription Banner */
 .subscription-banner {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);

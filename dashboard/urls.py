@@ -23,4 +23,8 @@ urlpatterns = [
     
     # User Subscriptions URLs
     path('user-subscriptions/', views.user_subscriptions, name='user_subscriptions'),
+    path('user-subscriptions/delete/<int:subscription_id>/', views.delete_user_subscription, name='delete_user_subscription'),
+    
+    # Transactions URLs
+    path('transactions/', views.transactions, name='transactions'),
 ]
