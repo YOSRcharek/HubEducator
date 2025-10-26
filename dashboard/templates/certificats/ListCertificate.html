@@ -53,6 +53,9 @@
                                 <a href="{% url 'certificate_results' cert.id %}" class="btn btn-outline-primary btn-sm">
                                     <i class="mdi mdi-chart-bar"></i> Results
                                 </a>
+                                <a href="{% url 'export_certificate_results_excel' cert.id %}" class="btn btn-outline-success btn-sm">
+                                    <i class="mdi mdi-download"></i> Export Excel
+                                </a>
                             </td>
                             <td>
                                 <div class="input-group mb-2 mr-sm-2">
@@ -101,6 +104,9 @@
                                 </a>
                                 <a href="{% url 'certificate_results' cert.id %}" class="btn btn-outline-primary btn-sm">
                                     <i class="mdi mdi-chart-bar"></i> Results
+                                </a>
+                                <a href="{% url 'export_certificate_results_excel' cert.id %}" class="btn btn-outline-success btn-sm">
+                                    <i class="mdi mdi-download"></i> Export Excel
                                 </a>
                             </td>
                             <td>

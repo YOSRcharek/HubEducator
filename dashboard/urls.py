@@ -20,4 +20,5 @@ urlpatterns = [
     path('certificates/preview/<int:cert_id>/', views.preview_certificate, name='previewCertificate'),
     path('certificates/results/<int:cert_id>/', views.certificate_results, name='certificate_results'),
     path('certificates/attempt/<int:attempt_id>/', views.attempt_details, name='attempt_details'),
+    path('certificates/export/<int:cert_id>/', views.export_certificate_results_csv, name='export_certificate_results_excel'),
 ]

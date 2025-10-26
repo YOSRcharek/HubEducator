@@ -24,6 +24,9 @@ from core.models import Certificate, CertificatExercise, Speciality
 from .forms import CertificateForm, CertificatExerciseForm
 from django.forms import modelformset_factory
 from django.db import transaction
+import csv
+from django.http import HttpResponse
+from openpyxl import Workbook
 @login_required
 def dashboard(request):
     if request.user.role not in ['admin']:
@@ -282,3 +285,56 @@ def attempt_details(request, attempt_id):
         'attempt': attempt,
         'answers': answers,
     })
+
+@login_required
+def export_certificate_results_csv(request, cert_id):
+    if request.user.role not in ['admin', 'teacher']:
+        return redirect(reverse('unauthorized'))
+    certificate = get_object_or_404(Certificate, pk=cert_id)
+    attempts = CertificateAttempt.objects.filter(certificate=certificate).select_related('user').prefetch_related('answers__exercise').order_by('-completed_at')
+
+    # Get all exercises for this certificate
+    exercises = list(CertificatExercise.objects.filter(certificate=certificate).order_by('id'))
+
+    # Create Excel workbook
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Certificate Results"
+
+    # Write headers
+    headers = ['User', 'Score', 'Total Questions', 'Passed', 'Completed At']
+    for exercise in exercises:
+        headers.append(f"{exercise.question} - Answer")
+        headers.append(f"{exercise.question} - Correct Answer")
+
+    for col_num, header in enumerate(headers, 1):
+        ws.cell(row=1, column=col_num, value=header)
+
+    # Write data
+    for row_num, attempt in enumerate(attempts, 2):
+        ws.cell(row=row_num, column=1, value=attempt.user.username)
+        ws.cell(row=row_num, column=2, value=attempt.score)
+        ws.cell(row=row_num, column=3, value=attempt.total_questions)
+        ws.cell(row=row_num, column=4, value='Yes' if attempt.passed else 'No')
+        ws.cell(row=row_num, column=5, value=attempt.completed_at.strftime('%Y-%m-%d %H:%M:%S'))
+
+        # Create a dict of exercise_id to answer for quick lookup
+        answers_dict = {answer.exercise_id: answer for answer in attempt.answers.all()}
+
+        col_num = 6
+        for exercise in exercises:
+            if exercise.id in answers_dict:
+                answer = answers_dict[exercise.id]
+                ws.cell(row=row_num, column=col_num, value=answer.answer)
+                ws.cell(row=row_num, column=col_num + 1, value=exercise.correct_answer)
+            else:
+                ws.cell(row=row_num, column=col_num, value='')
+                ws.cell(row=row_num, column=col_num + 1, value=exercise.correct_answer)
+            col_num += 2
+
+    # Create response
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = f'attachment; filename="{certificate.title}_results.xlsx"'
+
+    wb.save(response)
+    return response
