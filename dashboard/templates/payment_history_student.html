@@ -1,0 +1,219 @@
+{% extends 'baseB.html' %}
+{% load static %}
+
+{% block title %}Payment History - HubEducator{% endblock %}
+
+{% block content %}
+<div class="content-wrapper" style="background: #f5f7fa;">
+    <div class="container-fluid py-4">
+        <!-- Page Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h4 class="font-weight-bold mb-1" style="color: #2d3748;">
+                    <i class="mdi mdi-history text-primary"></i> Payment History
+                </h4>
+                <p class="text-muted mb-0" style="font-size: 0.9rem;">View all your transaction history</p>
+            </div>
+            <a href="{% url 'my_subscription_student' %}" class="btn btn-outline-primary btn-sm px-4 py-2" style="border-radius: 8px; font-weight: 500;">
+                <i class="mdi mdi-arrow-left"></i> Back to Subscription
+            </a>
+        </div>
+
+        {% if transactions %}
+            <!-- Transactions Table -->
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                <tr>
+                                    <th class="text-white border-0">Transaction ID</th>
+                                    <th class="text-white border-0">Subscription</th>
+                                    <th class="text-white border-0">Amount</th>
+                                    <th class="text-white border-0">Status</th>
+                                    <th class="text-white border-0">Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for transaction in transactions %}
+                                    <tr>
+                                        <td>
+                                            <span class="font-weight-medium text-muted" style="font-size: 0.85rem;">
+                                                {{ transaction.stripe_payment_intent_id }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <i class="mdi mdi-crown text-warning me-2"></i>
+                                                <span class="font-weight-medium">
+                                                    {% if transaction.subscription %}
+                                                        {{ transaction.subscription.name }}
+                                                    {% else %}
+                                                        N/A
+                                                    {% endif %}
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="font-weight-bold text-success">
+                                                ${{ transaction.amount }}
+                                            </span>
+                                            <small class="text-muted d-block">{{ transaction.currency|upper }}</small>
+                                        </td>
+                                        <td>
+                                            {% if transaction.status == 'completed' %}
+                                                <span class="badge bg-success">
+                                                    <i class="mdi mdi-check-circle"></i> Completed
+                                                </span>
+                                            {% elif transaction.status == 'pending' %}
+                                                <span class="badge bg-warning">
+                                                    <i class="mdi mdi-clock-outline"></i> Pending
+                                                </span>
+                                            {% elif transaction.status == 'failed' %}
+                                                <span class="badge bg-danger">
+                                                    <i class="mdi mdi-close-circle"></i> Failed
+                                                </span>
+                                            {% elif transaction.status == 'refunded' %}
+                                                <span class="badge bg-info">
+                                                    <i class="mdi mdi-undo-variant"></i> Refunded
+                                                </span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div>
+                                                <span class="d-block">{{ transaction.created_at|date:"d M Y" }}</span>
+                                                <small class="text-muted">{{ transaction.created_at|date:"H:i" }}</small>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Summary Card -->
+            <div class="row mt-4 justify-content-center">
+                <div class="col-md-4">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-body text-center">
+                            <i class="mdi mdi-receipt text-primary" style="font-size: 2.5rem;"></i>
+                            <h3 class="mt-2 mb-0 font-weight-bold">{{ transactions.count }}</h3>
+                            <p class="text-muted mb-0">Total Transactions</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-body text-center">
+                            <i class="mdi mdi-cash-multiple text-success" style="font-size: 2.5rem;"></i>
+                            <h3 class="mt-2 mb-0 font-weight-bold text-success">
+                                ${{ total_spent }}
+                            </h3>
+                            <p class="text-muted mb-0">Total Spent</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <!-- No Transactions -->
+            <div class="card shadow-sm border-0">
+                <div class="card-body text-center py-5">
+                    <div class="empty-state-icon mx-auto mb-4">
+                        <i class="mdi mdi-receipt-text-outline"></i>
+                    </div>
+                    <h4 class="font-weight-bold mb-3">No Payment History</h4>
+                    <p class="text-muted mb-4">
+                        You don't have any transactions yet.<br>
+                        Your payment history will appear here once you make a purchase.
+                    </p>
+                    <a href="{% url 'my_subscription_student' %}" class="btn btn-primary">
+                        <i class="mdi mdi-arrow-left"></i> Back to Subscription
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+/* Table Styles */
+.table {
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.table thead th {
+    padding: 15px 20px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.table tbody td {
+    padding: 15px 20px;
+    vertical-align: middle;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+
+/* Badge Styles */
+.badge {
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.8rem;
+}
+
+/* Empty State */
+.empty-state-icon {
+    width: 100px;
+    height: 100px;
+    background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.empty-state-icon i {
+    font-size: 3rem;
+    color: white;
+}
+
+/* Card Styles */
+.card {
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+
+/* Responsive */
+@media (max-width: 768px) {
+    .table thead {
+        display: none;
+    }
+    
+    .table tbody tr {
+        display: block;
+        margin-bottom: 15px;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        padding: 10px;
+    }
+    
+    .table tbody td {
+        display: block;
+        text-align: right;
+        padding: 8px;
+        border: none;
+    }
+}
+</style>
+{% endblock %}
