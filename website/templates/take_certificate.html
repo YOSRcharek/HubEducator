@@ -1,0 +1,84 @@
+{% extends 'baseF.html' %}
+{% load static %}
+
+{% block title %}Take Certificate: {{ certificate.title }}{% endblock %}
+
+{% block content %}
+<main class="main" id="top">
+  <section class="pb-11 pt-7 bg-600">
+    <div class="container">
+      <div class="row">
+        <div class="col-12">
+          <h6 class="font-sans-serif text-primary fw-bold">Certificate Exam</h6>
+          <h1 class="mb-6">{{ certificate.title }}</h1>
+          <p class="text-muted">{{ certificate.description }}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="pb-0" style="margin-top:-17rem">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+          <div class="card shadow-lg">
+            <div class="card-body p-5">
+              <form method="post">
+                {% csrf_token %}
+                {% for exercise in exercises %}
+                  <div class="exercise mb-5 p-4 border rounded bg-light">
+                    <h5 class="mb-3">Question {{ forloop.counter }}: {{ exercise.question }}</h5>
+                    {% if exercise.exercise_type == 'truefalse' %}
+                      <div class="form-check">
+                        <input class="form-check-input" type="radio" name="answer_{{ exercise.id }}" id="true_{{ exercise.id }}" value="True" required>
+                        <label class="form-check-label" for="true_{{ exercise.id }}">True</label>
+                      </div>
+                      <div class="form-check">
+                        <input class="form-check-input" type="radio" name="answer_{{ exercise.id }}" id="false_{{ exercise.id }}" value="False" required>
+                        <label class="form-check-label" for="false_{{ exercise.id }}">False</label>
+                      </div>
+                    {% elif exercise.exercise_type == 'text' %}
+                      <input type="text" class="form-control" name="answer_{{ exercise.id }}" placeholder="Your answer here" required>
+                    {% elif exercise.exercise_type == 'qcu' %}
+                      {% for i in "1234" %}
+                        {% if forloop.counter == 1 and exercise.option1 %}
+                          <div class="form-check">
+                            <input class="form-check-input" type="radio" name="answer_{{ exercise.id }}" id="option{{ i }}_{{ exercise.id }}" value="{{ exercise.option1 }}" required>
+                            <label class="form-check-label" for="option{{ i }}_{{ exercise.id }}">{{ exercise.option1 }}</label>
+                          </div>
+                        {% elif forloop.counter == 2 and exercise.option2 %}
+                          <div class="form-check">
+                            <input class="form-check-input" type="radio" name="answer_{{ exercise.id }}" id="option{{ i }}_{{ exercise.id }}" value="{{ exercise.option2 }}" required>
+                            <label class="form-check-label" for="option{{ i }}_{{ exercise.id }}">{{ exercise.option2 }}</label>
+                          </div>
+                        {% elif forloop.counter == 3 and exercise.option3 %}
+                          <div class="form-check">
+                            <input class="form-check-input" type="radio" name="answer_{{ exercise.id }}" id="option{{ i }}_{{ exercise.id }}" value="{{ exercise.option3 }}" required>
+                            <label class="form-check-label" for="option{{ i }}_{{ exercise.id }}">{{ exercise.option3 }}</label>
+                          </div>
+                        {% elif forloop.counter == 4 and exercise.option4 %}
+                          <div class="form-check">
+                            <input class="form-check-input" type="radio" name="answer_{{ exercise.id }}" id="option{{ i }}_{{ exercise.id }}" value="{{ exercise.option4 }}" required>
+                            <label class="form-check-label" for="option{{ i }}_{{ exercise.id }}">{{ exercise.option4 }}</label>
+                          </div>
+                        {% endif %}
+                      {% endfor %}
+                    {% endif %}
+                  </div>
+                {% empty %}
+                  <p class="text-center">No exercises available for this certificate.</p>
+                {% endfor %}
+
+                <div class="text-center">
+                  <button type="submit" class="btn btn-primary btn-lg">Submit Certificate</button>
+                  <a href="{% url 'certificates' %}" class="btn btn-secondary btn-lg ms-3">Cancel</a>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+{% endblock %}

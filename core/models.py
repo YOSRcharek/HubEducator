@@ -106,3 +106,28 @@ class CertificatExercise(models.Model):
 
     def __str__(self):
         return f"Exercise for {self.certificate.title} - {self.exercise_type}"
+
+
+# --------------------------
+# Certificate Attempt model
+# --------------------------
+class CertificateAttempt(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    certificate = models.ForeignKey(Certificate, on_delete=models.CASCADE)
+    score = models.IntegerField(default=0)
+    total_questions = models.IntegerField(default=0)
+    completed_at = models.DateTimeField(auto_now_add=True)
+    passed = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.certificate.title} - {self.score}/{self.total_questions}"
+
+
+class CertificateAnswer(models.Model):
+    attempt = models.ForeignKey(CertificateAttempt, on_delete=models.CASCADE, related_name='answers')
+    exercise = models.ForeignKey(CertificatExercise, on_delete=models.CASCADE)
+    answer = models.TextField()
+    is_correct = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"Answer for {self.exercise.question} - Correct: {self.is_correct}"

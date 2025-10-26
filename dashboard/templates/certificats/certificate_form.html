@@ -39,6 +39,25 @@
         color: #495057;
     }
 
+    .correct-answer-container {
+        width: 100%;
+    }
+
+    .correct-answer-container input.form-control,
+    .correct-answer-container select.form-select {
+        border-radius: 10px;
+        padding: 10px 14px;
+        border: 1px solid #ced4da;
+        width: 100%;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .correct-answer-container input.form-control:focus,
+    .correct-answer-container select.form-select:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.1);
+    }
+
     .form-control,
     .form-select {
         border-radius: 10px;
@@ -188,16 +207,17 @@
             <div class="mb-3">
                 <label for="id_cover_image" class="form-label">Cover Image</label>
                 <input type="hidden" role="uploadcare-uploader" name="cover_image" id="id_cover_image"
-                    data-clearable="true" data-public-key="80a35ae75c230fc4117e"
-                    {% if cert_form.instance and cert_form.instance.cover_image %} value="{{ cert_form.instance.cover_image }}"{% endif %} />
+                    data-clearable="true" data-public-key="80a35ae75c230fc4117e" 
+                    {% if cert_form.instance and cert_form.instance.cover_image %}
+                        value="{{ cert_form.instance.cover_image }}"
+                    {% endif %} />
                 {% if cert_form.instance and cert_form.instance.cover_image %}
-                  <div class="mt-2">
-                    <img src="{{ cert_form.instance.cover_image }}" alt="{{ cert_form.instance.title }}" style="max-width:220px;border-radius:8px;">
-                  </div>
+                <div class="mt-2">
+                    <img src="{{ cert_form.instance.cover_image }}" alt="{{ cert_form.instance.title }}"
+                        style="max-width:220px;border-radius:8px;">
+                </div>
                 {% endif %}
             </div>
-
-
         </div>
 
         <!-- Exercises Section -->
@@ -217,183 +237,270 @@
                         {{ form.question.label_tag }}
                         {{ form.question }}
 
-                        <!-- Ajouter le champ DELETE masqué -->
                         <div style="display:none;">
                             {{ form.DELETE }}
                         </div>
 
-                        <div class="exercise-content truefalse">
-                            {{ form.correct_answer_truefalse.label_tag }}
-                            {{ form.correct_answer_truefalse }}
-                        </div>
+<div class="exercise-content truefalse">
+    <label class="form-label">Correct Answer</label>
+    <select class="form-select" name="{{ form.correct_answer.html_name }}">
+        <option value="">Select correct answer</option>
+        <option value="True" {% if form.correct_answer.value == "True" %}selected{% endif %}>True</option>
+        <option value="False" {% if form.correct_answer.value == "False" %}selected{% endif %}>False</option>
+    </select>
+    {% if form.correct_answer.errors %}
+        <div class="text-danger">{{ form.correct_answer.errors }}</div>
+    {% endif %}
+</div>
 
-                        <div class="exercise-content text">
-                            {{ form.correct_answer_text.label_tag }}
-                            {{ form.correct_answer_text }}
-                        </div>
+
+<div class="exercise-content text">
+    <label class="form-label">Correct Answer</label>
+    <input type="text" class="form-control text-correct-answer"
+           value="{{ form.correct_answer.value }}" 
+           name="{{ form.correct_answer.html_name }}">
+    {% if form.correct_answer.errors %}
+        <div class="text-danger">{{ form.correct_answer.errors }}</div>
+    {% endif %}
+</div>
+
+
 
                         <div class="exercise-content qcu">
-                            <div class="option-input">{{ form.option1 }}</div>
-                            <div class="option-input">{{ form.option2 }}</div>
-                            <div class="option-input">{{ form.option3 }}
-                                <button type="button" class="remove-option btn btn-sm"
-                                    style="background:none; color:#dc3545; border:none; font-weight:bold;">✖</button>
+                            <div class="option-input">
+                                <label class="form-label">Option 1</label>
+                                {{ form.option1 }}
                             </div>
-                            <div class="option-input">{{ form.option4 }}
-                                <button type="button" class="remove-option btn btn-sm"
-                                    style="background:none; color:#dc3545; border:none; font-weight:bold;">✖</button>
+                            <div class="option-input">
+                                <label class="form-label">Option 2</label>
+                                {{ form.option2 }}
                             </div>
-                            <div class="additional-options"></div>
+                            <div class="option-input" style="display:none;">
+                                <label class="form-label">Option 3</label>
+                                {{ form.option3 }}
+                                <button type="button" class="remove-option btn btn-sm">✖</button>
+                            </div>
+                            <div class="option-input" style="display:none;">
+                                <label class="form-label">Option 4</label>
+                                {{ form.option4 }}
+                                <button type="button" class="remove-option btn btn-sm">✖</button>
+                            </div>
                             <button type="button" class="add-option mt-2">➕ Add Option</button>
-                            {{ form.correct_answer_qcu.label_tag }}
-                            {{ form.correct_answer_qcu }}
+<div class="mt-3">
+    <label class="form-label">Correct Answer</label>
+    <select class="form-select qcu-correct-answer" name="{{ form.correct_answer.html_name }}">
+        <option value="">Select correct answer</option>
+        {% for opt in form.get_options %}
+            {% if opt %}
+                <option value="{{ opt }}" {% if form.correct_answer.value == opt %}selected{% endif %}>{{ opt }}</option>
+            {% endif %}
+        {% endfor %}
+    </select>
+    {% if form.correct_answer.errors %}
+        <div class="text-danger">{{ form.correct_answer.errors }}</div>
+    {% endif %}
+</div>
+
                         </div>
                     </div>
                 </div>
                 {% endfor %}
             </div>
-
-            <div class="text-center mt-3">
-                <button type="button" id="add-form" class="add-form-btn">➕ Add Another Exercise</button>
-            </div>
+            <button type="button" class="add-form-btn">➕ Add Another Exercise</button>
         </div>
 
-        <div class="text-center mt-4">
-            <button type="submit" class="save-btn">💾 Save Certificate</button>
+        <div class="form-section text-center">
+            <button type="submit" class="save-btn">Save Certificate</button>
         </div>
     </form>
 </div>
 
-
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const formsetDiv = document.getElementById('formset');
-        const addBtn = document.getElementById('add-form');
-        let exerciseCount = parseInt("{{ formset.total_form_count }}") || 0;
+document.addEventListener('DOMContentLoaded', function () {
+    const formsetDiv = document.querySelector('#formset');
+    const addBtn = document.querySelector('.add-form-btn');
 
-        const allBlocks = formsetDiv ? formsetDiv.querySelectorAll('.exercise-block') : [];
-        // Afficher tous les blocs (important pour l'édition : montrer les exercices existants)
-        allBlocks.forEach((block) => {
-            block.style.display = 'block';
-        });
+    function updateQCUSelect(block) {
+        const select = block.querySelector('.qcu-correct-answer');
+        if (!select) return;
 
-        // Initialiser les types d'exercices existants
-        allBlocks.forEach(block => {
-            const typeSelect = block.querySelector('select[id$="-exercise_type"]');
-            if (typeSelect && typeSelect.value) {
-                const selectedType = typeSelect.value;
-                block.querySelectorAll('.exercise-content').forEach(div => div.style.display = 'none');
-                const activeContent = block.querySelector(`.exercise-content.${selectedType}`);
-                if (activeContent) {
-                    activeContent.style.display = 'block';
-                }
-            }
-            
-            // Afficher toutes les options remplies
-            const qcuOptions = block.querySelectorAll('.exercise-content.qcu .option-input');
-            qcuOptions.forEach(opt => {
-                const input = opt.querySelector('input');
-                if (input && input.value) {
-                    opt.style.display = 'flex';
-                }
-            });
-        });
+        const hiddenInput = block.querySelector('input[name$="-correct_answer"]');
+        const options = block.querySelectorAll('.option-input input');
+        let currentValue = select.value;
 
-        // Mettre à jour l'affichage quand le type change
-        formsetDiv.addEventListener('change', function (e) {
-            if (e.target.name && e.target.name.endsWith('-exercise_type')) {
-                const parent = e.target.closest('.exercise-block');
-                parent.querySelectorAll('.exercise-content').forEach(div => div.style.display = 'none');
-                const selected = e.target.value;
-                if (selected) {
-                    const activeContent = parent.querySelector(`.exercise-content.${selected}`);
-                    if (activeContent) {
-                        activeContent.style.display = 'block';
-                    }
-                }
+        const validOptionValues = [];
+
+        select.innerHTML = '<option value="">Select correct answer</option>';
+        options.forEach((opt, idx) => {
+            const trimmedValue = opt.value.trim();
+            if (trimmedValue) {
+                validOptionValues.push(trimmedValue);
+                const optionEl = document.createElement('option');
+                optionEl.value = trimmedValue;
+                optionEl.textContent = `Option ${idx + 1}: ${trimmedValue}`;
+                select.appendChild(optionEl);
             }
         });
 
-        addBtn.addEventListener('click', function () {
-            const totalFormsInput = document.querySelector('#id_form-TOTAL_FORMS');
-            let totalForms = parseInt(totalFormsInput.value);
-
-            const firstBlock = formsetDiv.querySelector('.exercise-block');
-            if (!firstBlock) return;
-
-            const newBlock = firstBlock.cloneNode(true);
-            newBlock.querySelectorAll('input, select, textarea').forEach(el => {
-                if (el.name) el.name = el.name.replace(/form-\d+-/, `form-${totalForms}-`);
-                if (el.id) el.id = el.id.replace(/form-\d+-/, `form-${totalForms}-`);
-                el.value = '';
-                if (el.type === 'checkbox' || el.type === 'radio') el.checked = false;
-            });
-
-            newBlock.style.display = 'block';
-            newBlock.querySelector('.exercise-type').textContent = `Exercise ${totalForms + 1}`;
-            formsetDiv.appendChild(newBlock);
-            totalFormsInput.value = totalForms + 1;
-            renumberExercises();
-
-            const qcuOptions = newBlock.querySelectorAll('.exercise-content.qcu .option-input');
-            qcuOptions.forEach((opt, index) => {
-                if (index >= 2) opt.style.display = 'none';
-            });
-            renumberOptions(newBlock);
-        });
-
-        formsetDiv.addEventListener('click', function (e) {
-            const block = e.target.closest('.exercise-block');
-
-            if (e.target.classList.contains('remove-form')) {
-                const blocks = formsetDiv.querySelectorAll('.exercise-block');
-                if (blocks.length > 1) {
-                    block.remove();
-                    renumberExercises();
-                } else {
-                    alert("At least one exercise must remain.");
-                }
-            }
-
-            if (e.target.classList.contains('add-option')) {
-                const qcuOptions = block.querySelectorAll('.exercise-content.qcu .option-input');
-                let hidden = Array.from(qcuOptions).filter(opt => opt.style.display === 'none');
-                if (hidden.length > 0) {
-                    hidden[0].style.display = 'flex';
-                    renumberOptions(block);
-                } else {
-                    alert("Max 4 options allowed.");
-                }
-            }
-
-            if (e.target.classList.contains('remove-option')) {
-                const parentOption = e.target.closest('.option-input');
-                const input = parentOption.querySelector('input');
-                if (input) input.value = '';
-                parentOption.style.display = 'none';
-                renumberOptions(block);
-            }
-        });
-
-        function renumberExercises() {
-            const blocks = formsetDiv.querySelectorAll('.exercise-block');
-            blocks.forEach((block, index) => {
-                block.querySelector('.exercise-type').textContent = `Exercise ${index + 1}`;
-            });
-            exerciseCount = blocks.length;
+        if (validOptionValues.includes(currentValue)) {
+            select.value = currentValue;
+        } else {
+            select.value = "";
         }
 
-        function renumberOptions(block) {
-            const options = Array.from(block.querySelectorAll('.exercise-content.qcu .option-input'))
-                .filter(opt => opt.style.display !== 'none');
-            options.forEach((opt, index) => {
-                const label = opt.querySelector('label');
-                const input = opt.querySelector('input');
-                if (label) label.textContent = `Option ${index + 1}`;
-                if (input) input.setAttribute('placeholder', `Option ${index + 1}`);
+        if (hiddenInput) {
+            hiddenInput.value = select.value;
+        }
+    }
+
+    function renumberExercises() {
+        const blocks = formsetDiv.querySelectorAll('.exercise-block:not([style*="display: none"])');
+        blocks.forEach((block, index) => {
+            block.querySelector('.exercise-type').textContent = `Exercise ${index + 1}`;
+        });
+    }
+
+    function renumberOptions(block) {
+        const options = Array.from(block.querySelectorAll('.exercise-content.qcu .option-input'))
+            .filter(opt => opt.style.display !== 'none');
+        options.forEach((opt, index) => {
+            const label = opt.querySelector('label');
+            const input = opt.querySelector('input');
+            if (label) label.textContent = `Option ${index + 1}`;
+            if (input) input.setAttribute('placeholder', `Option ${index + 1}`);
+        });
+    }
+
+    function toggleExerciseInputs(block, selectedType) {
+        block.querySelectorAll('.exercise-content').forEach(div => {
+            const is_active = div.classList.contains(selectedType);
+            div.style.display = is_active ? 'block' : 'none';
+            div.querySelectorAll('input, select').forEach(input => {
+                if (!input.name.includes('exercise_type')) {
+                    input.disabled = !is_active;
+                }
             });
+        });
+    }
+
+    // Initialize existing blocks
+    formsetDiv.querySelectorAll('.exercise-block').forEach((block) => {
+        block.style.display = 'block';
+        const typeSelect = block.querySelector('select[name$="-exercise_type"]');
+        if (typeSelect && typeSelect.value) {
+            toggleExerciseInputs(block, typeSelect.value);
+        }
+        updateQCUSelect(block);
+
+        const tfSelect = block.querySelector('.exercise-content.truefalse select');
+        if (tfSelect) {
+            const hiddenInput = block.querySelector('input[name$="-correct_answer"]');
+            if (hiddenInput && hiddenInput.value) tfSelect.value = hiddenInput.value;
+        }
+
+        const qcuSelect = block.querySelector('.exercise-content.qcu .qcu-correct-answer');
+        if (qcuSelect) {
+            const hiddenInput = block.querySelector('input[name$="-correct_answer"]');
+            if (hiddenInput && hiddenInput.value) qcuSelect.value = hiddenInput.value;
         }
     });
-</script>
 
+    formsetDiv.addEventListener('change', function (e) {
+        const block = e.target.closest('.exercise-block');
+        if (!block) return;
+
+        if (e.target.closest('.exercise-content.truefalse select')) {
+            const hiddenInput = block.querySelector('input[name$="-correct_answer"]');
+            if (hiddenInput) hiddenInput.value = e.target.value;
+        }
+
+        if (e.target.closest('.exercise-content.qcu .qcu-correct-answer')) {
+            const hiddenInput = block.querySelector('input[name$="-correct_answer"]');
+            if (hiddenInput) hiddenInput.value = e.target.value;
+        }
+
+        if (e.target.name && e.target.name.includes('exercise_type')) {
+            toggleExerciseInputs(block, e.target.value);
+        }
+    });
+
+    formsetDiv.addEventListener('input', function (e) {
+        const block = e.target.closest('.exercise-block');
+        if (!block) return;
+
+        if (e.target.closest('.exercise-content.qcu .option-input input')) {
+            updateQCUSelect(block);
+        }
+    });
+
+    addBtn.addEventListener('click', function () {
+        const totalFormsInput = document.querySelector('#id_exercise-TOTAL_FORMS');
+        let totalForms = parseInt(totalFormsInput.value);
+
+        const firstBlock = formsetDiv.querySelector('.exercise-block');
+        if (!firstBlock) return;
+
+        const newBlock = firstBlock.cloneNode(true);
+        newBlock.querySelectorAll('input, select, textarea').forEach(el => {
+            if (el.name) el.name = el.name.replace(/exercise-\d+-/, `exercise-${totalForms}-`);
+            if (el.id) el.id = el.id.replace(/exercise-\d+-/, `exercise-${totalForms}-`);
+            if (!el.name.includes('TOTAL_FORMS') && !el.name.includes('INITIAL_FORMS') && !el.name.includes('MIN_NUM_FORMS') && !el.name.includes('MAX_NUM_FORMS')) {
+                if (el.type === 'checkbox' || el.type === 'radio') el.checked = false;
+                else el.value = '';
+            }
+        });
+        
+        const typeSelect = newBlock.querySelector('select[name$="-exercise_type"]');
+        if(typeSelect) {
+            toggleExerciseInputs(newBlock, typeSelect.value);
+        }
+
+        newBlock.style.display = 'block';
+        newBlock.querySelector('.exercise-type').textContent = `Exercise ${totalForms + 1}`;
+        formsetDiv.appendChild(newBlock);
+
+        totalFormsInput.value = totalForms + 1;
+
+        renumberExercises();
+
+        const qcuOptions = newBlock.querySelectorAll('.exercise-content.qcu .option-input');
+        qcuOptions.forEach((opt, index) => {
+            if (index >= 2) opt.style.display = 'none';
+        });
+        renumberOptions(newBlock);
+    });
+
+    formsetDiv.addEventListener('click', function (e) {
+        const block = e.target.closest('.exercise-block');
+        if (e.target.classList.contains('remove-form')) {
+            const deleteInput = block.querySelector('input[name$="-DELETE"]');
+            if (deleteInput) deleteInput.checked = true;
+            block.style.display = 'none';
+            renumberExercises();
+        }
+
+        if (e.target.classList.contains('add-option')) {
+            const qcuOptions = block.querySelectorAll('.exercise-content.qcu .option-input');
+            let hidden = Array.from(qcuOptions).filter(opt => opt.style.display === 'none');
+            if (hidden.length > 0) {
+                hidden[0].style.display = 'flex';
+                renumberOptions(block);
+                updateQCUSelect(block);
+            } else {
+                alert("Max 4 options allowed.");
+            }
+        }
+
+        if (e.target.classList.contains('remove-option')) {
+            const parentOption = e.target.closest('.option-input');
+            const input = parentOption.querySelector('input');
+            if (input) input.value = '';
+            parentOption.style.display = 'none';
+            renumberOptions(block);
+            updateQCUSelect(block);
+        }
+    });
+});
+</script>
+    
 {% endblock %}

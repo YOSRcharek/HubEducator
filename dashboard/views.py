@@ -208,7 +208,6 @@ def edit_certificate(request, cert_id):
                         else:
                             exercise = form.save(commit=False)
                             exercise.certificate = certificate
-                            # Le clean() du form gère correct_answer mapping, mais on peut assurer ici :
                             exercise.save()
                     
                     messages.success(request, "Certificate updated successfully!")

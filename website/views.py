@@ -1,6 +1,11 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout, get_user_model
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
+from django.db.models import Q
+
+from core.models import Certificate, Speciality, CertificatExercise, CertificateAttempt, CertificateAnswer
 from .forms import RegisterForm
 from core.decorators import unauthenticated_user
 from django.contrib.auth.forms import PasswordResetForm
@@ -233,3 +238,103 @@ def google_callback(request):
     login(request, user)
 
     return redirect('/')  # Redirect to homepage after login
+
+def certificates(request):
+    speciality_id = request.GET.get('speciality')
+    search_query = request.GET.get('search', '')
+
+    certificates = Certificate.objects.all()
+
+    if speciality_id:
+        certificates = certificates.filter(speciality_id=speciality_id)
+
+    if search_query:
+        certificates = certificates.filter(
+            Q(title__icontains=search_query) | Q(description__icontains=search_query)
+        )
+
+    paginator = Paginator(certificates, 12)  # 12 certificates per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    specialities = Speciality.objects.all()
+
+    # Get user's attempts for each certificate
+    user_attempts = {}
+    if request.user.is_authenticated:
+        attempts = CertificateAttempt.objects.filter(user=request.user).select_related('certificate')
+        for attempt in attempts:
+            cert_id = str(attempt.certificate_id)
+            if cert_id not in user_attempts or attempt.completed_at > user_attempts[cert_id].completed_at:
+                user_attempts[cert_id] = attempt
+
+    # Add attempt to each certificate object
+    for cert in page_obj:
+        cert.user_attempt = user_attempts.get(str(cert.id))
+
+    return render(request, 'certificates.html', {
+        'certificates': page_obj,
+        'page_obj': page_obj,
+        'specialities': specialities,
+        'selected_speciality': speciality_id,
+        'search_query': search_query,
+    })
+
+@login_required
+def take_certificate(request, cert_id):
+    certificate = get_object_or_404(Certificate, pk=cert_id)
+    exercises = CertificatExercise.objects.filter(certificate=certificate)
+
+    if request.method == 'POST':
+        # Process the form submission
+        attempt = CertificateAttempt.objects.create(
+            user=request.user,
+            certificate=certificate,
+            total_questions=exercises.count()
+        )
+
+        score = 0
+        for exercise in exercises:
+            answer_key = f'answer_{exercise.id}'
+            user_answer = request.POST.get(answer_key, '').strip()
+
+            is_correct = False
+            if exercise.exercise_type == 'truefalse':
+                is_correct = user_answer.lower() == exercise.correct_answer.lower()
+            elif exercise.exercise_type == 'text':
+                is_correct = user_answer.lower() == exercise.correct_answer.lower()
+            elif exercise.exercise_type == 'qcu':
+                # Since correct_answer now stores the option text, compare directly
+                is_correct = user_answer == exercise.correct_answer
+
+            if is_correct:
+                score += 1
+
+            CertificateAnswer.objects.create(
+                attempt=attempt,
+                exercise=exercise,
+                answer=user_answer,
+                is_correct=is_correct
+            )
+
+        attempt.score = score
+        attempt.passed = score >= (exercises.count() * 0.7)  # 70% to pass
+        attempt.save()
+
+        return redirect('certificate_result', attempt_id=attempt.id)
+
+    return render(request, 'take_certificate.html', {
+        'certificate': certificate,
+        'exercises': exercises,
+    })
+
+@login_required
+def certificate_result(request, attempt_id):
+    attempt = get_object_or_404(CertificateAttempt, pk=attempt_id, user=request.user)
+    answers = attempt.answers.all().select_related('exercise')
+
+    return render(request, 'certificate_result.html', {
+        'attempt': attempt,
+        'answers': answers,
+    })
+
