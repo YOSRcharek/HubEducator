@@ -1,9 +1,9 @@
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.shortcuts import render, redirect,get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from .forms import AddUserForm, EditUserForm, EditUserForm
-from core.models import User
+from core.models import CertificateAttempt, User
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.contrib import messages
@@ -129,7 +129,9 @@ class SpecialityDeleteView(View):
 class ListCertificatView(View):
     def get(self, request):
         certificates_qs = Certificate.objects.annotate(
-            exercise_count=Count('exercises')
+            exercise_count=Count('exercises'),
+            participant_count=Count('certificateattempt', distinct=True),
+            succeeded_count=Count('certificateattempt', filter=Q(certificateattempt__passed=True), distinct=True)
         ).all().order_by('id')
         paginator = Paginator(certificates_qs, 10)  # 10 items per page
         page_number = request.GET.get('page')
@@ -257,4 +259,26 @@ def preview_certificate(request, cert_id):
     return render(request, 'certificats/preview_certificate.html', {
         'certificate': certificate,
         'exercises': exercises,
+    })
+
+@login_required
+def certificate_results(request, cert_id):
+    if request.user.role not in ['admin', 'teacher']:
+        return redirect(reverse('unauthorized'))
+    certificate = get_object_or_404(Certificate, pk=cert_id)
+    attempts = CertificateAttempt.objects.filter(certificate=certificate).select_related('user').order_by('-completed_at')
+    return render(request, 'certificats/certificate_results.html', {
+        'certificate': certificate,
+        'attempts': attempts,
+    })
+
+@login_required
+def attempt_details(request, attempt_id):
+    if request.user.role not in ['admin', 'teacher']:
+        return redirect(reverse('unauthorized'))
+    attempt = get_object_or_404(CertificateAttempt, pk=attempt_id)
+    answers = attempt.answers.select_related('exercise').all()
+    return render(request, 'certificats/attempt_details.html', {
+        'attempt': attempt,
+        'answers': answers,
     })

@@ -22,8 +22,8 @@
                             <th>Description</th>
                             <th>Speciality</th>
                             <th>Cover</th>
-                            <th>Participant</th>
-                            <th>Resultat</th>
+                            <th>Participants</th>
+                            <th>Succeeded / Total</th>
                             <th>Aperçu</th>
                             <th>Actions</th>
                         </tr>
@@ -43,12 +43,15 @@
                                 -
                                 {% endif %}
                             </td>
-                            <td>nombre de participant à cette certif</td>
-                            <td>les resultats</td>
+                            <td>{{ cert.participant_count }}</td>
+                            <td>{{ cert.succeeded_count }} / {{ cert.participant_count }}</td>
 
                             <td>
                                 <a href="{% url 'previewCertificate' cert.id %}" class="btn btn-outline-info btn-sm">
                                     <i class="mdi mdi-eye"></i> Aperçu
+                                </a>
+                                <a href="{% url 'certificate_results' cert.id %}" class="btn btn-outline-primary btn-sm">
+                                    <i class="mdi mdi-chart-bar"></i> Results
                                 </a>
                             </td>
                             <td>
@@ -90,11 +93,14 @@
                                 {% endif %}
                             </td>
 
-                            <td>nombre de participant à cette certif</td>
-                            <td>les resultats</td>
+                            <td>{{ cert.participant_count }}</td>
+                            <td>{{ cert.succeeded_count }} / {{ cert.participant_count }}</td>
                             <td>
                                 <a href="{% url 'previewCertificate' cert.id %}" class="btn btn-outline-info btn-sm">
                                     <i class="mdi mdi-eye"></i> Aperçu
+                                </a>
+                                <a href="{% url 'certificate_results' cert.id %}" class="btn btn-outline-primary btn-sm">
+                                    <i class="mdi mdi-chart-bar"></i> Results
                                 </a>
                             </td>
                             <td>
@@ -123,7 +129,7 @@
                         {% endfor %}
                         {% else %}
                         <tr>
-                            <td colspan="7" class="text-center">No certificates found.</td>
+                            <td colspan="9" class="text-center">No certificates found.</td>
                         </tr>
                         {% endif %}
                     </tbody>

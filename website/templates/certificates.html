@@ -4,6 +4,56 @@
 {% block title %}Certificates{% endblock %}
 
 {% block content %}
+<style>
+  /* --- Style du formulaire de filtre --- */
+  #filter-form {
+    padding: 25px 30px;
+    margin-top: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  #filter-form .form-label {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 6px;
+    font-size: 0.9rem;
+  }
+
+  #filter-form .form-select,
+
+  #filter-form .form-select:focus,
+  #filter-form .form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.15);
+    outline: none;
+  }
+
+  /* --- Amélioration du champ Search --- */
+  #searchInput {
+    background: #f9fafc;
+    padding-left: 40px;
+    background-image: url("https://cdn-icons-png.flaticon.com/512/622/622669.png");
+    background-size: 18px;
+    background-repeat: no-repeat;
+    background-position: 12px center;
+  }
+
+  #searchInput::placeholder {
+    color: #aaa;
+    font-style: italic;
+  }
+
+  /* --- Responsive --- */
+  @media (max-width: 768px) {
+    #filter-form {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  }
+</style>
      <main class="main" id="top">
       <section class="pb-11 pt-7 bg-600">
 
@@ -59,6 +109,7 @@
                           <span class="badge bg-danger">FAILED</span>
                         {% endif %}
                         <small class="text-muted">Score: {{ certificate.user_attempt.score }}/{{ certificate.user_attempt.total_questions }}</small>
+                        <br><small class="text-muted">Passages réussis: {{ certificate.passed_count }} / Total: {{ certificate.total_attempts }}</small>
                       </div>
                       <a class="btn btn-outline-success btn-sm me-2" href="{% url 'certificate_result' certificate.user_attempt.id %}">View Result</a>
                       <a class="btn btn-primary btn-sm me-2" href="{% url 'take_certificate' certificate.id %}">Retake</a>
@@ -80,41 +131,43 @@
           </div>
 
           <!-- Pagination -->
-          {% if page_obj.has_other_pages %}
-          <div class="d-flex justify-content-center mt-4">
-            <nav>
-              <ul class="pagination">
-                {% if page_obj.has_previous %}
-                  <li class="page-item">
-                    <a class="page-link" href="?{% if selected_speciality %}speciality={{ selected_speciality }}&{% endif %}{% if search_query %}search={{ search_query }}&{% endif %}page=1">First</a>
-                  </li>
-                  <li class="page-item">
-                    <a class="page-link" href="?{% if selected_speciality %}speciality={{ selected_speciality }}&{% endif %}{% if search_query %}search={{ search_query }}&{% endif %}page={{ page_obj.previous_page_number }}">Previous</a>
-                  </li>
-                {% endif %}
+{% if page_obj %}
+  <!-- Pagination -->
+  <div class="d-flex justify-content-center mt-4">
+    <nav>
+      <ul class="pagination">
+        {% if page_obj.has_previous %}
+          <li class="page-item">
+            <a class="page-link" href="?{% if selected_speciality %}speciality={{ selected_speciality }}&{% endif %}{% if search_query %}search={{ search_query }}&{% endif %}page=1">First</a>
+          </li>
+          <li class="page-item">
+            <a class="page-link" href="?{% if selected_speciality %}speciality={{ selected_speciality }}&{% endif %}{% if search_query %}search={{ search_query }}&{% endif %}page={{ page_obj.previous_page_number }}">Previous</a>
+          </li>
+        {% endif %}
 
-                {% for num in page_obj.paginator.page_range %}
-                  {% if page_obj.number == num %}
-                    <li class="page-item active"><span class="page-link">{{ num }}</span></li>
-                  {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                    <li class="page-item">
-                      <a class="page-link" href="?{% if selected_speciality %}speciality={{ selected_speciality }}&{% endif %}{% if search_query %}search={{ search_query }}&{% endif %}page={{ num }}">{{ num }}</a>
-                    </li>
-                  {% endif %}
-                {% endfor %}
-
-                {% if page_obj.has_next %}
-                  <li class="page-item">
-                    <a class="page-link" href="?{% if selected_speciality %}speciality={{ selected_speciality }}&{% endif %}{% if search_query %}search={{ search_query }}&{% endif %}page={{ page_obj.next_page_number }}">Next</a>
-                  </li>
-                  <li class="page-item">
-                    <a class="page-link" href="?{% if selected_speciality %}speciality={{ selected_speciality }}&{% endif %}{% if search_query %}search={{ search_query }}&{% endif %}page={{ page_obj.paginator.num_pages }}">Last</a>
-                  </li>
-                {% endif %}
-              </ul>
-            </nav>
-          </div>
+        {% for num in page_obj.paginator.page_range %}
+          {% if page_obj.number == num %}
+            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+          {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+            <li class="page-item">
+              <a class="page-link" href="?{% if selected_speciality %}speciality={{ selected_speciality }}&{% endif %}{% if search_query %}search={{ search_query }}&{% endif %}page={{ num }}">{{ num }}</a>
+            </li>
           {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+          <li class="page-item">
+            <a class="page-link" href="?{% if selected_speciality %}speciality={{ selected_speciality }}&{% endif %}{% if search_query %}search={{ search_query }}&{% endif %}page={{ page_obj.next_page_number }}">Next</a>
+          </li>
+          <li class="page-item">
+            <a class="page-link" href="?{% if selected_speciality %}speciality={{ selected_speciality }}&{% endif %}{% if search_query %}search={{ search_query }}&{% endif %}page={{ page_obj.paginator.num_pages }}">Last</a>
+          </li>
+        {% endif %}
+      </ul>
+    </nav>
+  </div>
+{% endif %}
+
 
         </div>
         <!-- end of .container-->
@@ -152,6 +205,26 @@
 
 
     </main>
+
+    <script>
+  const searchInput = document.getElementById('searchInput');
+  const specialitySelect = document.getElementById('inputSpeciality');
+  const filterForm = document.getElementById('filter-form');
+
+  // 🔹 Quand on change la spécialité
+  specialitySelect.addEventListener('change', function() {
+    filterForm.submit();
+  });
+
+  // 🔹 Quand on tape dans la recherche
+  let typingTimer;
+  searchInput.addEventListener('input', function() {
+    clearTimeout(typingTimer);
+    typingTimer = setTimeout(() => {
+      filterForm.submit(); // 🔸 envoie la requête GET au serveur
+    }, 100); // délai de 0,5s
+  });
+</script>
 
     <script>
       document.getElementById('inputSpeciality').addEventListener('change', function() {

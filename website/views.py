@@ -3,7 +3,7 @@ from django.contrib.auth import authenticate, login as auth_login, logout as aut
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from django.db.models import Q
+from django.db.models import Q, Count
 
 from core.models import Certificate, Speciality, CertificatExercise, CertificateAttempt, CertificateAnswer
 from .forms import RegisterForm
@@ -239,9 +239,67 @@ def google_callback(request):
 
     return redirect('/')  # Redirect to homepage after login
 
+
 def certificates(request):
     speciality_id = request.GET.get('speciality')
-    search_query = request.GET.get('search', '')
+    search_query = request.GET.get('search', '').strip()
+
+    certificates = Certificate.objects.all()
+
+    if speciality_id:
+        certificates = certificates.filter(speciality_id=speciality_id)
+
+    # 🔹 Si l'utilisateur recherche quelque chose, on désactive la pagination
+    if search_query:
+        certificates = certificates.filter(
+            Q(title__icontains=search_query) | Q(description__icontains=search_query)
+        )
+        page_obj = None
+    else:
+        paginator = Paginator(certificates, 12)
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+        certificates = page_obj.object_list
+
+    # 🔹 Charger toutes les spécialités
+    specialities = Speciality.objects.all()
+
+    # 🔹 Lier les tentatives utilisateur et compter les passages réussis et totaux
+    user_attempts = {}
+    passed_counts = {}
+    total_attempts = {}
+    if request.user.is_authenticated:
+        attempts = CertificateAttempt.objects.filter(user=request.user).select_related('certificate')
+        for attempt in attempts:
+            cert_id = str(attempt.certificate_id)
+            if cert_id not in user_attempts or attempt.completed_at > user_attempts[cert_id].completed_at:
+                user_attempts[cert_id] = attempt
+            # Compter le nombre de passages réussis par certificat
+            if attempt.passed:
+                if cert_id not in passed_counts:
+                    passed_counts[cert_id] = 0
+                passed_counts[cert_id] += 1
+            # Compter le nombre total de tentatives par certificat
+            if cert_id not in total_attempts:
+                total_attempts[cert_id] = 0
+            total_attempts[cert_id] += 1
+
+    for cert in certificates:
+        cert.user_attempt = user_attempts.get(str(cert.id))
+        cert.passed_count = passed_counts.get(str(cert.id), 0)
+        cert.total_attempts = total_attempts.get(str(cert.id), 0)
+
+    context = {
+        'certificates': certificates,
+        'page_obj': page_obj,
+        'specialities': specialities,
+        'selected_speciality': speciality_id,
+        'search_query': search_query,
+    }
+
+    return render(request, 'certificates.html', context)
+    speciality_id = request.GET.get('speciality')
+    search_query = request.GET.get('search', '').strip()
 
     certificates = Certificate.objects.all()
 
@@ -249,17 +307,23 @@ def certificates(request):
         certificates = certificates.filter(speciality_id=speciality_id)
 
     if search_query:
+        # Filtrage par recherche (titre ou description)
         certificates = certificates.filter(
             Q(title__icontains=search_query) | Q(description__icontains=search_query)
         )
+        # ⚠️ Désactiver la pagination si recherche
+        page_obj = None
+    else:
+        # Pagination uniquement si pas de recherche
+        paginator = Paginator(certificates, 12)  # 12 certificats par page
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+        certificates = page_obj.object_list
 
-    paginator = Paginator(certificates, 12)  # 12 certificates per page
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-
+    # Récupérer toutes les spécialités
     specialities = Speciality.objects.all()
 
-    # Get user's attempts for each certificate
+    # Récupérer les tentatives utilisateur
     user_attempts = {}
     if request.user.is_authenticated:
         attempts = CertificateAttempt.objects.filter(user=request.user).select_related('certificate')
@@ -268,18 +332,17 @@ def certificates(request):
             if cert_id not in user_attempts or attempt.completed_at > user_attempts[cert_id].completed_at:
                 user_attempts[cert_id] = attempt
 
-    # Add attempt to each certificate object
-    for cert in page_obj:
+    # Ajouter les tentatives à chaque certificat
+    for cert in certificates:
         cert.user_attempt = user_attempts.get(str(cert.id))
 
     return render(request, 'certificates.html', {
-        'certificates': page_obj,
+        'certificates': certificates,
         'page_obj': page_obj,
         'specialities': specialities,
         'selected_speciality': speciality_id,
         'search_query': search_query,
     })
-
 @login_required
 def take_certificate(request, cert_id):
     certificate = get_object_or_404(Certificate, pk=cert_id)

@@ -18,4 +18,6 @@ urlpatterns = [
     path('certificates/edit/<int:cert_id>/', views.edit_certificate, name='editCertificate'),
     path('certificates/delete/<int:cert_id>/', views.delete_certificate, name='deleteCertificate'),
     path('certificates/preview/<int:cert_id>/', views.preview_certificate, name='previewCertificate'),
+    path('certificates/results/<int:cert_id>/', views.certificate_results, name='certificate_results'),
+    path('certificates/attempt/<int:attempt_id>/', views.attempt_details, name='attempt_details'),
 ]
