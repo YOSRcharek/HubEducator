@@ -394,10 +394,11 @@ def take_certificate(request, cert_id):
 @login_required
 def certificate_result(request, attempt_id):
     attempt = get_object_or_404(CertificateAttempt, pk=attempt_id, user=request.user)
-    answers = attempt.answers.all().select_related('exercise')
+    certificate = attempt.certificate
+    attempts = CertificateAttempt.objects.filter(user=request.user, certificate=certificate).order_by('-completed_at')
 
     return render(request, 'certificate_result.html', {
-        'attempt': attempt,
-        'answers': answers,
+        'certificate': certificate,
+        'attempts': attempts,
     })
 

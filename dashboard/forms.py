@@ -78,7 +78,15 @@ class SpecialityForm(forms.ModelForm):
 class CertificateForm(forms.ModelForm):
     # cover_image is provided by uploadcare as a URL; make it optional on the form
     cover_image = forms.URLField(required=False, widget=forms.HiddenInput())
-    
+    speciality = forms.CharField(
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Enter speciality name',
+            'list': 'specialities'
+        }),
+        required=True
+    )
+
     class Meta:
         model = Certificate
         fields = ['title', 'description', 'speciality', 'cover_image']
@@ -91,9 +99,30 @@ class CertificateForm(forms.ModelForm):
                 'class': 'form-control',
                 'placeholder': 'Describe the certificate...'
             }),
-            'speciality': forms.Select(attrs={'class': 'form-select'}),
             'cover_image': forms.HiddenInput(),
         }
+    def clean_title(self):
+        title = self.cleaned_data.get('title')
+        if not title or len(title.strip()) < 3:
+            raise forms.ValidationError("The title must be at least 3 characters long.")
+        return title
+
+    def clean_description(self):
+        desc = self.cleaned_data.get('description')
+        if not desc or len(desc.strip()) < 10:
+            raise forms.ValidationError("The description must contain at least 10 characters.")
+        return desc
+
+    def clean_speciality(self):
+        speciality_name = self.cleaned_data.get('speciality')
+        if speciality_name:
+            speciality_name = speciality_name.strip()
+            speciality, created = Speciality.objects.get_or_create(
+                name=speciality_name,
+                defaults={'description': ''}
+            )
+            return speciality
+        return speciality_name
 
 class CertificatExerciseForm(forms.ModelForm):
     option3 = forms.CharField(
@@ -107,11 +136,23 @@ class CertificatExerciseForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Make correct_answer optional because template handles it via JS select/input
         self.fields['correct_answer'].required = False
-
-        # Force correct_answer field to use hidden input; template will show select/input
         self.fields['correct_answer'].widget = forms.HiddenInput()
+
+        # Populate available_options for QCU
+        if self.instance and self.instance.pk:
+            options = []
+            if self.instance.option1:
+                options.append(self.instance.option1)
+            if self.instance.option2:
+                options.append(self.instance.option2)
+            if self.instance.option3:
+                options.append(self.instance.option3)
+            if self.instance.option4:
+                options.append(self.instance.option4)
+            self.available_options = options
+        else:
+            self.available_options = []
 
     class Meta:
         model = CertificatExercise
@@ -123,41 +164,42 @@ class CertificatExerciseForm(forms.ModelForm):
             'question': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter your question'}),
         }
 
-    def get_options(self):
-        options = []
-        for i in range(1, 5):
-            val = self.initial.get(f'option{i}', '') or getattr(self.instance, f'option{i}', '') if self.instance else ''
-            if val:
-                options.append(val)
-        return options
+    def clean_question(self):
+        question = self.cleaned_data.get('question')
+        if not question or len(question.strip()) < 5:
+            raise forms.ValidationError("The question must contain at least 5 characters.")
+        return question
 
     def clean(self):
         cleaned_data = super().clean()
         exercise_type = cleaned_data.get('exercise_type')
+        if not exercise_type:
+            raise forms.ValidationError("Exercise type is required.")
         correct_answer = cleaned_data.get('correct_answer')
 
         if exercise_type == 'qcu':
-            options = [opt for opt in [
+            options = [
                 cleaned_data.get('option1'),
                 cleaned_data.get('option2'),
                 cleaned_data.get('option3'),
                 cleaned_data.get('option4')
-            ] if opt]  # ignore les options vides
+            ]
+            options = [opt for opt in options if opt]
+
+            if not options:
+                raise forms.ValidationError("You must provide at least 2 options for a QCU exercise.")
 
             if not correct_answer:
                 raise forms.ValidationError("Correct answer is required for QCU exercises.")
-
             if correct_answer not in options:
-                raise forms.ValidationError("The correct answer must be one of the provided options.")
+                raise forms.ValidationError("The correct answer must match one of the provided options.")
 
         elif exercise_type == 'truefalse':
             if not correct_answer:
-                raise forms.ValidationError("Correct answer is required for True/False exercises.")
-            if correct_answer not in ['True', 'False']:
-                raise forms.ValidationError("For True/False exercises, the correct answer must be 'True' or 'False'.")
+                raise forms.ValidationError("Please select True or False for the correct answer.")
 
         elif exercise_type == 'text':
             if not correct_answer:
-                raise forms.ValidationError("Correct answer is required for Text exercises.")
+                raise forms.ValidationError("You must provide the correct answer for text exercises.")
 
         return cleaned_data

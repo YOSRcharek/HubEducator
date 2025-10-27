@@ -131,101 +131,167 @@ class SpecialityDeleteView(View):
 
 class ListCertificatView(View):
     def get(self, request):
+        search_query = request.GET.get('search', '')
         certificates_qs = Certificate.objects.annotate(
             exercise_count=Count('exercises'),
             participant_count=Count('certificateattempt', distinct=True),
             succeeded_count=Count('certificateattempt', filter=Q(certificateattempt__passed=True), distinct=True)
         ).all().order_by('id')
-        paginator = Paginator(certificates_qs, 10)  # 10 items per page
-        page_number = request.GET.get('page')
-        page_obj = paginator.get_page(page_number)
+
+        if search_query:
+            certificates_qs = certificates_qs.filter(
+                Q(title__icontains=search_query) |
+                Q(description__icontains=search_query) |
+                Q(speciality__name__icontains=search_query)
+            )
+
+        if search_query:
+            certificates = certificates_qs
+            page_obj = None
+        else:
+            paginator = Paginator(certificates_qs, 10)  # 10 items per page
+            page_number = request.GET.get('page')
+            page_obj = paginator.get_page(page_number)
+            certificates = page_obj.object_list
+
         return render(request, 'certificats/listCertificate.html', {
-            'certificates': page_obj.object_list,
-            'page_obj': page_obj
+            'certificates': certificates,
+            'page_obj': page_obj,
+            'search_query': search_query
         })
 
 
+@login_required
 def create_certificate(request):
-    # Formset pour les exercices, permettant la suppression
-    CertificatExerciseFormSet = modelformset_factory(CertificatExercise, form=CertificatExerciseForm, extra=1, can_delete=True)
+    CertificatExerciseFormSet = modelformset_factory(
+        CertificatExercise,
+        form=CertificatExerciseForm,
+        extra=1,  # une ligne vide par défaut
+        can_delete=True
+    )
+
+    exercise_error = None
 
     if request.method == 'POST':
         cert_form = CertificateForm(request.POST, request.FILES)
-        # Ne PAS passer request.FILES au formset (pas de champs fichiers dans CertificatExercise)
-        formset = CertificatExerciseFormSet(request.POST, queryset=CertificatExercise.objects.none(), prefix='exercise')
+        formset = CertificatExerciseFormSet(
+            request.POST,
+            queryset=CertificatExercise.objects.none(),
+            prefix='exercise'
+        )
 
         if cert_form.is_valid() and formset.is_valid():
-            certificate = cert_form.save()
-            for exercise_form in formset:
-                if exercise_form.cleaned_data.get('DELETE'):
-                    if exercise_form.instance.pk:
-                        exercise_form.instance.delete()
-                else:
-                    exercise = exercise_form.save(commit=False)
+            exercises_to_save = []
+            has_empty_exercise = False
+
+            for form in formset:
+                if not form.cleaned_data.get('DELETE'):
+                    exercise_type = form.cleaned_data.get('exercise_type')
+                    has_data = (
+                        form.cleaned_data.get('question') or
+                        form.cleaned_data.get('option1') or
+                        form.cleaned_data.get('option2') or
+                        form.cleaned_data.get('option3') or
+                        form.cleaned_data.get('option4')
+                    )
+                    if has_data and not exercise_type:
+                        has_empty_exercise = True
+                        break
+                    elif exercise_type:
+                        exercises_to_save.append(form)
+
+            if has_empty_exercise:
+                exercise_error = "All exercises must have an exercise type selected."
+            elif not exercises_to_save:
+                exercise_error = "At least one exercise is required."
+            else:
+                certificate = cert_form.save()
+                for form in exercises_to_save:
+                    exercise = form.save(commit=False)
                     exercise.certificate = certificate
                     exercise.save()
-            return redirect('list_certificates')
+                messages.success(request, "Certificate created successfully!")
+                return redirect('list_certificates')
         else:
-            # Debug: afficher erreurs si la validation échoue pour aider au diagnostic
-            from django.contrib import messages
-            messages.error(request, f"Certificate form errors: {cert_form.errors}")
-            messages.error(request, f"Formset errors: {formset.errors}")
-            print("Certificate form errors:", cert_form.errors)
-            print("Formset errors:", formset.errors)
+            exercise_error = "Please correct the errors in the exercises."
     else:
         cert_form = CertificateForm()
-        formset = CertificatExerciseFormSet(queryset=CertificatExercise.objects.none(), prefix='exercise')
+        formset = CertificatExerciseFormSet(
+            queryset=CertificatExercise.objects.none(),
+            prefix='exercise'
+        )
 
+    specialities = Speciality.objects.all()
     return render(request, 'certificats/certificate_form.html', {
         'cert_form': cert_form,
         'formset': formset,
+        'exercise_error': exercise_error,
+        'specialities': specialities,
     })
+
 
 # AJOUT / MODIF: edit_certificate (passer et traiter formset avec exercises existants)
 @login_required
 def edit_certificate(request, cert_id):
     certificate = get_object_or_404(Certificate, pk=cert_id)
-    
     CertificatExerciseFormSet = modelformset_factory(
         CertificatExercise,
         form=CertificatExerciseForm,
-        extra=0,  # pas de form vide par défaut pour l'édition
+        extra=0,  # pas de formulaire vide automatiquement
         can_delete=True
     )
 
+    exercise_error = None
+
     if request.method == "POST":
         cert_form = CertificateForm(request.POST, request.FILES, instance=certificate)
-        # Ne PAS passer request.FILES au formset
         formset = CertificatExerciseFormSet(
             request.POST,
             queryset=CertificatExercise.objects.filter(certificate=certificate),
             prefix='exercise'
         )
-        
+
         if cert_form.is_valid() and formset.is_valid():
-            try:
-                with transaction.atomic():
-                    certificate = cert_form.save()
-                    for form in formset.forms:
-                        if form.cleaned_data.get('DELETE'):
-                            if form.instance.pk:
+            exercises_to_save = []
+            has_empty_exercise = False
+
+            for form in formset:
+                if not form.cleaned_data.get('DELETE'):
+                    exercise_type = form.cleaned_data.get('exercise_type')
+                    has_data = (
+                        form.cleaned_data.get('question') or
+                        form.cleaned_data.get('option1') or
+                        form.cleaned_data.get('option2') or
+                        form.cleaned_data.get('option3') or
+                        form.cleaned_data.get('option4')
+                    )
+                    if has_data and not exercise_type:
+                        has_empty_exercise = True
+                        break
+                    elif exercise_type:
+                        exercises_to_save.append(form)
+
+            if has_empty_exercise:
+                exercise_error = "All exercises must have an exercise type selected."
+            elif not exercises_to_save:
+                exercise_error = "At least one exercise is required."
+            else:
+                try:
+                    with transaction.atomic():
+                        cert_form.save()
+                        for form in formset.forms:
+                            if form.cleaned_data.get('DELETE') and form.instance.pk:
                                 form.instance.delete()
-                        else:
-                            exercise = form.save(commit=False)
-                            exercise.certificate = certificate
-                            exercise.save()
-                    
-                    messages.success(request, "Certificate updated successfully!")
-                    return redirect('list_certificates')
-            except Exception as e:
-                messages.error(request, f"Error updating certificate: {str(e)}")
-                print(f"Error: {str(e)}")
+                            elif form.cleaned_data.get('exercise_type'):
+                                exercise = form.save(commit=False)
+                                exercise.certificate = certificate
+                                exercise.save()
+                        messages.success(request, "Certificate updated successfully!")
+                        return redirect('list_certificates')
+                except Exception as e:
+                    messages.error(request, f"Error updating certificate: {str(e)}")
         else:
-            # Si invalid, afficher erreurs pour debug
-            messages.error(request, f"Certificate form errors: {cert_form.errors}")
-            messages.error(request, f"Formset errors: {formset.errors}")
-            print("Edit certificate form errors:", cert_form.errors)
-            print("Edit formset errors:", formset.errors)
+            exercise_error = "Please correct the errors in the exercises."
     else:
         cert_form = CertificateForm(instance=certificate)
         formset = CertificatExerciseFormSet(
@@ -233,12 +299,14 @@ def edit_certificate(request, cert_id):
             prefix='exercise'
         )
 
-    context = {
+    specialities = Speciality.objects.all()
+    return render(request, 'certificats/editCertificate.html', {
         'cert_form': cert_form,
         'formset': formset,
-        'certificate': certificate
-    }
-    return render(request, 'certificats/editCerificate.html', context)
+        'certificate': certificate,
+        'exercise_error': exercise_error,
+        'specialities': specialities,
+    })
 
 # AJOUT: delete_certificate
 @login_required

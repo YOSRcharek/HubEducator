@@ -7,6 +7,12 @@
         background: #f6f8fb;
         font-family: 'Segoe UI', sans-serif;
     }
+.text-danger {
+    color: #dc3545;
+    font-size: 0.9rem;
+    margin-top: 5px;
+    display: block;
+}
 
     .certificate-form {
         background: #fff;
@@ -173,7 +179,7 @@
 <div class="certificate-form shadow-sm">
     <h2 class="title-main">🎓 Create a New Certificate</h2>
 
-    <form method="post" enctype="multipart/form-data">
+    <form method="post" enctype="multipart/form-data" novalidate>
         {% csrf_token %}
 
         <!-- Certificate Info Section -->
@@ -199,9 +205,15 @@
             <div class="mb-3">
                 {{ cert_form.speciality.label_tag }}
                 {{ cert_form.speciality }}
+                <datalist id="specialities">
+                    {% for speciality in specialities %}
+                        <option value="{{ speciality.name }}">
+                    {% endfor %}
+                </datalist>
                 {% if cert_form.speciality.errors %}
                 <div class="text-danger">{{ cert_form.speciality.errors }}</div>
                 {% endif %}
+                <small class="form-text text-muted">Enter the speciality name. If it doesn't exist, it will be created automatically.</small>
             </div>
 
             <div class="mb-3">
@@ -223,88 +235,124 @@
         <!-- Exercises Section -->
         <div class="form-section">
             <h5 class="section-title">🧩 Exercises / Quiz</h5>
+            {% if exercise_error %}
+                <div class="text-danger mb-3">{{ exercise_error }}</div>
+            {% endif %}
             <div id="formset">
                 {{ formset.management_form }}
-                {% for form in formset %}
-                <div class="exercise-block">
-                    <div class="exercise-header">
-                        <span class="exercise-type">Exercise {{ forloop.counter }}</span>
-                        <button type="button" class="remove-form btn btn-sm">✖ Remove</button>
-                    </div>
-                    <div class="exercise-body">
-                        {{ form.exercise_type.label_tag }}
-                        {{ form.exercise_type }}
-                        {{ form.question.label_tag }}
-                        {{ form.question }}
+{% for form in formset %}
+<div class="exercise-block">
+    <div class="exercise-header">
+        <span class="exercise-type">Exercise {{ forloop.counter }}</span>
+        <button type="button" class="remove-form btn btn-sm">✖ Remove</button>
+    </div>
 
-                        <div style="display:none;">
-                            {{ form.DELETE }}
-                        </div>
-
-<div class="exercise-content truefalse">
-    <label class="form-label">Correct Answer</label>
-    <select class="form-select" name="{{ form.correct_answer.html_name }}">
-        <option value="">Select correct answer</option>
-        <option value="True" {% if form.correct_answer.value == "True" %}selected{% endif %}>True</option>
-        <option value="False" {% if form.correct_answer.value == "False" %}selected{% endif %}>False</option>
-    </select>
-    {% if form.correct_answer.errors %}
-        <div class="text-danger">{{ form.correct_answer.errors }}</div>
+    <!-- ✅ Afficher les erreurs globales du formulaire -->
+    {% if form.non_field_errors %}
+        <div class="text-danger mb-2">
+            {% for error in form.non_field_errors %}
+                <div>{{ error }}</div>
+            {% endfor %}
+        </div>
     {% endif %}
-</div>
 
+    <div class="exercise-body">
+        <!-- Type -->
+        {{ form.exercise_type.label_tag }}
+        {{ form.exercise_type }}
+        {% if form.exercise_type.errors %}
+            <div class="text-danger">{{ form.exercise_type.errors }}</div>
+        {% endif %}
 
-<div class="exercise-content text">
-    <label class="form-label">Correct Answer</label>
-    <input type="text" class="form-control text-correct-answer"
-           value="{{ form.correct_answer.value }}" 
-           name="{{ form.correct_answer.html_name }}">
-    {% if form.correct_answer.errors %}
-        <div class="text-danger">{{ form.correct_answer.errors }}</div>
-    {% endif %}
-</div>
+        <!-- Question -->
+        {{ form.question.label_tag }}
+        {{ form.question }}
+        {% if form.question.errors %}
+            <div class="text-danger">{{ form.question.errors }}</div>
+        {% endif %}
 
+        <div style="display:none;">
+            {{ form.DELETE }}
+        </div>
 
-
-                        <div class="exercise-content qcu">
-                            <div class="option-input">
-                                <label class="form-label">Option 1</label>
-                                {{ form.option1 }}
-                            </div>
-                            <div class="option-input">
-                                <label class="form-label">Option 2</label>
-                                {{ form.option2 }}
-                            </div>
-                            <div class="option-input" style="display:none;">
-                                <label class="form-label">Option 3</label>
-                                {{ form.option3 }}
-                                <button type="button" class="remove-option btn btn-sm">✖</button>
-                            </div>
-                            <div class="option-input" style="display:none;">
-                                <label class="form-label">Option 4</label>
-                                {{ form.option4 }}
-                                <button type="button" class="remove-option btn btn-sm">✖</button>
-                            </div>
-                            <button type="button" class="add-option mt-2">➕ Add Option</button>
-<div class="mt-3">
-    <label class="form-label">Correct Answer</label>
-    <select class="form-select qcu-correct-answer" name="{{ form.correct_answer.html_name }}">
-        <option value="">Select correct answer</option>
-        {% for opt in form.get_options %}
-            {% if opt %}
-                <option value="{{ opt }}" {% if form.correct_answer.value == opt %}selected{% endif %}>{{ opt }}</option>
+        <!-- True/False -->
+        <div class="exercise-content truefalse">
+            <label class="form-label">Correct Answer</label>
+            <select class="form-select" name="{{ form.correct_answer.html_name }}">
+                <option value="">Select correct answer</option>
+                <option value="True" {% if form.correct_answer.value == "True" %}selected{% endif %}>True</option>
+                <option value="False" {% if form.correct_answer.value == "False" %}selected{% endif %}>False</option>
+            </select>
+            {% if form.correct_answer.errors %}
+                <div class="text-danger">{{ form.correct_answer.errors }}</div>
             {% endif %}
-        {% endfor %}
-    </select>
-    {% if form.correct_answer.errors %}
-        <div class="text-danger">{{ form.correct_answer.errors }}</div>
-    {% endif %}
-</div>
+        </div>
 
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
+        <!-- Text -->
+        <div class="exercise-content text">
+            <label class="form-label">Correct Answer</label>
+            <input type="text" class="form-control text-correct-answer"
+                   value="{{ form.correct_answer.value }}" 
+                   name="{{ form.correct_answer.html_name }}">
+            {% if form.correct_answer.errors %}
+                <div class="text-danger">{{ form.correct_answer.errors }}</div>
+            {% endif %}
+        </div>
+
+        <!-- QCU -->
+        <div class="exercise-content qcu">
+            <div class="option-input">
+                <label class="form-label">Option 1</label>
+                {{ form.option1 }}
+                {% if form.option1.errors %}
+                    <div class="text-danger">{{ form.option1.errors }}</div>
+                {% endif %}
+            </div>
+            <div class="option-input">
+                <label class="form-label">Option 2</label>
+                {{ form.option2 }}
+                {% if form.option2.errors %}
+                    <div class="text-danger">{{ form.option2.errors }}</div>
+                {% endif %}
+            </div>
+            <div class="option-input" style="display:none;">
+                <label class="form-label">Option 3</label>
+                {{ form.option3 }}
+                {% if form.option3.errors %}
+                    <div class="text-danger">{{ form.option3.errors }}</div>
+                {% endif %}
+                <button type="button" class="remove-option btn btn-sm">✖</button>
+            </div>
+            <div class="option-input" style="display:none;">
+                <label class="form-label">Option 4</label>
+                {{ form.option4 }}
+                {% if form.option4.errors %}
+                    <div class="text-danger">{{ form.option4.errors }}</div>
+                {% endif %}
+                <button type="button" class="remove-option btn btn-sm">✖</button>
+            </div>
+
+            <button type="button" class="add-option mt-2">➕ Add Option</button>
+
+            <div class="mt-3">
+                <label class="form-label">Correct Answer</label>
+                <select class="form-select qcu-correct-answer" name="{{ form.correct_answer.html_name }}">
+                    <option value="">Select correct answer</option>
+                    {% for opt in form.available_options %}
+                        {% if opt %}
+                            <option value="{{ opt }}" {% if form.correct_answer.value == opt %}selected{% endif %}>{{ opt }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+                {% if form.correct_answer.errors %}
+                    <div class="text-danger">{{ form.correct_answer.errors }}</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
             </div>
             <button type="button" class="add-form-btn">➕ Add Another Exercise</button>
         </div>
