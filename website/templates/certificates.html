@@ -76,6 +76,14 @@
                   <label class="form-label" for="searchInput">Search</label>
                   <input type="text" class="form-control" id="searchInput" name="search" value="{{ search_query }}" placeholder="Search certificates...">
                 </div>
+                <div class="col-sm-6 col-md-3">
+                  <label class="form-label" for="inputStatus">Status</label>
+                  <select class="form-select" id="inputStatus" name="status">
+                    <option value="">All Status</option>
+                    <option value="passed" {% if request.GET.status == 'passed' %}selected{% endif %}>Passed</option>
+                    <option value="failed" {% if request.GET.status == 'failed' %}selected{% endif %}>Failed</option>
+                  </select>
+                </div>
               </form>
             </div>
           </div>
@@ -119,7 +127,7 @@
                   {% else %}
                     <a class="btn btn-primary btn-sm me-2" href="{% url 'take_certificate' certificate.id %}">Passer cette certif</a>
                   {% endif %}
-                  <a class="btn btn-outline-primary btn-sm" href="{% url 'courseDetails' %}?certificate={{ certificate.id }}">View Details</a>
+                  <a class="btn btn-outline-primary btn-sm" href="{% url 'certificate_detail' certificate.id %}">View Details</a>
                 </div>
               </div>
             </div>
@@ -209,10 +217,16 @@
     <script>
   const searchInput = document.getElementById('searchInput');
   const specialitySelect = document.getElementById('inputSpeciality');
+  const statusSelect = document.getElementById('inputStatus');
   const filterForm = document.getElementById('filter-form');
 
   // 🔹 Quand on change la spécialité
   specialitySelect.addEventListener('change', function() {
+    filterForm.submit();
+  });
+
+  // 🔹 Quand on change le status
+  statusSelect.addEventListener('change', function() {
     filterForm.submit();
   });
 

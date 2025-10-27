@@ -1,0 +1,120 @@
+{% extends 'baseF.html' %}
+{% load static %}
+
+{% block title %}{{ certificate.title }} - Details{% endblock %}
+
+{% block content %}
+<style>
+  .certificate-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 3rem 0;
+    margin-top: -1rem;
+  }
+  .exercise-card {
+    border: 1px solid #e9ecef;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+    padding: 1rem;
+  }
+  .exercise-type {
+    font-size: 0.875rem;
+    color: #6c757d;
+    text-transform: uppercase;
+    font-weight: bold;
+  }
+  .attempt-history {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-top: 2rem;
+  }
+  .attempt-item {
+    border-bottom: 1px solid #dee2e6;
+    padding: 0.5rem 0;
+  }
+  .attempt-item:last-child {
+    border-bottom: none;
+  }
+</style>
+
+<section class="certificate-header">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-md-8">
+        <h1 class="display-4 fw-bold">{{ certificate.title }}</h1>
+        <p class="lead">{{ certificate.description }}</p>
+        <p class="mb-0"><strong>Speciality:</strong> {{ certificate.speciality.name }}</p>
+      </div>
+      <div class="col-md-4 text-center">
+        {% if certificate.cover_image %}
+          <img src="{{ certificate.cover_image }}" alt="{{ certificate.title }}" class="img-fluid rounded shadow" style="max-height: 200px;">
+        {% else %}
+          <img src="{% static 'website/img/gallery/default-certificate.png' %}" alt="Default Certificate" class="img-fluid rounded shadow" style="max-height: 200px;">
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-5">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8">
+        <h2 class="mb-4">Certificate Exercises</h2>
+        {% for exercise in exercises %}
+        <div class="exercise-card">
+          <div class="exercise-type">{{ exercise.get_exercise_type_display }}</div>
+          <h5 class="mt-2">{{ exercise.question }}</h5>
+          {% if exercise.exercise_type == 'qcu' %}
+            <ul class="list-unstyled mt-3">
+              {% if exercise.option1 %}<li><strong>A:</strong> {{ exercise.option1 }}</li>{% endif %}
+              {% if exercise.option2 %}<li><strong>B:</strong> {{ exercise.option2 }}</li>{% endif %}
+              {% if exercise.option3 %}<li><strong>C:</strong> {{ exercise.option3 }}</li>{% endif %}
+              {% if exercise.option4 %}<li><strong>D:</strong> {{ exercise.option4 }}</li>{% endif %}
+            </ul>
+          {% endif %}
+        </div>
+        {% empty %}
+        <p class="text-muted">No exercises available for this certificate.</p>
+        {% endfor %}
+      </div>
+
+      <div class="col-lg-4">
+        <div class="card shadow">
+          <div class="card-body">
+            <h5 class="card-title">Actions</h5>
+            {% if user.is_authenticated %}
+              {% if user_attempts %}
+                <p class="text-success"><i class="fas fa-check-circle"></i> You have attempted this certificate.</p>
+                <a href="{% url 'take_certificate' certificate.id %}" class="btn btn-primary btn-sm mb-2">Retake Certificate</a>
+                <a href="{% url 'certificate_result' user_attempts.0.id %}" class="btn btn-outline-success btn-sm">View Latest Result</a>
+              {% else %}
+                <a href="{% url 'take_certificate' certificate.id %}" class="btn btn-primary btn-sm">Take Certificate</a>
+              {% endif %}
+            {% else %}
+              <p class="text-muted">Please <a href="{% url 'login' %}">login</a> to take this certificate.</p>
+            {% endif %}
+          </div>
+        </div>
+
+        {% if user_attempts %}
+        <div class="attempt-history">
+          <h5>Attempt History</h5>
+          {% for attempt in user_attempts %}
+          <div class="attempt-item">
+            <div class="d-flex justify-content-between align-items-center">
+              <span>{{ attempt.completed_at|date:"M d, Y H:i" }}</span>
+              <span class="badge {% if attempt.passed %}bg-success{% else %}bg-danger{% endif %}">
+                {{ attempt.score }}/{{ attempt.total_questions }}
+              </span>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

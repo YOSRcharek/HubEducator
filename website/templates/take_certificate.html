@@ -4,6 +4,17 @@
 {% block title %}Take Certificate: {{ certificate.title }}{% endblock %}
 
 {% block content %}
+<script>
+function speakText(text) {
+  if ('speechSynthesis' in window) {
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'en-US'; // Set language to English
+    speechSynthesis.speak(utterance);
+  } else {
+    alert('Speech synthesis not supported in this browser.');
+  }
+}
+</script>
 <main class="main" id="top">
   <section class="pb-11 pt-7 bg-600">
     <div class="container">
@@ -27,7 +38,11 @@
                 {% csrf_token %}
                 {% for exercise in exercises %}
                   <div class="exercise mb-5 p-4 border rounded bg-light">
-                    <h5 class="mb-3">Question {{ forloop.counter }}: {{ exercise.question }}</h5>
+                    <h5 class="mb-3">Question {{ forloop.counter }}: {{ exercise.question }}
+                      <button type="button" class="btn btn-sm btn-outline-primary ms-2" onclick="speakText('{{ exercise.question }}')">
+                        <i class="fas fa-volume-up"></i> 
+                      </button>
+                    </h5>
                     {% if exercise.exercise_type == 'truefalse' %}
                       <div class="form-check">
                         <input class="form-check-input" type="radio" name="answer_{{ exercise.id }}" id="true_{{ exercise.id }}" value="True" required>

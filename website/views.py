@@ -243,23 +243,17 @@ def google_callback(request):
 def certificates(request):
     speciality_id = request.GET.get('speciality')
     search_query = request.GET.get('search', '').strip()
+    status_filter = request.GET.get('status', '').strip()
 
     certificates = Certificate.objects.all()
 
     if speciality_id:
         certificates = certificates.filter(speciality_id=speciality_id)
 
-    # 🔹 Si l'utilisateur recherche quelque chose, on désactive la pagination
     if search_query:
         certificates = certificates.filter(
             Q(title__icontains=search_query) | Q(description__icontains=search_query)
         )
-        page_obj = None
-    else:
-        paginator = Paginator(certificates, 12)
-        page_number = request.GET.get('page')
-        page_obj = paginator.get_page(page_number)
-        certificates = page_obj.object_list
 
     # 🔹 Charger toutes les spécialités
     specialities = Speciality.objects.all()
@@ -284,6 +278,24 @@ def certificates(request):
                 total_attempts[cert_id] = 0
             total_attempts[cert_id] += 1
 
+    # 🔹 Filtrer par status (passed/failed) si spécifié avant pagination
+    if status_filter:
+        cert_ids_with_attempts = set(user_attempts.keys())
+        if status_filter == 'passed':
+            cert_ids_to_include = {cert_id for cert_id, attempt in user_attempts.items() if attempt.passed}
+        elif status_filter == 'failed':
+            cert_ids_to_include = {cert_id for cert_id, attempt in user_attempts.items() if not attempt.passed}
+        else:
+            cert_ids_to_include = set()
+        certificates = certificates.filter(id__in=cert_ids_to_include)
+
+    # 🔹 Pagination après tous les filtres
+    paginator = Paginator(certificates, 12)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    certificates = page_obj.object_list
+
+    # 🔹 Attacher les données utilisateur aux certificats
     for cert in certificates:
         cert.user_attempt = user_attempts.get(str(cert.id))
         cert.passed_count = passed_counts.get(str(cert.id), 0)
@@ -384,6 +396,57 @@ def take_certificate(request, cert_id):
         attempt.passed = score >= (exercises.count() * 0.7)  # 70% to pass
         attempt.save()
 
+        # Send email based on result
+        user = request.user
+        certificate_title = certificate.title
+        score_percentage = int((score / exercises.count()) * 100)
+
+        if attempt.passed:
+            subject = f"Félicitations ! Vous avez réussi le certificat {certificate_title}"
+            html_content = f"""
+            <!DOCTYPE html>
+            <html>
+            <head><meta charset="UTF-8"><title>Résultat du Certificat</title></head>
+            <body style="font-family:Arial,sans-serif; background:#f8f9fa; margin:0; padding:20px;">
+                <div style="max-width:600px; margin:auto; background:#fff; padding:30px; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.1); text-align:center;">
+                    <img src="https://hubeducator-production.up.railway.app/static/website/img/favicons/android-chrome-192x192.png" width="100" alt="HubEducator Logo" style="margin-bottom:20px;">
+                    <h1 style="font-size:24px; margin:20px 0; color:#28a745;">Félicitations {user.username} !</h1>
+                    <p style="font-size:16px;">Vous avez réussi le certificat <strong>{certificate_title}</strong> avec un score de {score_percentage}%.</p>
+                    <p style="font-size:16px;">Continuez à apprendre et à réussir !</p>
+                    <a href="{request.scheme}://{request.get_host()}/certificates/" style="display:inline-block; padding:12px 25px; color:#fff; background-color:#FFD700; border-radius:8px; text-decoration:none; font-weight:600;">Voir d'autres certificats</a>
+                </div>
+            </body>
+            </html>
+            """
+            text_content = f"Félicitations {user.username} !\n\nVous avez réussi le certificat {certificate_title} avec un score de {score_percentage}%.\n\nContinuez à apprendre et à réussir !"
+        else:
+            subject = f"Motivation : Résultat du certificat {certificate_title}"
+            html_content = f"""
+            <!DOCTYPE html>
+            <html>
+            <head><meta charset="UTF-8"><title>Résultat du Certificat</title></head>
+            <body style="font-family:Arial,sans-serif; background:#f8f9fa; margin:0; padding:20px;">
+                <div style="max-width:600px; margin:auto; background:#fff; padding:30px; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.1); text-align:center;">
+                    <img src="https://hubeducator-production.up.railway.app/static/website/img/favicons/android-chrome-192x192.png" width="100" alt="HubEducator Logo" style="margin-bottom:20px;">
+                    <h1 style="font-size:24px; margin:20px 0; color:#dc3545;">Ne vous découragez pas {user.username} !</h1>
+                    <p style="font-size:16px;">Vous avez obtenu un score de {score_percentage}% pour le certificat <strong>{certificate_title}</strong>.</p>
+                    <p style="font-size:16px;">Chaque échec est une opportunité d'apprendre. Essayez à nouveau pour réussir !</p>
+                    <a href="{request.scheme}://{request.get_host()}/certificates/{cert_id}/" style="display:inline-block; padding:12px 25px; color:#fff; background-color:#FFD700; border-radius:8px; text-decoration:none; font-weight:600;">Retenter le certificat</a>
+                </div>
+            </body>
+            </html>
+            """
+            text_content = f"Ne vous découragez pas {user.username} !\n\nVous avez obtenu un score de {score_percentage}% pour le certificat {certificate_title}.\n\nChaque échec est une opportunité d'apprendre. Essayez à nouveau pour réussir !"
+
+        email_message = EmailMultiAlternatives(
+            subject=subject,
+            body=text_content,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            to=[user.email]
+        )
+        email_message.attach_alternative(html_content, "text/html")
+        email_message.send()
+
         return redirect('certificate_result', attempt_id=attempt.id)
 
     return render(request, 'take_certificate.html', {
@@ -401,4 +464,19 @@ def certificate_result(request, attempt_id):
         'certificate': certificate,
         'attempts': attempts,
     })
+
+def certificate_detail(request, cert_id):
+    certificate = get_object_or_404(Certificate, pk=cert_id)
+    exercises = CertificatExercise.objects.filter(certificate=certificate)
+
+    # Get user attempts for this certificate
+    user_attempts = CertificateAttempt.objects.filter(user=request.user, certificate=certificate).order_by('-completed_at') if request.user.is_authenticated else []
+
+    context = {
+        'certificate': certificate,
+        'exercises': exercises,
+        'user_attempts': user_attempts,
+    }
+
+    return render(request, 'certificate_detail.html', context)
 
