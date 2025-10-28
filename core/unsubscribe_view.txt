@@ -1,0 +1,26 @@
+@login_required
+def unsubscribe(request):
+    """Unsubscribe user from their current active subscription"""
+    if request.user.role not in ['student', 'teacher']:
+        return redirect('unauthorized')
+    
+    # Get the active subscription for this user
+    active_subscription = UserSubscription.objects.filter(
+        user=request.user,
+        is_active=True
+    ).first()
+    
+    if active_subscription:
+        # Deactivate the subscription
+        active_subscription.is_active = False
+        active_subscription.save()
+        
+        messages.success(request, 'You have successfully unsubscribed. Your subscription is now inactive.')
+    else:
+        messages.info(request, 'You do not have an active subscription.')
+    
+    # Redirect based on user type
+    if request.user.role == 'teacher':
+        return redirect('my_subscription_teacher')
+    else:
+        return redirect('my_subscription_student')

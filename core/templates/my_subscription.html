@@ -1,0 +1,237 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Subscription - HubEducator{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+    <div class="row">
+        <div class="col-md-12 grid-margin stretch-card">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h4 class="card-title mb-0">
+                            <i class="mdi mdi-credit-card text-primary"></i> My Subscription
+                        </h4>
+                        {% if user_type == 'teacher' %}
+                            <a href="{% url 'teacherDash' %}" class="btn btn-sm btn-outline-secondary">
+                                <i class="mdi mdi-arrow-left"></i> Back to Dashboard
+                            </a>
+                        {% else %}
+                            <a href="{% url 'dashboard' %}" class="btn btn-sm btn-outline-secondary">
+                                <i class="mdi mdi-arrow-left"></i> Back to Dashboard
+                            </a>
+                        {% endif %}
+                    </div>
+
+                    {% if user_subscription %}
+                        <!-- Active Subscription Card -->
+                        <div class="row">
+                            <div class="col-lg-8 mx-auto">
+                                <div class="card shadow-sm border-primary">
+                                    <div class="card-header bg-primary text-white">
+                                        <h5 class="mb-0">
+                                            <i class="mdi mdi-check-circle"></i> Active Subscription
+                                        </h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row mb-4">
+                                            <div class="col-md-6">
+                                                <h3 class="text-primary">{{ user_subscription.subscription.name }}</h3>
+                                                <p class="text-muted mb-0">
+                                                    <i class="mdi mdi-account-circle"></i> 
+                                                    {{ user_subscription.subscription.get_user_type_display }} Plan
+                                                </p>
+                                            </div>
+                                            <div class="col-md-6 text-md-end">
+                                                <h2 class="text-success mb-0">
+                                                    ${{ user_subscription.subscription.price }}
+                                                </h2>
+                                                <p class="text-muted">
+                                                    <i class="mdi mdi-calendar"></i> 
+                                                    {{ user_subscription.subscription.duration }}
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <hr>
+
+                                        <div class="mb-4">
+                                            <h6 class="text-uppercase text-muted mb-3">
+                                                <i class="mdi mdi-information"></i> Description
+                                            </h6>
+                                            <p>{{ user_subscription.subscription.description }}</p>
+                                        </div>
+
+                                        <hr>
+
+                                        <div class="mb-4">
+                                            <h6 class="text-uppercase text-muted mb-3">
+                                                <i class="mdi mdi-star"></i> Features
+                                            </h6>
+                                            <ul class="list-unstyled">
+                                                {% for feature in user_subscription.subscription.get_features_list %}
+                                                    <li class="mb-2">
+                                                        <i class="mdi mdi-check-circle text-success"></i> 
+                                                        {{ feature }}
+                                                    </li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+
+                                        <hr>
+
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="icon-circle bg-info text-white me-3">
+                                                        <i class="mdi mdi-calendar-clock"></i>
+                                                    </div>
+                                                    <div>
+                                                        <small class="text-muted d-block">Start Date</small>
+                                                        <strong>{{ user_subscription.start_date|date:"d M Y" }}</strong>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="icon-circle bg-warning text-white me-3">
+                                                        <i class="mdi mdi-calendar-remove"></i>
+                                                    </div>
+                                                    <div>
+                                                        <small class="text-muted d-block">End Date</small>
+                                                        <strong>{{ user_subscription.end_date|date:"d M Y" }}</strong>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row mt-3">
+                                            <div class="col-md-6 mb-3">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="icon-circle {% if user_subscription.is_active %}bg-success{% else %}bg-danger{% endif %} text-white me-3">
+                                                        <i class="mdi mdi-{% if user_subscription.is_active %}check{% else %}close{% endif %}-circle"></i>
+                                                    </div>
+                                                    <div>
+                                                        <small class="text-muted d-block">Status</small>
+                                                        <strong class="{% if user_subscription.is_active %}text-success{% else %}text-danger{% endif %}">
+                                                            {% if user_subscription.is_active %}Active{% else %}Inactive{% endif %}
+                                                        </strong>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="icon-circle {% if user_subscription.auto_renew %}bg-primary{% else %}bg-secondary{% endif %} text-white me-3">
+                                                        <i class="mdi mdi-autorenew"></i>
+                                                    </div>
+                                                    <div>
+                                                        <small class="text-muted d-block">Auto Renew</small>
+                                                        <strong>
+                                                            {% if user_subscription.auto_renew %}Enabled{% else %}Disabled{% endif %}
+                                                        </strong>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <hr>
+
+                                        <div class="text-center mt-4">
+                                            <a href="{% url 'unsubscribe' %}" 
+                                               class="btn btn-danger"
+                                               onclick="return confirm('Are you sure you want to unsubscribe? Your subscription will be deactivated.');">
+                                                <i class="mdi mdi-close-circle"></i> Unsubscribe
+                                            </a>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <!-- No Active Subscription -->
+                        <div class="row mb-4">
+                            <div class="col-lg-12">
+                                <div class="alert alert-warning text-center">
+                                    <i class="mdi mdi-alert-circle-outline" style="font-size: 48px;"></i>
+                                    <h4 class="mt-3">No Active Subscription</h4>
+                                    <p class="mb-0">You don't have an active subscription. Please choose a plan below.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Available Subscriptions -->
+                        <div class="row">
+                            <div class="col-12 mb-3">
+                                <h5 class="text-center">
+                                    <i class="mdi mdi-credit-card-multiple"></i> Available Subscription Plans
+                                </h5>
+                            </div>
+                            {% for subscription in available_subscriptions %}
+                            <div class="col-lg-4 col-md-6 mb-4">
+                                <div class="card shadow-sm h-100">
+                                    <div class="card-header bg-gradient text-white text-center">
+                                        <h5 class="mb-0">{{ subscription.name }}</h5>
+                                        <small>{{ subscription.get_user_type_display }} Plan</small>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="text-center mb-3">
+                                            <h2 class="text-primary mb-0">${{ subscription.price }}</h2>
+                                            <small class="text-muted">{{ subscription.duration }}</small>
+                                        </div>
+                                        <p class="text-muted small">{{ subscription.description|truncatewords:15 }}</p>
+                                        <hr>
+                                        <h6 class="text-uppercase text-muted mb-2" style="font-size: 0.75rem;">Features:</h6>
+                                        <ul class="list-unstyled small">
+                                            {% for feature in subscription.get_features_list %}
+                                                <li class="mb-1">
+                                                    <i class="mdi mdi-check text-success"></i> {{ feature }}
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                    <div class="card-footer text-center bg-light">
+                                        <small class="text-muted">Contact admin to subscribe</small>
+                                    </div>
+                                </div>
+                            </div>
+                            {% empty %}
+                            <div class="col-12">
+                                <div class="alert alert-info text-center">
+                                    <p class="mb-0">No subscription plans available at the moment.</p>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.icon-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+}
+
+.card-header.bg-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+}
+
+.border-primary {
+    border: 2px solid #667eea !important;
+}
+
+.bg-gradient {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+}
+</style>
+{% endblock %}

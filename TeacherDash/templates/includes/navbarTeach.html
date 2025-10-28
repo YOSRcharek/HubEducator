@@ -1,5 +1,5 @@
 {% load static %}
- <div class="horizontal-menu">
+<div class="horizontal-menu">
       <nav class="navbar top-navbar col-lg-12 col-12 p-0">
         <div class="container-fluid">
           <div class="navbar-menu-wrapper d-flex align-items-center justify-content-between">
@@ -112,8 +112,7 @@
             </ul>
             <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-center">
                 <a class="navbar-brand brand-logo" href="{% url "teacherDash" %}"><img src="{% static 'website/img/favicons/favicon-32x32.png ' %}" alt="logo"/><span></span> HubEducator <span></span></a>
-                <a class="navbar-brand brand-logo-mini" href="{% url "teacherDash" %}"><img src="{% static 'dashboard/images/logo-mini.svg' %}" alt="logo"/></a>
-          
+                <a class="navbar-brand brand-logo-mini" href="{% url "teacherDash" %}"><img src="{% static 'dashboard/images/logo-mini.svg' %}" alt="logo"/></a>          
               </div>
             <ul class="navbar-nav navbar-nav-right">
                 <li class="nav-item nav-profile dropdown">
@@ -126,6 +125,10 @@
                       <a class="dropdown-item" href="{% url 'profil' %}">
                         <i class="mdi mdi-account text-primary"></i>
                         Profil
+                      </a>
+                      <a class="dropdown-item" href="{% url 'my_subscription_teacher' %}">
+                        <i class="mdi mdi-credit-card text-primary"></i>
+                        My Subscription
                       </a>
                          <a class="dropdown-item">
                         <i class="mdi mdi-settings text-primary"></i>
@@ -169,6 +172,7 @@
             </a>
         </li>
 
+<<<<<<< HEAD
         <li class="nav-item {% if request.resolver_match.url_name == 'specialities' %}active{% endif %}">
             <a class="nav-link" href="{% url 'specialities' %}">
                 <i class="mdi mdi-tag menu-icon"></i>
@@ -183,6 +187,8 @@
             </a>
         </li>
 
+=======
+>>>>>>> main
               <li class="nav-item">
                   <a href="pages/forms/basic_elements.html" class="nav-link">
                     <i class="mdi mdi-chart-areaspline menu-icon"></i>

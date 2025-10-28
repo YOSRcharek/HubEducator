@@ -1,4 +1,5 @@
 {% load static %}
+<<<<<<< HEAD
 
     <div class="modal-header">
       <h2>Create Course</h2>
@@ -925,3 +926,366 @@
     </div>
 
    
+=======
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<base href="../"/>
+		<meta charset="utf-8" />
+           <title>HubEducator | Dashboard</title>
+        <link rel="icon" type="image/png" sizes="32x32" href="{% static 'website/img/favicons/favicon-32x32.png' %}">
+        <link rel="icon" type="image/png" sizes="16x16" href="{% static 'website/img/favicons/favicon-16x16.png' %}">
+        <link rel="shortcut icon" type="image/x-icon" href="{% static 'website/img/favicons/favicon.ico' %}">
+    
+        <link rel="stylesheet" href="{% static 'dashboard/vendors/mdi/css/materialdesignicons.min.css' %}">
+        <link rel="stylesheet" href="{% static 'dashboard/vendors/base/vendor.bundle.base.css' %}">
+
+        <link rel="stylesheet" href="{% static 'dashboard/css/style.css' %}">
+		<meta name="description" content="Axel admin core live demo. Check out all the features of the admin panel. A large number of settings, additional services and widgets." />
+		<meta name="keywords" content="Axel theme, bootstrap, bootstrap 5, admin themes, free admin themes, bootstrap admin, bootstrap core" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link rel="canonical" href="https://preview.keenthemes.com/axel-html-free" />
+		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700" />
+		<link href="{% static 'core/assets/plugins/global/plugins.bundle.css' %}" rel="stylesheet" type="text/css" />
+		<link href="{% static 'core/assets/css/style.bundle.css' %}" rel="stylesheet" type="text/css" />
+    
+  </head>
+
+    {% include 'includes/navbarTeach.html' %}
+
+                <div class="stepper stepper-links d-flex flex-column bg-white">
+                    <div class="container bg-white p-4 ">
+                        <div class="stepper-nav justify-content-center py-2">
+                            <div class="stepper-item current" data-kt-stepper-element="nav"><h3 class="stepper-title">Course Info</h3></div>
+                            <div class="stepper-item" data-kt-stepper-element="nav"><h3 class="stepper-title">Lessons</h3></div>
+                            <div class="stepper-item" data-kt-stepper-element="nav"><h3 class="stepper-title">Sub-lessons</h3></div>
+                            <div class="stepper-item" data-kt-stepper-element="nav"><h3 class="stepper-title">Confirmation</h3></div>
+                        </div>
+                    </div> 
+                </div>
+                <div class="bg-white">
+    <form id="course-form" action="{% url 'add_courses' %}" method="post" enctype="multipart/form-data" class="container p-4">
+        {% csrf_token %}
+        <!-- ---------- CONTENT PANELS ---------- -->
+        <div class="mt-4 p-4">
+
+            <!-- STEP 1: Course Info -->
+            <div class="current" data-kt-stepper-element="content" data-stepindex="0">                      
+                <div class="w-100">
+                    <div class="pb-7 pb-lg-12">
+                        <h1 class="fw-bold text-dark">Course Information</h1>
+                        <div class="text-muted fw-semibold fs-4">Please provide the details of the course below.</div>
+                    </div>
+
+                    <div class="fv-row mb-8">
+                        <label class="form-label fs-6 fw-bold text-dark">Course Title</label>
+                        <input type="text" name="title" class="form-control form-control-lg form-control-solid" placeholder="Enter course title" required />
+                    </div>
+
+                    <div class="fv-row mb-8">
+                        <label class="form-label fs-6 fw-bold text-dark">Description</label>
+                        <textarea name="description" class="form-control form-control-lg form-control-solid" rows="4" placeholder="Write a short description of the course"></textarea>
+                    </div>
+
+                    <div class="fv-row mb-8 row">
+                        <div class="col-md-6">
+                            <label class="form-label fs-6 fw-bold text-dark">Max Capacity</label>
+                            <input type="number" name="capacity" class="form-control form-control-lg form-control-solid" placeholder="Ex: 30 students" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fs-6 fw-bold text-dark">Category</label>
+                            <select name="category" class="form-select form-select-lg form-select-solid">
+                                <option value="">Select a category</option>
+                                <option value="science">Science</option>
+                                <option value="math">Mathematics</option>
+                                <option value="programming">Programming</option>
+                                <option value="languages">Languages</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="fv-row mb-8">
+                        <label class="form-label fs-6 fw-bold text-dark">Course Thumbnail</label>
+                            <div class="dropzone sublesson-dropzone needsclick" data-type="sublesson">
+                              <div class="dz-message needsclick">
+                                <i class="ki-duotone ki-file-up fs-3hx text-primary"><span class="path1"></span><span class="path2"></span></i>
+                                <div class="ms-4">
+                                  <h3 class="fs-3 fw-bold text-gray-900 mb-1">Drop files here or click to upload.</h3>
+                                  <span class="fw-semibold fs-4 text-muted">Upload videos, PDFs, or any sublesson materials</span>
+                                </div>
+                              </div>
+                            </div>
+
+                            <!-- real file input (hidden) -->
+                                 <input type="file" name="thumbnail" class="form-control form-control-lg form-control-solid" />
+                                  <div class="mt-2 sublesson-files-list"></div>
+                    </div>
+
+                    <div class="d-flex justify-content-end">
+                        <button type="button" class="btn btn-lg btn-primary" data-kt-element="type-next">Next: Lessons</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 2: Lessons (dynamic) -->
+            <div data-kt-stepper-element="content" data-stepindex="1" style="display:none;">
+                <div class="w-100">
+                    <div class="pb-7 pb-lg-12">
+                        <h1 class="fw-bold text-dark">Lessons</h1>
+                        <div class="text-muted fw-semibold fs-4">Add one or more lessons. Each lesson can have resources attached.</div>
+                    </div>
+
+                    <div id="lessons-list" class="mb-6"></div>
+
+                    <div class="mb-6">
+                        <button type="button" id="add-lesson-btn" class="btn btn-outline-primary">+ Add Lesson</button>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <button type="button" class="btn btn-lg btn-light" data-kt-element="settings-previous">Previous</button>
+                        <div>
+                            <button type="button" class="btn btn-lg btn-primary me-2" data-kt-element="settings-next">Next: Sub-lessons</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 3: Sub-lessons (dynamic) -->
+            <div data-kt-stepper-element="content" data-stepindex="2" style="display:none;">
+                <div class="w-100">
+                    <div class="pb-7 pb-lg-12">
+                        <h1 class="fw-bold text-dark">Sub-lessons</h1>
+                        <div class="text-muted fw-semibold fs-4">Add sub-lessons and attach resources per sub-lesson (or attach to a lesson).</div>
+                    </div>
+
+                    <div id="sublessons-list" class="mb-6"></div>
+
+                    <div class="mb-6">
+                        <button type="button" id="add-sublesson-btn" class="btn btn-outline-primary">+ Add SubLesson</button>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <button type="button" class="btn btn-lg btn-light" data-kt-element="team-previous">Previous</button>
+                        <div>
+                            <button type="button" class="btn btn-lg btn-primary me-2" data-kt-element="team-next">Next: Confirmation</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 4: Confirmation -->
+            <div data-kt-stepper-element="content" data-stepindex="3" style="display:none;">
+                <div class="w-100 text-center pb-12">
+                    <h1 class="fw-bold text-dark">Course Created!</h1>
+                    <div class="text-muted fw-semibold fs-4">Review and submit your course.</div>
+                      <div class="text-center px-4">
+                                  <img src="{% static 'core/assets/media/illustrations/sketchy-1/9.png' %}" alt="" class="mww-100 mh-350px" />
+                                </div>
+                    <button type="button" class="btn btn-lg btn-light" data-kt-element="files-previous">Previous</button>
+                    <button type="submit" class="btn btn-lg btn-primary mt-4" id="submit-course-btn">Create Course</button>
+                </div>
+            </div>
+
+        </div>
+    </form>
+</div>
+
+<!-- Templates -->
+<template id="lesson-template">
+    <div class="card mb-4 lesson-item">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="mb-0 lesson-title-placeholder">New Lesson</h5>
+                <button type="button" class="btn btn-sm btn-danger remove-lesson-btn">Remove</button>
+            </div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label fs-6 fw-semibold">Lesson Title</label>
+                    <input type="text" class="form-control lesson-title" name="lesson_title[]" placeholder="Lesson title" required />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fs-6 fw-semibold">Order</label>
+                    <input type="number" class="form-control lesson-order" name="lesson_order[]" value="0" />
+                </div>
+                <div class="col-12">
+                    <label class="form-label fs-6 fw-semibold">Description</label>
+                    <textarea class="form-control lesson-description" name="lesson_description[]" rows="2"></textarea>
+                </div>
+                <div class="col-12 mt-3">
+                    <label class="fs-6 fw-semibold mb-2">Upload Lesson Resources</label>
+                            <div class="dropzone sublesson-dropzone needsclick" data-type="sublesson">
+                              <div class="dz-message needsclick">
+                                <i class="ki-duotone ki-file-up fs-3hx text-primary"><span class="path1"></span><span class="path2"></span></i>
+                                <div class="ms-4">
+                                  <h3 class="fs-3 fw-bold text-gray-900 mb-1">Drop files here or click to upload.</h3>
+                                  <span class="fw-semibold fs-4 text-muted">Upload videos, PDFs, or any sublesson materials</span>
+                                </div>
+                              </div>
+                            </div>
+
+                            <!-- real file input (hidden) -->
+                             <input type="file" class="form-control" name="lesson_resources[]" multiple />
+                            <div class="mt-2 sublesson-files-list"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<template id="sublesson-template">
+    <div class="card mb-4 sublesson-item">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="mb-0 sublesson-title-placeholder">New SubLesson</h5>
+                <button type="button" class="btn btn-sm btn-danger remove-sublesson-btn">Remove</button>
+            </div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label fs-6 fw-semibold">SubLesson Title</label>
+                    <input type="text" class="form-control sublesson-title" name="sublesson_title[]" placeholder="SubLesson title" required />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fs-6 fw-semibold">Attach to Lesson</label>
+                    <select class="form-select sublesson-attach-lesson" name="sublesson_lesson[]">
+                        <!-- options inserted dynamically via JS -->
+                    </select>
+                </div>
+                <div class="col-12">
+                    <label class="form-label fs-6 fw-semibold">Content</label>
+                    <textarea class="form-control sublesson-content" name="sublesson_content[]" rows="2"></textarea>
+                </div>
+                <div class="col-12 mt-3">
+                    <label class="fs-6 fw-semibold mb-2">Upload SubLesson Resources</label>
+                             <div class="dropzone sublesson-dropzone needsclick" data-type="sublesson">
+                              <div class="dz-message needsclick">
+                                <i class="ki-duotone ki-file-up fs-3hx text-primary"><span class="path1"></span><span class="path2"></span></i>
+                                <div class="ms-4">
+                                  <h3 class="fs-3 fw-bold text-gray-900 mb-1">Drop files here or click to upload.</h3>
+                                  <span class="fw-semibold fs-4 text-muted">Upload videos, PDFs, or any sublesson materials</span>
+                                </div>
+                              </div>
+                            </div>
+
+                            <!-- real file input (hidden) -->
+                            <input type="file" class="form-control" name="sublesson_resources[]" multiple />
+
+                            <div class="mt-2 sublesson-files-list"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script>
+(function(){
+  // Stepper logic
+  const navItems = document.querySelectorAll('[data-kt-stepper-element="nav"]');
+  const contents = Array.from(document.querySelectorAll('[data-kt-stepper-element="content"]'));
+
+  function showStep(index) {
+    navItems.forEach(n => n.classList.toggle('current', Number(n.dataset.stepindex) === index));
+    contents.forEach(c => c.style.display = Number(c.dataset.stepindex) === index ? '' : 'none');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  navItems.forEach(n => {
+    n.style.cursor = 'pointer';
+    n.addEventListener('click', () => showStep(Number(n.dataset.stepindex)));
+  });
+
+  document.querySelectorAll('button[data-kt-element="type-next"]').forEach(btn => btn.addEventListener('click', () => showStep(1)));
+  document.querySelectorAll('button[data-kt-element="settings-next"]').forEach(btn => btn.addEventListener('click', () => showStep(2)));
+  document.querySelectorAll('button[data-kt-element="team-next"]').forEach(btn => btn.addEventListener('click', () => showStep(3)));
+  document.querySelectorAll('button[data-kt-element="settings-previous"]').forEach(btn => btn.addEventListener('click', () => showStep(0)));
+  document.querySelectorAll('button[data-kt-element="team-previous"]').forEach(btn => btn.addEventListener('click', () => showStep(1)));
+  document.querySelectorAll('button[data-kt-element="files-previous"]').forEach(btn => btn.addEventListener('click', () => showStep(2)));
+
+  // Helper pour attacher le Remove
+  function attachRemoveButtons() {
+    document.querySelectorAll('.remove-lesson-btn, .remove-sublesson-btn').forEach(btn => {
+      btn.onclick = e => {
+        const root = e.target.closest('.lesson-item, .sublesson-item');
+        if(root) root.remove();
+      };
+    });
+  }
+
+  // Ajouter Lesson
+  document.getElementById('add-lesson-btn')?.addEventListener('click', ()=>{
+    const template = document.getElementById('lesson-template');
+    if(template){
+      const clone = template.content.cloneNode(true);
+      document.getElementById('lessons-list').appendChild(clone);
+      attachRemoveButtons();
+    }
+  });
+
+  // Ajouter Sublesson
+  document.getElementById('add-sublesson-btn')?.addEventListener('click', ()=>{
+    const template = document.getElementById('sublesson-template');
+    if(template){
+      const clone = template.content.cloneNode(true);
+      document.getElementById('sublessons-list').appendChild(clone);
+      attachRemoveButtons();
+    }
+  });
+
+  // Au chargement, ajouter 1 lesson et 1 sublesson par défaut
+  const initialLessonTemplate = document.getElementById('lesson-template');
+  const initialSublessonTemplate = document.getElementById('sublesson-template');
+
+  if(initialLessonTemplate){
+    const clone = initialLessonTemplate.content.cloneNode(true);
+    document.getElementById('lessons-list').appendChild(clone);
+  }
+  if(initialSublessonTemplate){
+    const clone = initialSublessonTemplate.content.cloneNode(true);
+    document.getElementById('sublessons-list').appendChild(clone);
+  }
+  attachRemoveButtons();
+
+})();
+</script>
+
+  
+
+
+     <script src="{% static 'dashboard/vendors/@popperjs/popper.min.js' %}"></script>
+      <script src="{% static 'dashboard/vendors/base/vendor.bundle.base.js' %}"></script>
+
+    <script src="{% static 'dashboard/js/template.js' %}"></script>
+
+    <script src="{% static 'dashboard/vendors/chart.js/Chart.min.js' %}"></script>
+    <script src="{% static 'dashboard/vendors/progressbar.js/progressbar.min.js' %}"></script>
+		<script src="{% static 'dashboard/vendors/chartjs-plugin-datalabels/chartjs-plugin-datalabels.js' %}"></script>
+		<script src="{% static 'dashboard/vendors/justgage/raphael-2.1.4.min.js' %}"></script>
+		<script src="{% static 'dashboard/vendors/justgage/justgage.js' %}"></script>
+    <script src="{% static 'dashboard/js/jquery.cookie.js' %}" type="text/javascript"></script>
+    <!-- Custom js for this page-->
+    <script src="{% static 'dashboard/js/dashboard.js' %}"></script> 
+		<script>var hostUrl = "{% static 'core/assets/ ' %}";</script>
+		<script src="{% static 'core/assets/plugins/global/plugins.bundle.js' %}"></script>
+		<script src="{% static 'core/assets/js/scripts.bundle.js' %}"></script>
+		<script src="{% static 'core/assets/plugins/custom/datatables/datatables.bundle.js' %}"></script>
+		<script src="{% static 'core/assets/js/custom/account/settings/signin-methods.js' %}"></script>
+		<script src="{% static 'core/assets/js/custom/account/settings/profile-details.js' %}"></script>
+		<script src="{% static 'core/assets/js/custom/account/settings/deactivate-account.js' %}"></script>
+		<script src="{% static 'core/assets/js/custom/pages/user-profile/general.js' %}"></script>
+		<script src="{% static 'core/assets/js/widgets.bundle.js' %}"></script>
+        
+		<script src="{% static 'core/assets/js/custom/utilities/modals/create-project/type.js' %}"></script>
+		<script src="{% static 'core/assets/js/custom/utilities/modals/create-project/budget.js' %}"></script>
+		<script src="{% static 'core/assets/js/custom/utilities/modals/create-project/settings.js' %}"></script>
+		<script src="{% static 'core/assets/js/custom/utilities/modals/create-project/team.js' %}"></script>
+		<script src="{% static 'core/assets/js/custom/utilities/modals/create-project/targets.js' %}"></script>
+		<script src="{% static 'core/assets/js/custom/utilities/modals/create-project/files.js' %}"></script>
+		<script src="{% static 'core/assets/js/custom/utilities/modals/create-project/complete.js' %}"></script>
+		<script src="{% static 'core/assets/js/custom/utilities/modals/create-project/main.js' %}"></script>
+
+
+
+
+    </body>
+</html>
+>>>>>>> main

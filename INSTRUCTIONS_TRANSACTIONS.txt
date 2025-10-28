@@ -1,0 +1,24 @@
+INSTRUCTIONS POUR AJOUTER LE LIEN TRANSACTIONS DANS LA NAVBAR
+================================================================
+
+Fichier à modifier : dashboard/templates/includes/navbar.html
+
+À la ligne 177 (après la ligne vide qui suit User Subscriptions), ajoutez ce code :
+
+          <li class="nav-item {% if request.resolver_match.url_name == 'transactions' %}active{% endif %}">
+            <a class="nav-link" href="{% url 'transactions' %}">
+              <i class="mdi mdi-cash-multiple menu-icon"></i>
+              <span class="menu-title">Transactions</span>
+            </a>
+          </li>
+
+IMPORTANT : 
+- Utilisez exactement 10 espaces au début de chaque ligne (pas de tabulations)
+- Insérez ce code entre la ligne 176 (</li> de User Subscriptions) et la ligne 178 (<li class="nav-item">)
+
+OU BIEN
+
+Accédez directement à la page Transactions via cette URL :
+http://127.0.0.1:8000/dashboard/transactions/
+
+La page est déjà complètement fonctionnelle !

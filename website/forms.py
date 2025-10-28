@@ -7,7 +7,18 @@ class RegisterForm(forms.ModelForm):
 
     class Meta:
         model = User
+<<<<<<< HEAD
         fields = ["username", "email", "role", "profile_picture"]
+=======
+        fields = ["username", "email", "profile_picture"]
+        
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.role = "user"  # Set default role to "user"
+        if commit:
+            user.save()
+        return user
+>>>>>>> main
 
     def clean_email(self):
         email = self.cleaned_data.get("email")

@@ -40,9 +40,10 @@
 												
 											</div>
 											<div class="d-flex align-items-center gap-3 gap-lg-5">
-												<div class="m-0">
-															<a href="#" class="btn btn-flex btn-sm btn-color-gray-700 bg-body fw-bold px-4" data-bs-toggle="modal" data-bs-target="#kt_modal_create_project">New Course</a>
-												</div>
+												        <div class="m-0">
+															<a href="{% url 'add_courses' %}" class="btn btn-flex btn-sm btn-color-gray-700 bg-body fw-bold px-4" >New Course</a>
+											
+														</div>
 											</div>
 										</div>
 									</div>
@@ -445,6 +446,9 @@
        </div>
 
         </form>
+            
+       </div>
+
     </div>
 </div>
 
@@ -497,6 +501,7 @@ modal.addEventListener('shown.bs.modal', function () {
 
 
     </script>
+
      <script src="{% static 'dashboard/vendors/@popperjs/popper.min.js' %}"></script>
       <script src="{% static 'dashboard/vendors/base/vendor.bundle.base.js' %}"></script>
 

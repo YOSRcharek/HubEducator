@@ -15,6 +15,7 @@ import csv
 from django.http import HttpResponse
 from openpyxl import Workbook
 
+from core.models import User, Course,CourseCategory, Lesson, SubLesson, Resource
 
 # --------------------------
 # Teacher Dashboard
@@ -120,11 +121,6 @@ def student_detail(request, user_id):
         'courses': courses
     })
 
-
-
-#---------------
-# courses
-#-------------
 @login_required
 def courses(request):
     if request.user.role != 'teacher':
