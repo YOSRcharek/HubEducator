@@ -1,0 +1,567 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<base href="../"/>
+		<meta charset="utf-8" />
+           <title>HubEducator | Dashboard</title>
+        <link rel="icon" type="image/png" sizes="32x32" href="{% static 'website/img/favicons/favicon-32x32.png' %}">
+        <link rel="icon" type="image/png" sizes="16x16" href="{% static 'website/img/favicons/favicon-16x16.png' %}">
+        <link rel="shortcut icon" type="image/x-icon" href="{% static 'website/img/favicons/favicon.ico' %}">
+    
+        <link rel="stylesheet" href="{% static 'dashboard/vendors/mdi/css/materialdesignicons.min.css' %}">
+        <link rel="stylesheet" href="{% static 'dashboard/vendors/base/vendor.bundle.base.css' %}">
+
+        <link rel="stylesheet" href="{% static 'dashboard/css/style.css' %}">
+		<meta name="description" content="Axel admin core live demo. Check out all the features of the admin panel. A large number of settings, additional services and widgets." />
+		<meta name="keywords" content="Axel theme, bootstrap, bootstrap 5, admin themes, free admin themes, bootstrap admin, bootstrap core" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link rel="canonical" href="https://preview.keenthemes.com/axel-html-free" />
+		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700" />
+		<link href="{% static 'core/assets/plugins/global/plugins.bundle.css' %}" rel="stylesheet" type="text/css" />
+		<link href="{% static 'core/assets/css/style.bundle.css' %}" rel="stylesheet" type="text/css" />
+    
+  </head>
+
+    {% include 'includes/navbarTeach.html' %}
+
+                <div class="stepper stepper-links d-flex flex-column bg-white">
+                    <div class="container bg-white p-4 ">
+                        <div class="stepper-nav justify-content-center py-2">
+                            <div class="stepper-item current" data-kt-stepper-element="nav"><h3 class="stepper-title">Course Info</h3></div>
+                            <div class="stepper-item" data-kt-stepper-element="nav"><h3 class="stepper-title">Lessons</h3></div>
+                            <div class="stepper-item" data-kt-stepper-element="nav"><h3 class="stepper-title">Confirmation</h3></div>
+                        </div>
+                    </div> 
+                </div>
+                <div class="bg-white">
+
+
+<form id="course-form" action="{% url 'add_courses' %}" method="post" enctype="multipart/form-data" class="container p-4">
+    {% csrf_token %}
+    <div class="mt-4 p-4">
+
+        <!-- STEP 1: Course Info -->
+        <div class="current" data-kt-stepper-element="content" data-stepindex="0">
+            <div class="w-100">
+                <div class="pb-7 pb-lg-12">
+                    <h1 class="fw-bold text-dark">Course Information</h1>
+                    <div class="text-muted fw-semibold fs-4">Please provide the details of the course below.</div>
+                </div>
+
+                <div class="fv-row mb-8">
+                    <label class="form-label fs-6 fw-bold text-dark">Course Title</label>
+                    <input type="text" name="title" class="form-control form-control-lg form-control-solid" placeholder="Enter course title" />
+                    <div class="invalid-feedback"></div>
+                </div>
+
+                <div class="fv-row mb-8">
+                    <label class="form-label fs-6 fw-bold text-dark">Description</label>
+                    <textarea name="description" class="form-control form-control-lg form-control-solid" rows="4" placeholder="Write a short description of the course"></textarea>
+                    <div class="invalid-feedback"></div>
+                </div>
+
+                <div class="fv-row mb-8 row">
+                    <div class="col-md-4">
+                        <label class="form-label fs-6 fw-bold text-dark">Max Capacity</label>
+                        <input type="number" name="capacity" class="form-control form-control-lg form-control-solid" placeholder="Ex: 30 students" />
+                        <div class="invalid-feedback"></div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fs-6 fw-bold text-dark">Level</label>
+                        <select name="level" class="form-select form-select-lg form-select-solid">
+                            <option value="">Select a level</option>
+                            <option value="beginner">Beginner</option>
+                            <option value="intermediate">Intermediate</option>
+                            <option value="advanced">Advanced</option>
+                        </select>
+                        <div class="invalid-feedback"></div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fs-6 fw-bold text-dark">Category</label>
+                        <select name="category" class="form-select form-select-lg form-select-solid">
+                            <option value="">Select a category</option>
+                            {% for cat in categories %}
+                                <option value="{{ cat.name }}">{{ cat.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="invalid-feedback"></div>
+                    </div>
+                    <div class="fv-row mb-8 row">
+                        <div class="col-md-6">
+                            <label class="form-label fs-6 fw-bold text-dark">Start Date</label>
+                            <input type="date" name="start_date" class="form-control form-control-lg form-control-solid" />
+                            <div class="invalid-feedback"></div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fs-6 fw-bold text-dark">End Date</label>
+                            <input type="date" name="end_date" class="form-control form-control-lg form-control-solid" />
+                            <div class="invalid-feedback"></div>
+                        </div>
+                    </div>
+
+                </div>
+
+                
+                <div class="fv-row mb-8 row">
+                    <div class="col-md-6">
+                        <label class="form-label fs-6 fw-bold text-dark">Max Lessons</label>
+                        <input type="number" name="max_lessons" class="form-control form-control-lg form-control-solid" placeholder="Ex: 5" required min="1"/>
+                        <div class="invalid-feedback">Please enter max lessons</div>
+                    </div>
+                  
+                </div>
+                <div class="fv-row mb-8">
+                    <label class="form-label fs-6 fw-bold text-dark">Course Thumbnail</label>
+                    <div id="dropzoneThumbnail" class="dropzone needsclick text-center p-4">
+                        <div class="dz-message">
+                            <i class="ki-duotone ki-file-up fs-3hx text-primary"></i>
+                            <div class="ms-4">
+                                <h3 class="fs-3 fw-bold text-gray-900 mb-1">Drop files here or click to upload.</h3>
+                                <span class="fw-semibold fs-4 text-muted">Upload image</span>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="file" name="thumbnail" id="thumbnailInput" accept="image/*" class="d-none" />
+                    <div class="invalid-feedback"></div>
+                    <div id="preview-area" class="mt-3"></div>
+                </div>
+
+                <div class="d-flex justify-content-end">
+                    <button type="button" class="btn btn-lg btn-primary" data-kt-element="type-next">Next: Lessons</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP 2: Lessons -->
+        <div data-kt-stepper-element="content" data-stepindex="1" style="display:none;">
+            <div class="w-100">
+                <div class="pb-7 pb-lg-12">
+                    <h1 class="fw-bold text-dark">Lessons</h1>
+                    <div class="text-muted fw-semibold fs-4">Add one or more lessons. Each lesson can have sub-lessons attached.</div>
+                </div>
+
+                <div id="lessons-list" class="mb-6"></div>
+
+                <div class="mb-6">
+                    <button type="button" id="add-lesson-btn" class="btn btn-outline-primary">+ Add Lesson</button>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <button type="button" class="btn btn-lg btn-light" data-kt-element="settings-previous">Previous</button>
+                    <div>
+                        <button type="button" class="btn btn-lg btn-primary me-2" data-kt-element="settings-next">Next: Confirmation</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP 3: Confirmation -->
+        <div data-kt-stepper-element="content" data-stepindex="2" style="display:none;">
+            <div class="w-100 text-center pb-12">
+                <h1 class="fw-bold text-dark">Course Created!</h1>
+                <div class="text-muted fw-semibold fs-4">Review and submit your course.</div>
+                <div class="text-center px-4">
+                    <img src="{% static 'core/assets/media/illustrations/course_created.png' %}" alt="" class="mww-100 mh-350px" />
+                </div>
+                <button type="button" class="btn btn-lg btn-light" data-kt-element="files-previous">Previous</button>
+                <button type="submit" class="btn btn-lg btn-primary mt-4" id="submit-course-btn">Create Course</button>
+            </div>
+        </div>
+
+    </div>
+</form>
+
+<!-- Templates pour Lessons/SubLessons (inchangé) -->
+
+<!-- Lesson Template -->
+<template id="lesson-template">
+  <div class="card mb-4 lesson-item">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h5>New Lesson</h5>
+        <button type="button" class="btn btn-sm btn-danger remove-lesson-btn">Remove</button>
+      </div>
+
+      <input type="text" name="lesson_title[]" placeholder="Lesson title" class="form-control mb-2" />
+      <div class="invalid-feedback"></div>
+
+      <textarea name="lesson_description[]" placeholder="Lesson description" class="form-control mb-2"></textarea>
+      <div class="col-md-6">
+                        <label class="form-label fs-6 fw-bold text-dark">Max SubLessons (optional)</label>
+                        <input type="number" name="max_sublessons" class="form-control form-control-lg form-control-solid" placeholder="Ex: 10" min="1"/>
+                        <div class="invalid-feedback">Please enter a valid number</div>
+                    </div>
+      <div class="invalid-feedback"></div>
+    
+      <!-- File Upload -->
+      <div class="dropzone needsclick text-center p-4 mb-2 lesson-dropzone">
+        <div class="dz-message">
+          <i class="ki-duotone ki-file-up fs-3hx text-primary"></i>
+          <div class="ms-4">
+            <h3 class="fs-3 fw-bold text-gray-900 mb-1">Drop files here or click to upload.</h3>
+            <span class="fw-semibold fs-4 text-muted">Upload lesson resources</span>
+          </div>
+        </div>
+      </div>
+      <input type="file" name="lesson_resources[]" multiple class="d-none lessonFilesInput" />
+      <div class="lessonPreview mt-2 d-flex flex-wrap gap-2"></div>
+
+      <!-- External Resource Input -->
+      <div class="external-resources-list mt-2"></div>
+      <button type="button" class="btn btn-outline-secondary btn-sm mt-2 add-external-resource-btn">
+        + Add External Resource
+      </button>
+
+      <div class="sublessons-list mt-2"></div>
+      <button type="button" class="btn btn-outline-primary btn-sm mt-2 add-sublesson-btn">+ Add SubLesson</button>
+    </div>
+  </div>
+</template>
+
+<!-- SubLesson Template -->
+<template id="sublesson-template">
+  <div class="card mb-2 sublesson-item">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h6>New SubLesson</h6>
+        <button type="button" class="btn btn-sm btn-danger remove-sublesson-btn">Remove</button>
+      </div>
+
+      <input type="text" name="sublesson_title[]" placeholder="SubLesson title" class="form-control mb-2" />
+      <div class="invalid-feedback"></div>
+
+      <textarea name="sublesson_content[]" placeholder="Content" class="form-control mb-2"></textarea>
+      <div class="invalid-feedback"></div>
+
+      <!-- File Upload -->
+      <div class="dropzone needsclick text-center p-4 mb-2 sublesson-dropzone">
+        <div class="dz-message">
+          <i class="ki-duotone ki-file-up fs-3hx text-primary"></i>
+          <div class="ms-4">
+            <h3 class="fs-3 fw-bold text-gray-900 mb-1">Drop files here or click to upload.</h3>
+            <span class="fw-semibold fs-4 text-muted">Upload sublesson resources</span>
+          </div>
+        </div>
+      </div>
+      <input type="file" name="sublesson_resources[]" multiple class="d-none sublessonFilesInput" />
+      <div class="sublessonPreview mt-2 d-flex flex-wrap gap-2"></div>
+
+      <!-- External Resource Input -->
+      <div class="external-resources-list mt-2"></div>
+      <button type="button" class="btn btn-outline-secondary btn-sm mt-2 add-external-resource-btn">
+        + Add External Resource
+      </button>
+    </div>
+  </div>
+</template>
+
+<!-- External Resource Template -->
+<template id="external-resource-template">
+  <div class="external-resource-input mb-2 d-flex align-items-center gap-2" style="position:relative;">
+    <input type="url" name="external_url[]" placeholder="Paste external link (YouTube, Google Docs…)" class="form-control" />
+    <select name="resource_type[]" class="form-select">
+      <option value="external">External Link</option>
+      <option value="video">Video File</option>
+      <option value="pdf">PDF File</option>
+      <option value="image">Image</option>
+      <option value="audio">Audio</option>
+    </select>
+    <button type="button" class="btn btn-sm btn-danger remove-external-btn" style="position:absolute; top:2px; right:2px;">&times;</button>
+  </div>
+</template>
+
+
+<script>
+(function(){
+const navItems = document.querySelectorAll('[data-kt-stepper-element="nav"]');
+const contents = Array.from(document.querySelectorAll('[data-kt-stepper-element="content"]'));
+const initialLessonTemplate = document.getElementById('lesson-template');
+const initialSublessonTemplate = document.getElementById('sublesson-template');
+let lessonCounter = 0;
+let sublessonCounter = 0;
+
+// Afficher un step et mettre à jour la nav active
+function showStep(index){
+    contents.forEach((c,i)=> c.style.display=(i===index?'block':'none'));
+    navItems.forEach((n,i)=> n.classList.toggle('current', i===index));
+    window.scrollTo({top:0, behavior:'smooth'});
+}
+
+// Validation par step
+function validateStep(stepIndex){
+    const step = contents[stepIndex];
+    let valid = true;
+
+    // Reset erreurs
+    step.querySelectorAll('.invalid-feedback').forEach(div=>div.textContent='');
+    step.querySelectorAll('input, select, textarea').forEach(input=>input.classList.remove('is-invalid'));
+
+if(stepIndex===0){ // Course Info
+    const title = step.querySelector('input[name="title"]');
+    const category = step.querySelector('select[name="category"]');
+    const startDate = step.querySelector('input[name="start_date"]');
+    const endDate = step.querySelector('input[name="end_date"]');
+    const thumbnail = step.querySelector('input[name="thumbnail"]');
+    const maxLessons = step.querySelector('input[name="max_lessons"]');
+
+    // validations existantes...
+    if(!title.value.trim()){ title.classList.add('is-invalid'); title.nextElementSibling.textContent='Title required'; valid=false; }
+    if(!category.value){ category.classList.add('is-invalid'); category.nextElementSibling.textContent='Category required'; valid=false; }
+    if(!startDate.value){ startDate.classList.add('is-invalid'); startDate.nextElementSibling.textContent='Start date required'; valid=false; }
+    if(!endDate.value){ endDate.classList.add('is-invalid'); endDate.nextElementSibling.textContent='End date required'; valid=false; }
+    if(startDate.value && endDate.value && startDate.value > endDate.value){
+        endDate.classList.add('is-invalid');
+        endDate.nextElementSibling.textContent='End date must be after start date';
+        valid=false;
+    }
+    if(!thumbnail.files.length){ alert("Thumbnail is required"); valid=false; }
+
+    // ✅ Validation Max Lessons (required)
+    if(!maxLessons.value || maxLessons.value <= 0){
+        maxLessons.classList.add('is-invalid');
+        maxLessons.nextElementSibling.textContent='Max lessons is required and must be > 0';
+        valid=false;
+    }
+}
+
+
+
+   if(stepIndex===1){ // Lessons (non required)
+    const lessons = step.querySelectorAll('.lesson-item');
+    lessons.forEach(lesson=>{
+        const ltitle = lesson.querySelector('input[name^="lesson_title"]');
+      
+        if(ltitle && ltitle.value.trim()){ 
+         }
+     
+        const subs = lesson.querySelectorAll('.sublesson-item');
+        subs.forEach(sub=>{
+            const stitle = sub.querySelector('input[name^="sublesson_title"]');
+            if(stitle && stitle.value.trim()){ 
+                // validations sublesson optionnelles
+            }
+        });
+    });
+}
+
+
+    return valid;
+}
+
+// Next/Previous buttons
+document.querySelectorAll('[data-kt-element="type-next"], [data-kt-element="settings-next"]').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+        const stepIndex = parseInt(btn.closest('[data-kt-stepper-element="content"]').getAttribute('data-stepindex'));
+        // Lessons non required, on peut passer même s'il n'y a pas de lesson
+        if(validateStep(stepIndex)) showStep(stepIndex+1);
+    });
+});
+
+
+// Nav clickable
+navItems.forEach((nav,i)=>{
+    nav.addEventListener('click',()=>{
+        const currentIndex = Array.from(contents).findIndex(c=>c.style.display==='block');
+        // Validation de l'étape actuelle avant de passer
+        if(validateStep(currentIndex)) showStep(i);
+    });
+});
+
+// Next/Previous buttons
+document.querySelectorAll('[data-kt-element="type-next"], [data-kt-element="settings-next"]').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+        const stepIndex = parseInt(btn.closest('[data-kt-stepper-element="content"]').getAttribute('data-stepindex'));
+        if(validateStep(stepIndex)) showStep(stepIndex+1);
+    });
+});
+document.querySelectorAll('[data-kt-element="settings-previous"], [data-kt-element="files-previous"]').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+        const stepIndex = parseInt(btn.closest('[data-kt-stepper-element="content"]').getAttribute('data-stepindex'));
+        showStep(stepIndex-1);
+    });
+});
+
+// Gestion fichiers + preview
+function handleFiles(event, previewArea){
+    const files = Array.from(event.target.files);
+    previewArea.innerHTML = "";
+
+    files.forEach(file => {
+        const container = document.createElement("div");
+        container.style.position = "relative";
+        container.style.display = "inline-block";
+        container.style.marginRight = "5px";
+
+        let preview;
+
+        if (file.type.startsWith("image/")) {
+            preview = document.createElement("img");
+            preview.src = URL.createObjectURL(file);
+            preview.style.maxWidth = "120px";
+            preview.style.maxHeight = "120px";
+            preview.classList.add("img-fluid","rounded","shadow");
+        } 
+        else if (file.type === "application/pdf") {
+            preview = document.createElement("embed");
+            preview.src = URL.createObjectURL(file);
+            preview.type = "application/pdf";
+            preview.style.width = "120px";
+            preview.style.height = "120px";
+            preview.classList.add("rounded","shadow");
+        }
+        else if (file.type.startsWith("video/")) {
+            preview = document.createElement("video");
+            preview.src = URL.createObjectURL(file);
+            preview.controls = true;
+            preview.style.width = "120px";
+            preview.style.height = "80px";
+        }
+        else if (file.type.startsWith("audio/")) {
+            preview = document.createElement("audio");
+            preview.src = URL.createObjectURL(file);
+            preview.controls = true;
+            preview.style.width = "120px";
+        }
+        else {
+            preview = document.createElement("span");
+            preview.textContent = file.name;
+        }
+
+        const btn = document.createElement("button");
+        btn.innerHTML = "&times;";
+        btn.style.position = "absolute";
+        btn.style.top = "2px";
+        btn.style.right = "2px";
+        btn.classList.add("btn","btn-sm","btn-danger");
+        btn.onclick = () => container.remove();
+
+        container.appendChild(preview);
+        container.appendChild(btn);
+        previewArea.appendChild(container);
+    });
+}
+
+function attachLessonEvents(lessonRoot) {
+    // Remove lesson
+    lessonRoot.querySelector('.remove-lesson-btn')?.addEventListener('click', ()=>lessonRoot.remove());
+
+    // File upload
+    const dz = lessonRoot.querySelector('.lesson-dropzone');
+    const input = lessonRoot.querySelector('.lessonFilesInput');
+    const previewArea = lessonRoot.querySelector('.lessonPreview');
+    dz?.addEventListener('click', ()=>input.click());
+    input?.addEventListener('change', e => handleFiles(e, previewArea));
+
+    // Add sublesson
+    lessonRoot.querySelector('.add-sublesson-btn')?.addEventListener('click', ()=>{
+        const subContainer = lessonRoot.querySelector('.sublessons-list');
+        const subClone = document.getElementById('sublesson-template').content.cloneNode(true);
+        subContainer.appendChild(subClone);
+        const newSub = subContainer.querySelector('.sublesson-item:last-child');
+        attachSublessonEvents(newSub);
+    });
+
+    // Add external resource
+    lessonRoot.querySelector('.add-external-resource-btn')?.addEventListener('click', ()=>{
+        const container = lessonRoot.querySelector('.external-resources-list');
+        const clone = document.getElementById('external-resource-template').content.cloneNode(true);
+        container.appendChild(clone);
+        const newRes = container.querySelector('.external-resource-input:last-child');
+        newRes.querySelector('.remove-external-btn').addEventListener('click', ()=>newRes.remove());
+    });
+}
+
+function attachSublessonEvents(subRoot){
+    subRoot.querySelector('.remove-sublesson-btn')?.addEventListener('click', ()=>subRoot.remove());
+
+    const dz = subRoot.querySelector('.sublesson-dropzone');
+    const input = subRoot.querySelector('.sublessonFilesInput');
+    const previewArea = subRoot.querySelector('.sublessonPreview');
+    dz?.addEventListener('click', ()=>input.click());
+    input?.addEventListener('change', e => handleFiles(e, previewArea));
+
+    // Add external resource
+    subRoot.querySelector('.add-external-resource-btn')?.addEventListener('click', ()=>{
+        const container = subRoot.querySelector('.external-resources-list');
+        const clone = document.getElementById('external-resource-template').content.cloneNode(true);
+        container.appendChild(clone);
+        const newRes = container.querySelector('.external-resource-input:last-child');
+        newRes.querySelector('.remove-external-btn').addEventListener('click', ()=>newRes.remove());
+    });
+}
+
+
+function addLesson(){
+    lessonCounter++;
+    const clone = initialLessonTemplate.content.cloneNode(true);
+    const lessonsList = document.getElementById('lessons-list');
+    lessonsList.appendChild(clone);
+    const newLesson = lessonsList.lastElementChild;
+    attachLessonEvents(newLesson);
+}
+document.getElementById('add-lesson-btn').addEventListener('click',addLesson);
+addLesson();
+
+// Thumbnail preview
+const dropThumbnail = document.getElementById("dropzoneThumbnail");
+const thumbInput = document.getElementById("thumbnailInput");
+dropThumbnail.addEventListener("click",()=>thumbInput.click());
+thumbInput.addEventListener("change",e=>{
+    const file=e.target.files[0];
+    if(file){
+        const previewImg=document.createElement("img");
+        previewImg.src=URL.createObjectURL(file);
+        previewImg.classList.add("img-fluid","rounded","shadow","mt-2");
+        previewImg.style.maxWidth="200px";
+        document.getElementById("preview-area").innerHTML="";
+        document.getElementById("preview-area").appendChild(previewImg);
+    }
+});
+
+showStep(0);
+})();
+</script>
+
+
+  
+
+
+     <script src="{% static 'dashboard/vendors/@popperjs/popper.min.js' %}"></script>
+      <script src="{% static 'dashboard/vendors/base/vendor.bundle.base.js' %}"></script>
+
+    <script src="{% static 'dashboard/js/template.js' %}"></script>
+
+    <script src="{% static 'dashboard/vendors/chart.js/Chart.min.js' %}"></script>
+    <script src="{% static 'dashboard/vendors/progressbar.js/progressbar.min.js' %}"></script>
+		<script src="{% static 'dashboard/vendors/chartjs-plugin-datalabels/chartjs-plugin-datalabels.js' %}"></script>
+		<script src="{% static 'dashboard/vendors/justgage/raphael-2.1.4.min.js' %}"></script>
+		<script src="{% static 'dashboard/vendors/justgage/justgage.js' %}"></script>
+    <script src="{% static 'dashboard/js/jquery.cookie.js' %}" type="text/javascript"></script>
+    <!-- Custom js for this page-->
+    <script src="{% static 'dashboard/js/dashboard.js' %}"></script> 
+		<script>var hostUrl = "{% static 'core/assets/ ' %}";</script>
+		<script src="{% static 'core/assets/plugins/global/plugins.bundle.js' %}"></script>
+		<script src="{% static 'core/assets/js/scripts.bundle.js' %}"></script>
+		<script src="{% static 'core/assets/plugins/custom/datatables/datatables.bundle.js' %}"></script>
+		<script src="{% static 'core/assets/js/custom/account/settings/signin-methods.js' %}"></script>
+		<script src="{% static 'core/assets/js/custom/account/settings/profile-details.js' %}"></script>
+		<script src="{% static 'core/assets/js/custom/account/settings/deactivate-account.js' %}"></script>
+		<script src="{% static 'core/assets/js/custom/pages/user-profile/general.js' %}"></script>
+		<script src="{% static 'core/assets/js/widgets.bundle.js' %}"></script>
+        
+		<script src="{% static 'core/assets/js/custom/utilities/modals/create-project/type.js' %}"></script>
+		<script src="{% static 'core/assets/js/custom/utilities/modals/create-project/budget.js' %}"></script>
+		<script src="{% static 'core/assets/js/custom/utilities/modals/create-project/settings.js' %}"></script>
+		<script src="{% static 'core/assets/js/custom/utilities/modals/create-project/team.js' %}"></script>
+		<script src="{% static 'core/assets/js/custom/utilities/modals/create-project/targets.js' %}"></script>
+		<script src="{% static 'core/assets/js/custom/utilities/modals/create-project/files.js' %}"></script>
+		<script src="{% static 'core/assets/js/custom/utilities/modals/create-project/complete.js' %}"></script>
+		<script src="{% static 'core/assets/js/custom/utilities/modals/create-project/main.js' %}"></script>
+
+
+
+
+    </body>
+</html>
