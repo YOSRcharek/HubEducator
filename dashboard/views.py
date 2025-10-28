@@ -221,7 +221,8 @@ def create_certificate(request):
             elif not exercises_to_save:
                 exercise_error = "At least one exercise is required."
             else:
-                certificate = cert_form.save()
+                certificate = cert_form.save(commit=False)
+                certificate.save()
                 for form in exercises_to_save:
                     exercise = form.save(commit=False)
                     exercise.certificate = certificate
@@ -315,13 +316,11 @@ def edit_certificate(request, cert_id):
             prefix='exercise'
         )
 
-    specialities = Speciality.objects.all()
     return render(request, 'certificats/editCertificate.html', {
         'cert_form': cert_form,
         'formset': formset,
         'certificate': certificate,
         'exercise_error': exercise_error,
-        'specialities': specialities,
     })
 
 # AJOUT: delete_certificate

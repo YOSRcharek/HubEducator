@@ -206,21 +206,13 @@ h2.title-main {
                 <div class="text-danger">{{ cert_form.description.errors }}</div>
                 {% endif %}
             </div>
-
             <div class="mb-3">
                 {{ cert_form.speciality.label_tag }}
                 {{ cert_form.speciality }}
-                <datalist id="specialities">
-                    {% for speciality in specialities %}
-                        <option value="{{ speciality.name }}">
-                    {% endfor %}
-                </datalist>
                 {% if cert_form.speciality.errors %}
-                <div class="text-danger">{{ cert_form.speciality.errors }}</div>
+                    <div class="text-danger">{{ cert_form.speciality.errors }}</div>
                 {% endif %}
-                <small class="form-text text-muted">Enter the speciality name. If it doesn't exist, it will be created automatically.</small>
             </div>
-
             <div class="mb-3">
                 <label for="id_cover_image" class="form-label">Cover Image</label>
                 <input type="hidden" role="uploadcare-uploader" name="cover_image" id="id_cover_image"

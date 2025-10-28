@@ -274,12 +274,10 @@ def create_certificate(request):
             prefix='exercise'
         )
 
-    specialities = Speciality.objects.all()
     return render(request, 'certificats/certificate_form.html', {
         'cert_form': cert_form,
         'formset': formset,
         'exercise_error': exercise_error,
-        'specialities': specialities,
     })
 
 
@@ -352,13 +350,11 @@ def edit_certificate(request, cert_id):
             prefix='exercise'
         )
 
-    specialities = Speciality.objects.all()
     return render(request, 'certificats/editCertificate.html', {
         'cert_form': cert_form,
         'formset': formset,
         'certificate': certificate,
         'exercise_error': exercise_error,
-        'specialities': specialities,
     })
 
 # AJOUT: delete_certificate

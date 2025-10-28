@@ -161,6 +161,19 @@
               <span class="menu-title">Users</span>
             </a>
           </li>
+          <li class="nav-item {% if request.resolver_match.url_name == 'specialities' %}active{% endif %}">
+              <a class="nav-link" href="{% url 'specialities' %}">
+                  <i class="mdi mdi-tag menu-icon"></i>
+                  <span class="menu-title">Specialities</span>
+              </a>
+          </li>
+
+          <li class="nav-item {% if request.resolver_match.url_name == 'list_certificates' %}active{% endif %}">
+              <a class="nav-link" href="{% url 'list_certificates' %}">
+                  <i class="mdi mdi-certificate menu-icon"></i>
+                  <span class="menu-title">Certificates</span>
+              </a>
+          </li>
 
           <li class="nav-item {% if request.resolver_match.url_name == 'subscriptions' %}active{% endif %}">
             <a class="nav-link" href="{% url 'subscriptions' %}">

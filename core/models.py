@@ -165,7 +165,6 @@ class Exercise(models.Model):
 class Speciality(models.Model):
     name = models.CharField(max_length=100, unique=True)
     description = models.TextField(blank=True, null=True)
-
     def __str__(self):
         return self.name
 
@@ -221,10 +220,6 @@ class CertificateAnswer(models.Model):
 
     def __str__(self):
         return f"Answer for {self.exercise.question} - Correct: {self.is_correct}"
-    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name='exercises', null=True, blank=True)
-
-    def __str__(self):
-        return f"{self.title} - {self.lesson.title}"
 
 
 # --------------------------

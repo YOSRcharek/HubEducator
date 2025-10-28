@@ -8,11 +8,7 @@ if defined _OLD_CODEPAGE (
     "%SystemRoot%\System32\chcp.com" 65001 > nul
 )
 
-<<<<<<< HEAD
 set "VIRTUAL_ENV=C:\Users\Mega Pc\Desktop\HubEducator-main\venv"
-=======
-set "VIRTUAL_ENV=C:\Users\ASUS\Desktop\Django\HubEducator\venv"
->>>>>>> main
 
 if not defined PROMPT set PROMPT=$P$G
 

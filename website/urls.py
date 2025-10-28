@@ -1,5 +1,3 @@
-
-
 from django.urls import path
 from . import views
 from django.contrib.auth import views as auth_views
@@ -25,14 +23,7 @@ urlpatterns = [
     path("verify-code/", views.verify_code_view, name="verify_code"),
     path('resend-code/', views.resend_code_view, name='resend_code'),
     path('auth/google/callback/', views.google_callback, name='google_callback'),
-    
-
-
-    #***********************************************************#
-    #****************ResetPassword***********************#
-
-
-
+    #****************Reset Password***********************#
     path('password-reset/', views.custom_password_reset, name='password_reset'),
     path('password-reset/done/', 
          auth_views.PasswordResetDoneView.as_view(template_name='ResetPassword/password_reset_done.html'), 
@@ -43,8 +34,7 @@ urlpatterns = [
     path('reset/done/', 
          auth_views.PasswordResetCompleteView.as_view(template_name='ResetPassword/password_reset_complete.html'), 
          name='password_reset_complete'),
-    
-    #***********************************************************#
+
     #****************Payment System***********************#
     path('payment/initiate/<int:subscription_id>/', views.initiate_payment, name='initiate_payment'),
     path('payment/process/', views.process_payment, name='process_payment'),

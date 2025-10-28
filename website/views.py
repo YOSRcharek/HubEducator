@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout, get_user_model
@@ -7,13 +6,11 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db.models import Q, Count
 from openai import OpenAI
-
-from core.models import Certificate, Speciality, CertificatExercise, CertificateAttempt, CertificateAnswer
-=======
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout, get_user_model
-from django.contrib import messages
->>>>>>> main
+import requests
+import json
+from django.template.loader import render_to_string
+from core.models import Certificate, Speciality, CertificatExercise, CertificateAttempt, CertificateAnswer, Subscription
+from django.contrib.auth import login, logout, authenticate
 from .forms import RegisterForm
 from core.decorators import unauthenticated_user
 from django.contrib.auth.forms import PasswordResetForm
@@ -24,8 +21,6 @@ from django.utils.encoding import force_bytes
 from django.contrib.auth.tokens import default_token_generator
 from django import forms
 from django.utils.crypto import get_random_string
-<<<<<<< HEAD
-import requests
 
 User = get_user_model()
 
@@ -43,33 +38,20 @@ def get_recommendations(user_id):
 client = None
 if hasattr(settings, 'OPENAI_API_KEY') and settings.OPENAI_API_KEY:
     client = OpenAI(api_key=settings.OPENAI_API_KEY)
-=======
-from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
-import requests
-import json
-from core.models import Subscription
 
-User = get_user_model()  # Always use custom user
-
->>>>>>> main
 # ----------------------------- Public Pages -----------------------------
 def home(request):
     return render(request, 'home.html', {})
 
 def pricing(request):
-<<<<<<< HEAD
-    return render(request, 'pricing.html', {})
-=======
     """Display all active subscriptions for users, separated by type"""
     student_subscriptions = Subscription.objects.filter(is_active=True, user_type='student').order_by('created_at')
     teacher_subscriptions = Subscription.objects.filter(is_active=True, user_type='teacher').order_by('created_at')
-    
+
     return render(request, 'pricing.html', {
         'student_subscriptions': student_subscriptions,
         'teacher_subscriptions': teacher_subscriptions,
     })
->>>>>>> main
 
 def web_development(request):
     return render(request, 'web-development.html', {})
@@ -109,7 +91,6 @@ def login_view(request):
             messages.error(request, "Aucun compte avec cet email.")
     return render(request, "login.html")
 
-
 @unauthenticated_user
 def register(request):
     if request.method == "POST":
@@ -118,7 +99,6 @@ def register(request):
             user = form.save(commit=False)
             user.set_password(form.cleaned_data["password1"])
             user.save()
-            
 
             # Send verification code
             send_verification_code(user)
@@ -127,7 +107,6 @@ def register(request):
     else:
         form = RegisterForm()
     return render(request, "register.html", {"form": form})
-
 
 def logout_view(request):
     auth_logout(request)
@@ -146,10 +125,8 @@ def send_verification_code(user):
 
     send_mail(subject, message, from_email, recipient_list)
 
-
 class VerifyCodeForm(forms.Form):
     code = forms.CharField(max_length=6, label="Verification Code")
-
 
 def verify_code_view(request):
     if request.method == "POST":
@@ -169,20 +146,19 @@ def verify_code_view(request):
         form = VerifyCodeForm()
     return render(request, "verify_code.html", {"form": form})
 
-
 def resend_code_view(request):
     user_id = request.session.get('user_id')  # Get user id from session
     if not user_id:
         messages.error(request, "Unable to resend code. Please login again.")
         return redirect('login')
-    
+
     try:
         user = User.objects.get(id=user_id)
         send_verification_code(user)
         messages.success(request, "A new verification code has been sent to your email.")
     except User.DoesNotExist:
         messages.error(request, "User not found.")
-    
+
     return redirect('verify_code')
 
 # ----------------------------- Password Reset -----------------------------
@@ -209,11 +185,7 @@ def custom_password_reset(request):
             <head><meta charset="UTF-8"><title>Password Reset</title></head>
             <body style="font-family:Arial,sans-serif; background:#f8f9fa; margin:0; padding:20px;">
                 <div style="max-width:600px; margin:auto; background:#fff; padding:30px; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.1); text-align:center;">
-<<<<<<< HEAD
-                    <img src="https://1cd2gyfjyi.ucarecd.net/b548c405-4541-4de3-97af-f3acc9ef1fad/logon.png" width="100" alt="HubEducator Logo" style="margin-bottom:20px;">
-=======
                     <img src="https://hubeducator-production.up.railway.app/static/website/img/favicons/android-chrome-192x192.png" width="100" alt="HubEducator Logo" style="margin-bottom:20px;">
->>>>>>> main
                     <h1 style="font-size:24px; margin:20px 0;">Reset Your Password</h1>
                     <p style="font-size:16px;">Hi {user.username},</p>
                     <p style="font-size:16px;">Click the button below to reset your password:</p>
@@ -241,14 +213,6 @@ def custom_password_reset(request):
 
     return render(request, 'ResetPassword/password_reset.html', {'form': form})
 
-
-# views.py
-import requests
-from django.shortcuts import redirect
-from django.contrib.auth import get_user_model, login
-
-User = get_user_model()
-
 def google_callback(request):
     code = request.GET.get('code')
     if not code:
@@ -264,7 +228,6 @@ def google_callback(request):
             'redirect_uri': settings.GOOGLE_REDIRECT_URI,
             'grant_type': 'authorization_code',
         }
-        
     )
     token_data = token_req.json()
     access_token = token_data.get('access_token')
@@ -287,8 +250,6 @@ def google_callback(request):
 
     return redirect('/')  # Redirect to homepage after login
 
-
-<<<<<<< HEAD
 def certificates(request):
     speciality_id = request.GET.get('speciality')
     search_query = request.GET.get('search', '').strip()
@@ -304,10 +265,10 @@ def certificates(request):
             Q(title__icontains=search_query) | Q(description__icontains=search_query)
         )
 
-    # 🔹 Charger toutes les spécialités
+    # Load all specialities
     specialities = Speciality.objects.all()
 
-    # 🔹 Lier les tentatives utilisateur et compter les passages réussis et totaux
+    # Link user attempts and count passed and total attempts
     user_attempts = {}
     passed_counts = {}
     total_attempts = {}
@@ -317,17 +278,17 @@ def certificates(request):
             cert_id = str(attempt.certificate_id)
             if cert_id not in user_attempts or attempt.completed_at > user_attempts[cert_id].completed_at:
                 user_attempts[cert_id] = attempt
-            # Compter le nombre de passages réussis par certificat
+            # Count passed attempts per certificate
             if attempt.passed:
                 if cert_id not in passed_counts:
                     passed_counts[cert_id] = 0
                 passed_counts[cert_id] += 1
-            # Compter le nombre total de tentatives par certificat
+            # Count total attempts per certificate
             if cert_id not in total_attempts:
                 total_attempts[cert_id] = 0
             total_attempts[cert_id] += 1
 
-    # 🔹 Filtrer par status (passed/failed) si spécifié avant pagination
+    # Filter by status (passed/failed) if specified before pagination
     if status_filter:
         cert_ids_with_attempts = set(user_attempts.keys())
         if status_filter == 'passed':
@@ -338,30 +299,30 @@ def certificates(request):
             cert_ids_to_include = set()
         certificates = certificates.filter(id__in=cert_ids_to_include)
 
-    # 🔹 Obtenir les recommandations pour l'utilisateur connecté
+    # Get recommendations for logged-in user
     recommendations = []
     recommended_ids = []
     if request.user.is_authenticated:
         recommendations = get_recommendations(request.user.id)
         recommended_ids = [rec['id'] for rec in recommendations]
 
-    # 🔹 Si aucun filtre n'est appliqué, afficher les recommandations en premier
+    # If no filters applied, show recommendations first
     if not speciality_id and not search_query and not status_filter:
-        # Priorité aux recommandations, puis les autres certificats
+        # Priority to recommendations, then other certificates
         recommended_certs = Certificate.objects.filter(id__in=recommended_ids)
         other_certs = certificates.exclude(id__in=recommended_ids)
         all_certs = list(recommended_certs) + list(other_certs)
     else:
-        # Si des filtres sont appliqués, utiliser la liste filtrée normale
+        # If filters applied, use normal filtered list
         all_certs = list(certificates)
 
-    # 🔹 Pagination après tous les filtres
+    # Pagination after all filters
     paginator = Paginator(all_certs, 12)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     certificates = page_obj.object_list
 
-    # 🔹 Attacher les données utilisateur aux certificats et marquer les recommandés
+    # Attach user data to certificates and mark recommended
     for cert in certificates:
         cert.user_attempt = user_attempts.get(str(cert.id))
         cert.passed_count = passed_counts.get(str(cert.id), 0)
@@ -377,56 +338,6 @@ def certificates(request):
     }
 
     return render(request, 'certificates.html', context)
-    speciality_id = request.GET.get('speciality')
-    search_query = request.GET.get('search', '').strip()
-
-    certificates = Certificate.objects.all()
-
-    if speciality_id:
-        certificates = certificates.filter(speciality_id=speciality_id)
-
-    if search_query:
-        # Filtrage par recherche (titre ou description)
-        certificates = certificates.filter(
-            Q(title__icontains=search_query) | Q(description__icontains=search_query)
-        )
-        # ⚠️ Désactiver la pagination si recherche
-        page_obj = None
-    else:
-        # Pagination uniquement si pas de recherche
-        paginator = Paginator(certificates, 12)  # 12 certificats par page
-        page_number = request.GET.get('page')
-        page_obj = paginator.get_page(page_number)
-        certificates = page_obj.object_list
-
-    # Récupérer toutes les spécialités
-    specialities = Speciality.objects.all()
-
-    # Récupérer les tentatives utilisateur
-    user_attempts = {}
-    if request.user.is_authenticated:
-        attempts = CertificateAttempt.objects.filter(user=request.user).select_related('certificate')
-        for attempt in attempts:
-            cert_id = str(attempt.certificate_id)
-            if cert_id not in user_attempts or attempt.completed_at > user_attempts[cert_id].completed_at:
-                user_attempts[cert_id] = attempt
-
-    # Ajouter les tentatives à chaque certificat
-    for cert in certificates:
-        cert.user_attempt = user_attempts.get(str(cert.id))
-
-    return render(request, 'certificates.html', {
-        'certificates': certificates,
-        'page_obj': page_obj,
-        'specialities': specialities,
-        'selected_speciality': speciality_id,
-        'search_query': search_query,
-    })
-from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth.decorators import login_required
-from django.core.mail import EmailMultiAlternatives
-from django.conf import settings
-from django.template.loader import render_to_string
 
 @login_required(login_url='login')
 def take_certificate(request, cert_id):
@@ -434,7 +345,7 @@ def take_certificate(request, cert_id):
     exercises = CertificatExercise.objects.filter(certificate=certificate)
 
     if request.method == 'POST':
-        # Création de la tentative
+        # Create attempt
         attempt = CertificateAttempt.objects.create(
             user=request.user,
             certificate=certificate,
@@ -466,13 +377,13 @@ def take_certificate(request, cert_id):
         attempt.passed = score >= (exercises.count() * 0.7)
         attempt.save()
 
-        # Préparation de l'email
+        # Prepare email
         user = request.user
         certificate_title = certificate.title
         score_percentage = int((score / exercises.count()) * 100)
 
         if attempt.passed:
-            # --- Envoi du certificat HTML ---
+            # Send certificate HTML
             context = {
                 'name': user.username,
                 'speciality': getattr(certificate.speciality, 'name', 'Non spécifiée'),
@@ -486,16 +397,15 @@ def take_certificate(request, cert_id):
                 f"Vous avez réussi le certificat {certificate_title} avec un score de {score_percentage}%.\n"
                 "Consultez votre certificat dans cet e-mail."
             )
-
         else:
-            # --- Envoi du mail de motivation ---
+            # Send motivational email
             subject = f"💪 Ne vous découragez pas {user.username} !"
             html_content = f"""
             <html>
             <body style="font-family:Arial,sans-serif; background:#f8f9fa; margin:0; padding:20px;">
                 <div style="max-width:600px; margin:auto; background:#fff; padding:30px; border-radius:12px;
                             box-shadow:0 4px 15px rgba(0,0,0,0.1); text-align:center;">
-                    <img src="https://1cd2gyfjyi.ucarecd.net/b548c405-4541-4de3-97af-f3acc9ef1fad/logon.png"
+                    <img src="https://hubeducator-production.up.railway.app/static/website/img/favicons/android-chrome-192x192.png"
                          width="100" alt="HubEducator Logo" style="margin-bottom:20px;">
                     <h1 style="font-size:24px; margin:20px 0; color:#dc3545;">Ne vous découragez pas {user.username} !</h1>
                     <p style="font-size:16px;">Vous avez obtenu un score de {score_percentage}% pour le certificat <strong>{certificate_title}</strong>.</p>
@@ -515,7 +425,7 @@ def take_certificate(request, cert_id):
                 "Chaque échec est une opportunité d'apprendre. Essayez à nouveau pour réussir !"
             )
 
-        # Envoi du mail
+        # Send email
         email_message = EmailMultiAlternatives(
             subject=subject,
             body=text_content,
@@ -565,7 +475,6 @@ def certificate_detail(request, cert_id):
 
     return render(request, 'certificate_detail.html', context)
 
-
 @login_required
 def my_certificates(request):
     # Get all passed attempts for the current user
@@ -580,52 +489,31 @@ def my_certificates(request):
 
     return render(request, 'my_certificates.html', context)
 
-
-    if request.method == "POST":
-        user_input = request.POST.get("message")
-
-        # Initialisation du client OpenAI
-        client = OpenAI(api_key=settings.OPENAI_API_KEY)
-
-        # Appel à GPT
-        response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": "Tu es un assistant utile."},
-                {"role": "user", "content": user_input}
-            ]
-        )
-
-        reply = response.choices[0].message.content
-        return JsonResponse({"response": reply})
-
-    return render(request, "chat.html")
-=======
 # ----------------------------- Payment System -----------------------------
 @login_required
 def initiate_payment(request, subscription_id):
     """Initiate payment for a subscription"""
     subscription = get_object_or_404(Subscription, id=subscription_id, is_active=True)
-    
+
     # Get currency and amount from query parameters
     selected_currency = request.GET.get('currency', 'USD').upper()
     selected_amount = request.GET.get('amount', str(subscription.price))
-    
+
     # Map of unsupported currencies to supported ones with conversion rates
     unsupported_currencies = {
         'TND': {'stripe_currency': 'usd', 'rate': 3.1},  # TND to USD
         'MAD': {'stripe_currency': 'usd', 'rate': 10.2}  # MAD to USD
     }
-    
+
     try:
         import stripe
         stripe.api_key = settings.STRIPE_SECRET_KEY
-        
+
         # Check if currency is supported by Stripe
         amount_float = float(selected_amount)
         display_currency = selected_currency
         display_amount = selected_amount
-        
+
         if selected_currency in unsupported_currencies:
             # Convert to supported currency for Stripe
             conversion_info = unsupported_currencies[selected_currency]
@@ -634,10 +522,10 @@ def initiate_payment(request, subscription_id):
             amount_float = amount_float / rate  # Convert back to USD
         else:
             stripe_currency = selected_currency.lower()
-        
+
         # Convert amount to cents/smallest currency unit
         amount_in_cents = int(amount_float * 100)
-        
+
         # Create a PaymentIntent
         payment_intent = stripe.PaymentIntent.create(
             amount=amount_in_cents,
@@ -651,14 +539,14 @@ def initiate_payment(request, subscription_id):
             },
             description=f'{subscription.name} subscription for {request.user.email}'
         )
-        
+
         # Store info in session
         request.session['subscription_id'] = subscription.id
         request.session['payment_intent_id'] = payment_intent.id
         request.session['client_secret'] = payment_intent.client_secret
         request.session['payment_currency'] = display_currency
         request.session['payment_amount'] = display_amount
-        
+
         return render(request, 'payment/checkout.html', {
             'subscription': subscription,
             'client_secret': payment_intent.client_secret,
@@ -666,11 +554,10 @@ def initiate_payment(request, subscription_id):
             'currency': display_currency,
             'amount': display_amount,
         })
-        
+
     except Exception as e:
         messages.error(request, f"Error initiating payment: {str(e)}")
         return redirect('pricing')
-
 
 @login_required
 def process_payment(request):
@@ -681,21 +568,21 @@ def process_payment(request):
             from core.models import Transaction, UserSubscription
             from datetime import timedelta
             from django.utils import timezone
-            
+
             stripe.api_key = settings.STRIPE_SECRET_KEY
-            
+
             # Get payment intent ID from session
             payment_intent_id = request.session.get('payment_intent_id')
             subscription_id = request.session.get('subscription_id')
-            
+
             if not payment_intent_id or not subscription_id:
                 messages.error(request, "Invalid payment session")
                 return redirect('pricing')
-            
+
             # Retrieve the PaymentIntent to check its status
             payment_intent = stripe.PaymentIntent.retrieve(payment_intent_id)
             subscription = get_object_or_404(Subscription, id=subscription_id)
-            
+
             if payment_intent.status == 'succeeded':
                 # Create transaction record
                 transaction, created = Transaction.objects.get_or_create(
@@ -710,7 +597,7 @@ def process_payment(request):
                         'completed_at': timezone.now()
                     }
                 )
-                
+
                 if created:
                     # Calculate end date based on duration
                     # Simple parsing - you can make this more sophisticated
@@ -724,7 +611,7 @@ def process_payment(request):
                         days_match = re.search(r'(\d+)', subscription.duration)
                         if days_match:
                             duration_days = int(days_match.group(1))
-                    
+
                     # Create user subscription
                     UserSubscription.objects.create(
                         user=request.user,
@@ -733,12 +620,12 @@ def process_payment(request):
                         end_date=timezone.now() + timedelta(days=duration_days),
                         is_active=True
                     )
-                
-                    # Clear session
+
+                # Clear session
                 for key in ['subscription_id', 'payment_intent_id', 'client_secret']:
                     if key in request.session:
                         del request.session[key]
-                
+
                 # Update user role based on subscription type
                 if subscription.user_type == 'teacher':
                     request.user.role = 'teacher'
@@ -751,13 +638,12 @@ def process_payment(request):
             else:
                 messages.error(request, f"Payment status: {payment_intent.status}")
                 return redirect('payment_failed')
-            
+
         except Exception as e:
             messages.error(request, f"Payment processing error: {str(e)}")
             return redirect('payment_failed')
-    
-    return redirect('pricing')
 
+    return redirect('pricing')
 
 @login_required
 def payment_success(request):
@@ -767,12 +653,10 @@ def payment_success(request):
     else:
         return render(request, 'payment/success_student.html')
 
-
 @login_required
 def payment_failed(request):
     """Payment failed page"""
     return render(request, 'payment/failed.html')
-
 
 # ----------------------------- Stripe Webhook -----------------------------
 from django.views.decorators.csrf import csrf_exempt
@@ -785,13 +669,13 @@ def stripe_webhook(request):
     from core.models import Transaction, UserSubscription
     from datetime import timedelta
     from django.utils import timezone
-    
+
     stripe.api_key = settings.STRIPE_SECRET_KEY
     endpoint_secret = getattr(settings, 'STRIPE_WEBHOOK_SECRET', None)
-    
+
     payload = request.body
     sig_header = request.META.get('HTTP_STRIPE_SIGNATURE')
-    
+
     try:
         if endpoint_secret:
             event = stripe.Webhook.construct_event(
@@ -799,11 +683,11 @@ def stripe_webhook(request):
             )
         else:
             event = json.loads(payload)
-        
+
         # Handle the event
         if event['type'] == 'payment_intent.succeeded':
             payment_intent = event['data']['object']
-            
+
             # Update transaction status
             try:
                 transaction = Transaction.objects.get(
@@ -812,15 +696,15 @@ def stripe_webhook(request):
                 transaction.status = 'completed'
                 transaction.completed_at = timezone.now()
                 transaction.save()
-                
+
                 print(f"✅ Payment succeeded for transaction {transaction.id}")
-                
+
             except Transaction.DoesNotExist:
                 print(f"⚠️ Transaction not found for payment_intent: {payment_intent['id']}")
-        
+
         elif event['type'] == 'payment_intent.payment_failed':
             payment_intent = event['data']['object']
-            
+
             # Update transaction status
             try:
                 transaction = Transaction.objects.get(
@@ -828,14 +712,14 @@ def stripe_webhook(request):
                 )
                 transaction.status = 'failed'
                 transaction.save()
-                
+
                 print(f"❌ Payment failed for transaction {transaction.id}")
-                
+
             except Transaction.DoesNotExist:
                 print(f"⚠️ Transaction not found for payment_intent: {payment_intent['id']}")
-        
+
         return HttpResponse(status=200)
-        
+
     except ValueError as e:
         # Invalid payload
         print(f"❌ Invalid payload: {e}")
@@ -847,4 +731,3 @@ def stripe_webhook(request):
     except Exception as e:
         print(f"❌ Webhook error: {e}")
         return HttpResponse(status=500)
->>>>>>> main
