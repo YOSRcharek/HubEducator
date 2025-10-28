@@ -20,8 +20,22 @@ from django import forms
 from django.utils.crypto import get_random_string
 import requests
 
-User = get_user_model()  # Always use custom user
-client = OpenAI(api_key=settings.OPENAI_API_KEY)
+User = get_user_model()
+
+def get_recommendations(user_id):
+    try:
+        response = requests.get(f'http://127.0.0.1:5000/recommend/{user_id}')
+        if response.status_code == 200:
+            return response.json().get('recommendations', [])
+        else:
+            return []
+    except requests.RequestException:
+        return []
+
+# Initialize OpenAI client only if API key is available
+client = None
+if hasattr(settings, 'OPENAI_API_KEY') and settings.OPENAI_API_KEY:
+    client = OpenAI(api_key=settings.OPENAI_API_KEY)
 # ----------------------------- Public Pages -----------------------------
 def home(request):
     return render(request, 'home.html', {})
@@ -291,17 +305,35 @@ def certificates(request):
             cert_ids_to_include = set()
         certificates = certificates.filter(id__in=cert_ids_to_include)
 
+    # 🔹 Obtenir les recommandations pour l'utilisateur connecté
+    recommendations = []
+    recommended_ids = []
+    if request.user.is_authenticated:
+        recommendations = get_recommendations(request.user.id)
+        recommended_ids = [rec['id'] for rec in recommendations]
+
+    # 🔹 Si aucun filtre n'est appliqué, afficher les recommandations en premier
+    if not speciality_id and not search_query and not status_filter:
+        # Priorité aux recommandations, puis les autres certificats
+        recommended_certs = Certificate.objects.filter(id__in=recommended_ids)
+        other_certs = certificates.exclude(id__in=recommended_ids)
+        all_certs = list(recommended_certs) + list(other_certs)
+    else:
+        # Si des filtres sont appliqués, utiliser la liste filtrée normale
+        all_certs = list(certificates)
+
     # 🔹 Pagination après tous les filtres
-    paginator = Paginator(certificates, 12)
+    paginator = Paginator(all_certs, 12)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     certificates = page_obj.object_list
 
-    # 🔹 Attacher les données utilisateur aux certificats
+    # 🔹 Attacher les données utilisateur aux certificats et marquer les recommandés
     for cert in certificates:
         cert.user_attempt = user_attempts.get(str(cert.id))
         cert.passed_count = passed_counts.get(str(cert.id), 0)
         cert.total_attempts = total_attempts.get(str(cert.id), 0)
+        cert.is_recommended = cert.id in recommended_ids
 
     context = {
         'certificates': certificates,
@@ -363,7 +395,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.conf import settings
 from django.template.loader import render_to_string
 
-@login_required
+@login_required(login_url='login')
 def take_certificate(request, cert_id):
     certificate = get_object_or_404(Certificate, pk=cert_id)
     exercises = CertificatExercise.objects.filter(certificate=certificate)

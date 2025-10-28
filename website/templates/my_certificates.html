@@ -27,16 +27,24 @@
                                     <div class="col-md-8">
                                         <h3 class="card-title">{{ attempt.certificate.title }}</h3>
                                         <p class="text-muted mb-2">Completed on {{ attempt.completed_at|date:"F j, Y, g:i a" }}</p>
-                                        <p class="mb-0">Score: {{ attempt.score }}/{{ attempt.total_questions }}</p>
+                                        <p class="mb-1">Score: {{ attempt.score }}/{{ attempt.total_questions }}</p>
+                                        <p class="mb-1"><strong>Description:</strong> {{ attempt.certificate.description }}</p>
+                                        <p class="mb-0"><strong>Speciality:</strong> {{ attempt.certificate.speciality.name }}</p>
                                     </div>
-                                    <div class="col-md-4 text-end">
-                                        <a href="{% url 'certificate_result' attempt.id %}?view=certificate" 
-                                        class="btn btn-primary" 
-                                        target="_blank" 
-                                        rel="noopener noreferrer">
-                                            <i class="fas fa-eye"></i> View Certificate
-                                        </a>
-                                    </div>
+<div class="col-md-4 d-flex justify-content-end align-items-center gap-2">
+    <a href="{% url 'certificate_result' attempt.id %}?view=certificate"
+       class="btn btn-primary btn-md"
+       target="_blank"
+       rel="noopener noreferrer">
+        <i class="fas fa-eye"></i> View Certificate
+    </a>
+
+    <a href="{% url 'certificate_detail' attempt.certificate.id %}"
+       class="btn btn-outline-primary btn-md">
+        <i class="fas fa-info-circle"></i> View Details
+    </a>
+</div>
+
 
                                 </div>
                             </div>

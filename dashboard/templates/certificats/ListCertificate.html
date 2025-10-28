@@ -12,7 +12,7 @@
                 <div class="d-flex align-items-center">
                     <form method="get" class="d-flex me-3">
                         <input type="text" name="search" class="form-control" placeholder="Search certificates..." value="{{ search_query }}" style="width: 250px;">
-                        <button type="submit" class="btn btn-outline-primary ms-2">Search</button>
+                        <button type="submit" class="btn btn-outline-secondary ms-2">Search</button>
                     </form>
                     <a href="{% url 'certificate_add' %}" class="btn btn-outline-success btn-icon-text">
                         <i class="mdi mdi-plus btn-icon-prepend"></i>
@@ -53,13 +53,13 @@
                             <td>{{ cert.succeeded_count }} / {{ cert.participant_count }}</td>
 
                             <td>
-                                <a href="{% url 'previewCertificate' cert.id %}" class="btn btn-outline-info btn-sm">
+                                <a href="{% url 'previewCertificate' cert.id %}" class="btn btn-outline-dark">
                                     <i class="mdi mdi-eye"></i> Aperçu
                                 </a>
-                                <a href="{% url 'certificate_results' cert.id %}" class="btn btn-outline-primary btn-sm">
+                                <a href="{% url 'certificate_results' cert.id %}" class="btn btn-outline-dark">
                                     <i class="mdi mdi-chart-bar"></i> Results
                                 </a>
-                                <a href="{% url 'export_certificate_results_excel' cert.id %}" class="btn btn-outline-success btn-sm">
+                                <a href="{% url 'export_certificate_results_excel' cert.id %}" class="btn btn-outline-dark">
                                     <i class="mdi mdi-download"></i> Export Excel
                                 </a>
                             </td>
@@ -105,14 +105,14 @@
                             <td>{{ cert.participant_count }}</td>
                             <td>{{ cert.succeeded_count }} / {{ cert.participant_count }}</td>
                             <td>
-                                <a href="{% url 'previewCertificate' cert.id %}" class="btn btn-outline-info btn-sm">
-                                    <i class="mdi mdi-eye"></i> Aperçu
+                                <a href="{% url 'previewCertificate' cert.id %}" class="btn btn-outline-dark">
+                                    <i class="mdi mdi-eye"></i> 
                                 </a>
-                                <a href="{% url 'certificate_results' cert.id %}" class="btn btn-outline-primary btn-sm">
-                                    <i class="mdi mdi-chart-bar"></i> Results
+                                <a href="{% url 'certificate_results' cert.id %}" class="btn btn-outline-dark">
+                                    <i class="mdi mdi-chart-bar"></i> 
                                 </a>
-                                <a href="{% url 'export_certificate_results_excel' cert.id %}" class="btn btn-outline-success btn-sm">
-                                    <i class="mdi mdi-download"></i> Export Excel
+                                <a href="{% url 'export_certificate_results_excel' cert.id %}" class="btn btn-outline-dark">
+                                    <i class="mdi mdi-download"></i> 
                                 </a>
                             </td>
                             <td>

@@ -87,8 +87,18 @@
             {% if user.is_authenticated %}
               {% if user_attempts %}
                 <p class="text-success"><i class="fas fa-check-circle"></i> You have attempted this certificate.</p>
-                <a href="{% url 'take_certificate' certificate.id %}" class="btn btn-primary btn-sm mb-2">Retake Certificate</a>
-                <a href="{% url 'certificate_result' user_attempts.0.id %}" class="btn btn-outline-success btn-sm">View Latest Result</a>
+                <div class="d-flex justify-content-start align-items-center gap-2 mt-2">
+    <a href="{% url 'take_certificate' certificate.id %}"
+       class="btn btn-primary btn-md btn-equal">
+        <i class="fas fa-redo"></i> Retake Certificate
+    </a>
+
+    <a href="{% url 'certificate_result' user_attempts.0.id %}"
+       class="btn btn-outline-success btn-md btn-equal">
+        <i class="fas fa-chart-line"></i> View Latest Result
+    </a>
+</div>
+
               {% else %}
                 <a href="{% url 'take_certificate' certificate.id %}" class="btn btn-primary btn-sm">Take Certificate</a>
               {% endif %}

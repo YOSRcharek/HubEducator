@@ -115,19 +115,23 @@
 
     .add-form-btn,
     .add-option {
-        background-color: #198754;
-        color: white;
-        border: none;
+        background-color: transparent; /* pas de fond */
+        color: #6c757d; /* gris bootstrap */
+        border: 2px solid #6c757d; /* contour gris */
         padding: 8px 16px;
         border-radius: 8px;
         transition: 0.3s;
         font-size: 0.9rem;
+        font-weight: 500;
     }
 
+    /* Effet au survol */
     .add-form-btn:hover,
     .add-option:hover {
-        background-color: #157347;
+        background-color: #6c757d; /* fond gris au survol */
+        color: white; /* texte devient blanc */
     }
+
 
     .save-btn {
         background: #0d6efd;

@@ -53,13 +53,13 @@
                             <td>{{ cert.succeeded_count }} / {{ cert.participant_count }}</td>
 
                             <td>
-                                <a href="{% url 'previewCertificate' cert.id %}" class="btn btn-outline-info btn-sm">
+                                <a href="{% url 'previewCertificate' cert.id %}" class="btn btn-outline-dark btn-sm">
                                     <i class="mdi mdi-eye"></i> Aperçu
                                 </a>
-                                <a href="{% url 'certificate_results' cert.id %}" class="btn btn-outline-primary btn-sm">
+                                <a href="{% url 'certificate_results' cert.id %}" class="btn btn-outline-dark btn-sm">
                                     <i class="mdi mdi-chart-bar"></i> Results
                                 </a>
-                                <a href="{% url 'export_certificate_results_excel' cert.id %}" class="btn btn-outline-success btn-sm">
+                                <a href="{% url 'export_certificate_results_excel' cert.id %}" class="btn btn-outline-dark btn-sm">
                                     <i class="mdi mdi-download"></i> Export Excel
                                 </a>
                             </td>
@@ -105,13 +105,13 @@
                             <td>{{ cert.participant_count }}</td>
                             <td>{{ cert.succeeded_count }} / {{ cert.participant_count }}</td>
                             <td>
-                                <a href="{% url 'previewCertificate' cert.id %}" class="btn btn-outline-info btn-sm">
+                                <a href="{% url 'previewCertificate' cert.id %}" class="btn btn-outline-dark btn-sm">
                                     <i class="mdi mdi-eye"></i> Aperçu
                                 </a>
-                                <a href="{% url 'certificate_results' cert.id %}" class="btn btn-outline-primary btn-sm">
+                                <a href="{% url 'certificate_results' cert.id %}" class="btn btn-outline-dark btn-sm">
                                     <i class="mdi mdi-chart-bar"></i> Results
                                 </a>
-                                <a href="{% url 'export_certificate_results_excel' cert.id %}" class="btn btn-outline-success btn-sm">
+                                <a href="{% url 'export_certificate_results_excel' cert.id %}" class="btn btn-outline-dark btn-sm">
                                     <i class="mdi mdi-download"></i> Export Excel
                                 </a>
                             </td>
