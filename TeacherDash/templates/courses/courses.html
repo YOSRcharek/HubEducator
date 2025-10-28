@@ -20,11 +20,94 @@
 		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700" />
 		<link href="{% static 'core/assets/plugins/global/plugins.bundle.css' %}" rel="stylesheet" type="text/css" />
 		<link href="{% static 'core/assets/css/style.bundle.css' %}" rel="stylesheet" type="text/css" />
-    
+       <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+		<!-- Flatpickr CSS -->
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
   </head>
+<style>
+	.card.border-hover-primary {
+    background-color: #fff; /* fond blanc */
+    border-radius: 12px;     /* coins arrondis */
+    padding: 15px;           /* espace interne */
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.08); /* effet 3D léger */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Effet au survol : la carte "soulève" légèrement */
+.card.border-hover-primary:hover {
+    transform: translateY(-5px); /* soulève */
+    box-shadow: 0 10px 15px rgba(0,0,0,0.15), 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.custom-modal {
+    display: none; /* caché par défaut */
+    position: fixed;
+    z-index: 9999;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.6);
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(4px);
+}
+
+.modal-content {
+    background: #fff;
+    border-radius: 15px;
+    padding: 30px;
+    width: 400px;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    animation: popupFadeIn 0.3s ease;
+}
+
+.close-btn {
+    position: absolute;
+    right: 25px;
+    top: 20px;
+    font-size: 28px;
+    cursor: pointer;
+    color: #666;
+}
+
+.close-btn:hover { color: #000; }
+
+.date-input {
+    width: 80%;
+    padding: 10px;
+    margin: 15px 0;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+}
+
+.confirm-btn {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.confirm-btn:hover {
+    background: #0056b3;
+}
+
+@keyframes popupFadeIn {
+    from { opacity: 0; transform: scale(0.8); }
+    to { opacity: 1; transform: scale(1); }
+}
+</style>
 
     {% include 'includes/navbarTeach.html' %}
+  {% block content %}
+
 	<body id="kt_body" data-kt-app-header-stacked="true" data-kt-app-header-primary-enabled="true" data-kt-app-header-secondary-enabled="true" data-kt-app-toolbar-enabled="true" class="app-default">
+	<div class="bg-white">
 		<div class="d-flex flex-column flex-root app-root" id="kt_app_root">
 			<div class="app-page flex-column flex-column-fluid" id="kt_app_page">
 				
@@ -41,419 +124,313 @@
 											</div>
 											<div class="d-flex align-items-center gap-3 gap-lg-5">
 												        <div class="m-0">
-															<a href="{% url 'add_courses' %}" class="btn btn-flex btn-sm btn-color-gray-700 bg-body fw-bold px-4" >New Course</a>
+															<a href="{% url 'add_courses' %}" class="btn btn-flex btn-sm btn-color-gray-700 bg-body fw-bold px-4 bg-light" >New Course</a>
 											
 														</div>
 											</div>
 										</div>
 									</div>
 								</div>
+								
 								<div id="kt_app_content" class="app-content pb-0">
-									
+
 									<div class="d-flex flex-wrap flex-stack my-5">
 										<h2 class="fs-2 fw-semibold my-2">Courses
-										<span class="fs-6 text-gray-400 ms-1">by Status</span></h2>
-										<div class="d-flex flex-wrap my-1">
-											<div class="m-0">
-												<select name="status" data-control="select2" data-hide-search="true" class="form-select form-select-sm bg-body border-body fw-bold w-125px">
-													<option value="Active" selected="selected">Active</option>
-													<option value="Approved">In Progress</option>
-													<option value="Declined">To Do</option>
-													<option value="In Progress">Completed</option>
-												</select>
+											<span class="fs-6 text-gray-400 ms-1">by Status</span>
+										</h2>
+										<div class="d-flex flex-wrap my-1 bg-light">
+											<form method="get" id="statusFilterForm">
+												<div class="m-0">
+													<select name="status" id="statusSelect" 
+															data-control="select2" 
+															data-hide-search="true" 
+															class="form-select form-select-sm bg-body border-body fw-bold w-125px bg-light"
+															onchange="document.getElementById('statusFilterForm').submit()">
+														<option value="">All</option>
+														{% for status in status_options %}
+															<option value="{{ status }}" {% if status == current_status %}selected{% endif %}>
+																{{ status|title }}
+															</option>
+														{% endfor %}
+													</select>
+												</div>
+											</form>
+										</div>
+									</div>
+
+									<div class="row g-6 g-xl-9">
+										{% for course in page_obj %}
+									    <div class="col-md-6 col-xl-4 ">
+									       <span class=" card border-hover-primary">
+												<div class="dropdown" style="position:absolute; top:10px; right:10px; z-index:10;" onclick="event.stopPropagation()">
+													<button class="btn btn-sm btn-light" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+														<i class="bi bi-three-dots-vertical"></i>
+													</button>
+													<ul class="dropdown-menu">
+														<li>
+															{% if not course.visible %}
+																<span class="dropdown-item" style="cursor:pointer;" onclick="openModal({{ course.id }})">
+																	<i class="bi bi-calendar-event me-2"></i>Planning
+																</span>
+															{% endif %}
+														</li>
+
+								
+														<li>													
+														<span class="dropdown-item edit-course-btn" style="cursor:pointer;" data-course-id="{{ course.id }}"
+															onclick="event.stopPropagation(); window.location.href='/courses/{{ course.id }}/edit/'">
+															<i class="bi bi-pencil-square me-2"></i> Edit
+														</span>
+														</li>
+														<li>
+															<span class="dropdown-item" style="cursor:pointer;" onclick="confirmDelete({{ course.id }})">
+																<i class="bi bi-trash me-2"></i> Delete
+															</span>
+														</li>
+																											</ul>
+												</div>
+									       <a href="{% url 'course_detail' course.id %}" >
+
+												<div class="card-header border-0 pt-12">
+													<div class="card-title m-0">
+														<div class="symbol symbol-50px w-50px bg-light">
+															{% if course.thumbnail %}
+																<img src="{{ course.thumbnail.url }}" alt="thumbnail" class="p-3" />
+															{% else %}
+																<img src="{% static 'core/assets/media/svg/brand-logos/default.svg' %}" alt="thumbnail" class="p-3" />
+															{% endif %}
+														</div>
+													</div>
+													<div class="card-toolbar">
+														<span class="badge {% if course.status == 'pending' %}badge-light-primary{% elif course.status == 'inprogress' %}badge-light-warning{% else %}badge-light-success{% endif %} fw-bold me-auto px-4 py-3">
+															{{ course.status|title }}
+														</span>
+													</div>
+												</div>
+												<div class="card-body p-9">
+													<div class="fs-3 fw-bold text-dark">{{ course.title }}</div>
+													<p class="text-gray-400 fw-semibold fs-5 mt-1 mb-3">{{ course.description|truncatewords:10 }}</p>
+													<div class="d-flex flex-wrap mb-5">
+														<div class="border border-gray-300 border-dashed rounded min-w-125px py-3 px-4 me-7 mb-3 ">
+															<div class="fs-6 text-gray-800 fw-bold">
+																{{ course.visible|yesno:"Published,Unpublished" }}
+															</div>
+															<div class="fw-semibold text-gray-400">Visibility</div>
+														</div>
+
+
+														<div class="border border-gray-300 border-dashed rounded min-w-125px py-3 px-4 mb-3">
+															<div class="fs-6 text-gray-800 fw-bold">{{ course.capacity }}</div>
+															<div class="fw-semibold text-gray-400">Capacity</div>
+														</div>
+														<div class="border border-gray-300 border-dashed rounded min-w-125px py-3 px-4 mb-3">
+															<div class="fs-6 text-gray-800 fw-bold">{{ course.lessons.count }}</div>
+															<div class="fw-semibold text-gray-400">Lessons</div>
+														</div>
+														<div class="border border-gray-300 border-dashed rounded min-w-125px py-3 px-4 mb-3">
+															<div class="fs-6 text-gray-800 fw-bold">{{ course.category.name }}</div>
+															<div class="fw-semibold text-gray-400">Category</div>
+														</div>
+													</div>
+
+													<div class="h-4px w-100 bg-light mb-5" data-bs-toggle="tooltip" title="Course progress">
+														{% if course.status == 'pending' %}
+															<div class="bg-primary rounded h-4px" role="progressbar" style="width: 10%" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100"></div>
+														{% elif course.status == 'inprogress' %}
+															<div class="bg-warning rounded h-4px" role="progressbar" style="width: 50%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+														{% else %}
+															<div class="bg-success rounded h-4px" role="progressbar" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+														{% endif %}
+													</div>
+
+												<div class="symbol-group symbol-hover">
+													{% if course.students.exists %}
+														{% for student in course.students.all|slice:":4" %}
+														<div class="student-card" style="display:inline-block; margin-right:5px; position:relative;">
+															<div class="student-avatar" style="width:35px; height:35px; border-radius:50%; overflow:hidden;">
+																{% if student.profile_picture %}
+																	<img src="{{ student.profile_picture.url }}" alt="{{ student.username }}" style="width:100%; height:100%; object-fit:cover;">
+																{% else %}
+																	<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#ccc;font-weight:600;color:#fff;">
+																		{{ student.username|slice:":2"|upper }}
+																	</div>
+																{% endif %}
+															</div>
+														</div>
+														{% endfor %}
+
+														{% if course.students.count > 4 %}
+														<div class="student-card" style="display:inline-block; margin-left:5px; text-align:center; width:35px; font-size:0.75rem;">
+															<div class="student-avatar" style="width:35px; height:35px; border-radius:50%; background:#eee; display:flex; align-items:center; justify-content:center;">
+																+{{ course.students.count|add:"-4" }}
+															</div>
+															<div style="font-size:0.7rem; color:#546e7a;">View All</div>
+														</div>
+														{% endif %}
+													{% else %}
+														<div style="font-size:0.85rem; color:#999;">No student assigned yet</div>
+													{% endif %}
+												</div>
+
+												</div>
+										</a>
+										   </span>
+										</div>
+										<div id="modal{{ course.id }}" class="custom-modal">
+											<div class="modal-content">
+												<span class="close-btn" onclick="closeModal({{ course.id }})">&times;</span>
+												<h2>📅 Schedule Publication</h2>
+												<label for="publishDate{{ course.id }}">Select date and time:</label>
+												<input type="text" id="publishDate{{ course.id }}" class="date-input">
+												<button class="confirm-btn" onclick="savePublishDate({{ course.id }})">Confirm</button>
 											</div>
 										</div>
+										{% endfor %}
 									</div>
-									<div class="row g-6 g-xl-9">
-										<div class="col-md-6 col-xl-4">
-											<a href="#" class="card border-hover-primary">
-												<div class="card-header border-0 pt-9">
-													<div class="card-title m-0">
-														<div class="symbol symbol-50px w-50px bg-light">
-															<img src="{% static 'core/assets/media/svg/brand-logos/plurk.svg ' %}" alt="image" class="p-3" />
-														</div>
-													</div>
-													<div class="card-toolbar">
-														<span class="badge badge-light-primary fw-bold me-auto px-4 py-3">In Progress</span>
-													</div>
-												</div>
-												<div class="card-body p-9">
-													<div class="fs-3 fw-bold text-dark">Fitnes App</div>
-													<p class="text-gray-400 fw-semibold fs-5 mt-1 mb-7">CRM App application to HR efficiency</p>
-													<div class="d-flex flex-wrap mb-5">
-														<div class="border border-gray-300 border-dashed rounded min-w-125px py-3 px-4 me-7 mb-3">
-															<div class="fs-6 text-gray-800 fw-bold">Feb 21, 2023</div>
-															<div class="fw-semibold text-gray-400">Due Date</div>
-														</div>
-														<div class="border border-gray-300 border-dashed rounded min-w-125px py-3 px-4 mb-3">
-															<div class="fs-6 text-gray-800 fw-bold">$284,900.00</div>
-															<div class="fw-semibold text-gray-400">Budget</div>
-														</div>
-													</div>
-													<div class="h-4px w-100 bg-light mb-5" data-bs-toggle="tooltip" title="This project 50% completed">
-														<div class="bg-primary rounded h-4px" role="progressbar" style="width: 50%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
-													</div>
-													<div class="symbol-group symbol-hover">
-														<div class="symbol symbol-35px symbol-circle" data-bs-toggle="tooltip" title="Emma Smith">
-															<img alt="Pic" src="{% static 'core/assets/media/avatars/300-6.jpg' %}" />
-														</div>
-														<div class="symbol symbol-35px symbol-circle" data-bs-toggle="tooltip" title="Rudy Stone">
-															<img alt="Pic" src="{% static 'core/assets/media/avatars/300-1.jpg ' %}" />
-														</div>
-														<div class="symbol symbol-35px symbol-circle" data-bs-toggle="tooltip" title="Susan Redwood">
-															<span class="symbol-label bg-primary text-inverse-primary fw-bold">S</span>
-														</div>
-													</div>
-												</div>
-											</a>
-										</div>
-										<div class="col-md-6 col-xl-4">
-											<a href="#" class="card border-hover-primary">
-												<div class="card-header border-0 pt-9">
-													<div class="card-title m-0">
-														<div class="symbol symbol-50px w-50px bg-light">
-															<img src="{% static 'core/assets/media/svg/brand-logos/disqus.svg' %}" alt="image" class="p-3" />
-														</div>
-													</div>
-													<div class="card-toolbar">
-														<span class="badge badge-light fw-bold me-auto px-4 py-3">Pending</span>
-													</div>
-												</div>
-												<div class="card-body p-9">
-													<div class="fs-3 fw-bold text-dark">Leaf CRM</div>
-													<p class="text-gray-400 fw-semibold fs-5 mt-1 mb-7">CRM App application to HR efficiency</p>
-													<div class="d-flex flex-wrap mb-5">
-														<div class="border border-gray-300 border-dashed rounded min-w-125px py-3 px-4 me-7 mb-3">
-															<div class="fs-6 text-gray-800 fw-bold">May 10, 2021</div>
-															<div class="fw-semibold text-gray-400">Due Date</div>
-														</div>
-														<div class="border border-gray-300 border-dashed rounded min-w-125px py-3 px-4 mb-3">
-															<div class="fs-6 text-gray-800 fw-bold">$36,400.00</div>
-															<div class="fw-semibold text-gray-400">Budget</div>
-														</div>
-													</div>
-													<div class="h-4px w-100 bg-light mb-5" data-bs-toggle="tooltip" title="This project 30% completed">
-														<div class="bg-info rounded h-4px" role="progressbar" style="width: 30%" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100"></div>
-													</div>
-													<div class="symbol-group symbol-hover">
-														<div class="symbol symbol-35px symbol-circle" data-bs-toggle="tooltip" title="Alan Warden">
-															<span class="symbol-label bg-warning text-inverse-warning fw-bold">A</span>
-														</div>
-														<div class="symbol symbol-35px symbol-circle" data-bs-toggle="tooltip" title="Brian Cox">
-															<img alt="Pic" src="{% static 'core/assets/media/avatars/300-5.jpg' %}" />
-														</div>
-													</div>
-												</div>
-											</a>
-										</div>
-										<div class="col-md-6 col-xl-4">
-											<a href="#" class="card border-hover-primary">
-												<div class="card-header border-0 pt-9">
-													<div class="card-title m-0">
-														<div class="symbol symbol-50px w-50px bg-light">
-															<img src="{% static 'core/assets/media/svg/brand-logos/figma-1.svg' %}" alt="image" class="p-3" />
-														</div>
-													</div>
-													<div class="card-toolbar">
-														<span class="badge badge-light-success fw-bold me-auto px-4 py-3">Completed</span>
-													</div>
-												</div>
-												<div class="card-body p-9">
-													<div class="fs-3 fw-bold text-dark">Atica Banking</div>
-													<p class="text-gray-400 fw-semibold fs-5 mt-1 mb-7">CRM App application to HR efficiency</p>
-													<div class="d-flex flex-wrap mb-5">
-														<div class="border border-gray-300 border-dashed rounded min-w-125px py-3 px-4 me-7 mb-3">
-															<div class="fs-6 text-gray-800 fw-bold">Mar 14, 2021</div>
-															<div class="fw-semibold text-gray-400">Due Date</div>
-														</div>
-														<div class="border border-gray-300 border-dashed rounded min-w-125px py-3 px-4 mb-3">
-															<div class="fs-6 text-gray-800 fw-bold">$605,100.00</div>
-															<div class="fw-semibold text-gray-400">Budget</div>
-														</div>
-													</div>
-													<div class="h-4px w-100 bg-light mb-5" data-bs-toggle="tooltip" title="This project 100% completed">
-														<div class="bg-success rounded h-4px" role="progressbar" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
-													</div>
-													<div class="symbol-group symbol-hover">
-														<div class="symbol symbol-35px symbol-circle" data-bs-toggle="tooltip" title="Mad Macy">
-															<img alt="Pic" src="{% static 'core/assets/media/avatars/300-2.jpg' %}" />
-														</div>
-														<div class="symbol symbol-35px symbol-circle" data-bs-toggle="tooltip" title="Cris Willson">
-															<img alt="Pic" src="{% static 'core/assets/media/avatars/300-9.jpg' %}" />
-														</div>
-														<div class="symbol symbol-35px symbol-circle" data-bs-toggle="tooltip" title="Mike Garcie">
-															<span class="symbol-label bg-info text-inverse-info fw-bold">M</span>
-														</div>
-													</div>
-												</div>
-											</a>
-										</div>
-										
-										
-										<div class="col-md-6 col-xl-4">
-											<a href="#" class="card border-hover-primary">
-												<div class="card-header border-0 pt-9">
-													<!--begin::Card Title-->
-													<div class="card-title m-0">
-														<!--begin::Avatar-->
-														<div class="symbol symbol-50px w-50px bg-light">
-															<img src="{% static 'core/assets/media/svg/brand-logos/treva.svg' %}" alt="image" class="p-3" />
-														</div>
-														<!--end::Avatar-->
-													</div>
-													<!--end::Car Title-->
-													<!--begin::Card toolbar-->
-													<div class="card-toolbar">
-														<span class="badge badge-light-danger fw-bold me-auto px-4 py-3">Overdue</span>
-													</div>
-													<!--end::Card toolbar-->
-												</div>
-												<div class="card-body p-9">
-													<div class="fs-3 fw-bold text-dark">Aviasales App</div>
-													<p class="text-gray-400 fw-semibold fs-5 mt-1 mb-7">CRM App application to HR efficiency</p>
-													<div class="d-flex flex-wrap mb-5">
-														<div class="border border-gray-300 border-dashed rounded min-w-125px py-3 px-4 me-7 mb-3">
-															<div class="fs-6 text-gray-800 fw-bold">Jun 20, 2023</div>
-															<div class="fw-semibold text-gray-400">Due Date</div>
-														</div>
-														<div class="border border-gray-300 border-dashed rounded min-w-125px py-3 px-4 mb-3">
-															<div class="fs-6 text-gray-800 fw-bold">$284,900.00</div>
-															<div class="fw-semibold text-gray-400">Budget</div>
-														</div>
-													</div>
-													<div class="h-4px w-100 bg-light mb-5" data-bs-toggle="tooltip" title="This project 10% completed">
-														<div class="bg-danger rounded h-4px" role="progressbar" style="width: 10%" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100"></div>
-													</div>
-													<div class="symbol-group symbol-hover">
-														<div class="symbol symbol-35px symbol-circle" data-bs-toggle="tooltip" title="Alan Warden">
-															<span class="symbol-label bg-warning text-inverse-warning fw-bold">A</span>
-														</div>
-														<div class="symbol symbol-35px symbol-circle" data-bs-toggle="tooltip" title="Brian Cox">
-															<img alt="Pic" src="{% static 'core/assets/media/avatars/300-5.jpg' %}" />
-														</div>
-													</div>
-												</div>
-											</a>
-										</div>
-										
-									</div>
+
+
+									<!-- Pagination -->
 									<div class="d-flex flex-stack flex-wrap pt-10">
-										<div class="fs-6 fw-semibold text-gray-700">Showing 1 to 10 of 50 entries</div>
-										<ul class="pagination">
-											<li class="page-item previous">
-												<a href="#" class="page-link">
-													<i class="previous"></i>
-												</a>
-											</li>
-											<li class="page-item active">
-												<a href="#" class="page-link">1</a>
-											</li>
-											<li class="page-item">
-												<a href="#" class="page-link">2</a>
-											</li>
-											<li class="page-item">
-												<a href="#" class="page-link">3</a>
-											</li>
-											<li class="page-item">
-												<a href="#" class="page-link">4</a>
-											</li>
-											<li class="page-item">
-												<a href="#" class="page-link">5</a>
-											</li>
-											<li class="page-item">
-												<a href="#" class="page-link">6</a>
-											</li>
-											<li class="page-item next">
-												<a href="#" class="page-link">
-													<i class="next"></i>
-												</a>
-											</li>
-										</ul>
-									</div>			
+									<div class="fs-6 fw-semibold text-gray-700">
+										Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ page_obj.paginator.count }} entries
+									</div>
+									<ul class="pagination">
+										{% if page_obj.has_previous %}
+										<li class="page-item">
+											<a href="{% url 'courses' %}?page={{ page_obj.previous_page_number }}" class="page-link">&laquo;</a>
+										</li>
+										{% else %}
+										<li class="page-item disabled"><span class="page-link">&laquo;</span></li>
+										{% endif %}
+
+										{% for num in page_obj.paginator.page_range %}
+										{% if page_obj.number == num %}
+											<li class="page-item active"><span class="page-link">{{ num }}</span></li>
+										{% elif num > page_obj.number|add:"-3" and num < page_obj.number|add:"3" %}
+											<li class="page-item"><a href="{% url 'courses' %}?page={{ num }}" class="page-link">{{ num }}</a></li>
+										{% endif %}
+										{% endfor %}
+
+										{% if page_obj.has_next %}
+										<li class="page-item">
+											<a href="{% url 'courses' %}?page={{ page_obj.next_page_number }}" class="page-link">&raquo;</a>
+										</li>
+										{% else %}
+										<li class="page-item disabled"><span class="page-link">&raquo;</span></li>
+										{% endif %}
+									</ul>
+									</div>
+
 								</div>
-							</div>
+                        
 						</div>
-                        
 					</div>
-				</div>
-			</div>	 
-            <div class="modal fade" id="kt_modal_create_project" tabindex="-1" aria-hidden="true">
-                  <div class="modal-dialog modal-fullscreen p-9">
-                    <div class="modal-content modal-rounded">
-                          <div class="modal-header">
-                        <h2>Create Course</h2>
-                        <div class="btn btn-sm btn-icon btn-active-color-primary" data-bs-dismiss="modal">
-                            <i class="ki-duotone ki-cross fs-1">
-                            <span class="path1"></span>
-                            <span class="path2"></span>
-                            </i>
-                        </div>
-                    </div>
+				</div>	 
+				
+		</div>
+			</div>	
+		</div>
+	</div>
+	</body>
 
-            <div class="modal-body scroll-y m-5">
-                <div class="stepper stepper-links d-flex flex-column" id="kt_modal_create_project_stepper">
-                    <div class="container">
-                        <div class="stepper-nav justify-content-center py-2">
-                            <div class="stepper-item me-5 me-md-15 current" data-kt-stepper-element="nav">
-                                <h3 class="stepper-title">Course Info</h3>
-                            </div>
-                            <div class="stepper-item me-5 me-md-15" data-kt-stepper-element="nav">
-                                <h3 class="stepper-title">Chapters</h3>
-                            </div>
-                            <div class="stepper-item me-5 me-md-15" data-kt-stepper-element="nav">
-                                <h3 class="stepper-title">Pricing</h3>
-                            </div>
-                            <div class="stepper-item me-5 me-md-15" data-kt-stepper-element="nav">
-                                <h3 class="stepper-title">Media</h3>
-                            </div>
-                            <div class="stepper-item" data-kt-stepper-element="nav">
-                                <h3 class="stepper-title">Confirmation</h3>
-                            </div>
-                        </div>
-                    </div>
+{% endblock %}
+{% block scripts %}
+<script>
+// Edit redirect
+document.querySelectorAll('.edit-course-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const courseId = this.getAttribute('data-course-id');
+        window.location.href = "{% url 'course_edit' 0 %}".replace('0', courseId);
+    });
+});
 
-                    <form class="mx-auto w-100 mw-600px pt-15 pb-10" novalidate="novalidate" id="kt_modal_create_project_form" method="post">
-                      <div class="current" data-kt-stepper-element="content">
-                        <div class="w-100">
-                          <div class="pb-7 pb-lg-12">
-                            <h1 class="fw-bold text-dark">Course Information</h1>
-                            <div class="text-muted fw-semibold fs-4">Please provide the details of the course below.</div>
-                          </div>
+function confirmDelete(courseId){
+    if(confirm("Voulez-vous vraiment supprimer ce cours ?")){
+        window.location.href = "{% url 'course_delete' 0 %}".replace('0', courseId);
+    }
+}
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    {% for course in courses %}
+        flatpickr("#publishDate{{ course.id }}", {
+            enableTime: true,
+            dateFormat: "Y-m-d H:i",
+            minDate: "today",
+        });
+    {% endfor %}
+});
 
-                          <!-- Course Title -->
-                          <div class="fv-row mb-8">
-                            <label class="form-label fs-6 fw-bold text-dark">Course Title</label>
-                            <input type="text" name="title" class="form-control form-control-lg form-control-solid" placeholder="Enter course title" required />
-                          </div>
+<<<<<<< HEAD
+function closeModal(courseId) {
+    const modal = document.getElementById(`modal${courseId}`);
+    modal.style.display = "none";
+}
+function openModal(courseId) {
+    const modal = document.getElementById(`modal${courseId}`);
+    if (modal) {
+        modal.style.display = "flex";
 
-                       
-                          <!-- Description -->
-                          <div class="fv-row mb-8">
-                            <label class="form-label fs-6 fw-bold text-dark">Description</label>
-                            <textarea name="description" class="form-control form-control-lg form-control-solid" rows="4" placeholder="Write a short description of the course"></textarea>
-                          </div>
+        // Initialise Flatpickr à l’ouverture
+        flatpickr(`#publishDate${courseId}`, {
+            enableTime: true,
+            dateFormat: "Y-m-d H:i",
+            minDate: "today",
+            time_24hr: true,
+            locale: "en"
+        });
+    } else {
+        console.error("Modal not found for course:", courseId);
+    }
+}
 
-                        
+// Définir la fonction dans la portée globale
+window.openModal = openModal;
+function savePublishDate(courseId) {
+    const dateInput = document.getElementById(`publishDate${courseId}`);
+    const date = dateInput.value;
 
-                         <div class="fv-row mb-8">
-                                <label class="form-label fs-6 fw-bold">Category</label>
-                                <select name="category" class="form-select form-select-solid">
-                                    <option value="">Select a category</option>
-                                    <option value="science">Science</option>
-                                    <option value="math">Mathematics</option>
-                                    <option value="programming">Programming</option>
-                                    <option value="languages">Languages</option>
-                                    <option value="other">Other</option>
-                                </select>
-                            </div>
+    if (!date) {
+        alert("Please select a date and time.");
+        return;
+    }
 
-                            <div class="fv-row mb-8">
-                                <label class="form-label fs-6 fw-bold">Level</label>
-                                <select name="level" class="form-select form-select-solid">
-                                    <option value="">Select level</option>
-                                    <option value="beginner">Beginner</option>
-                                    <option value="intermediate">Intermediate</option>
-                                    <option value="advanced">Advanced</option>
-                                </select>
-                            </div>
+    fetch(`/courses/${courseId}/schedule/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({ publish_date: date })
+    })
+    .then(response => {
+        if (response.ok) {
+            alert("Course successfully scheduled!");
+            closeModal(courseId);
+            location.reload();
+        } else {
+            alert("Error while scheduling the course.");
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        alert("Network error.");
+    });
+}
 
+// Fermer la modale quand on clique en dehors
+window.onclick = function(event) {
+    const modals = document.querySelectorAll(".custom-modal");
+    modals.forEach(m => {
+        if (event.target === m) m.style.display = "none";
+    });
+}
 
-                          <!-- Next Button -->
-                          <div class="d-flex justify-content-end">
-                            <button type="button" class="btn btn-lg btn-primary" data-kt-element="type-next">
-                              <span class="indicator-label">Next: Chapters</span>
-                              <span class="indicator-progress">
-                                Please wait...
-                                <span class="spinner-border spinner-border-sm align-middle ms-2"></span>
-                              </span>
-                            </button>
-                          </div>
-                        </div>
-                      </div>
+</script>
 
-                      <div data-kt-stepper-element="content">
-                          <div class="w-100">
-                            <div class="pb-12"> 
-                               <h1 class="fw-bold text-dark">Chapters</h1>
-                            <div class="text-muted fw-semibold fs-4 mb-8">Add chapters for your course. You can add multiple chapters.</div>
-
-                            </div>
-
-                            <div id="chapters_container">
-                                <div class="fv-row mb-5 chapter-row">
-                                    <label class="form-label fs-6 fw-bold">Chapter Title</label>
-                                    <input type="text" name="chapters[]" class="form-control form-control-solid mb-3">
-                                    <label class="form-label fs-6 fw-bold">Chapter Description</label>
-                                    <textarea name="chapters_desc[]" class="form-control form-control-solid" rows="2"></textarea>
-                                </div>
-                            </div>
-                            <button type="button" class="btn btn-light mb-8" id="add_chapter_btn">Add Another Chapter</button>
-
-                            <!-- Weekly Schedule -->
-                            <div class="fv-row mb-8">
-                              <label class="fs-6 fw-semibold mb-2">Weekly Schedule</label>
-                              <div class="d-flex flex-wrap">
-                                <label class="form-check me-4"><input type="checkbox" name="schedule[]" value="Monday" class="form-check-input" />Monday</label>
-                                <label class="form-check me-4"><input type="checkbox" name="schedule[]" value="Tuesday" class="form-check-input" />Tuesday</label>
-                                <label class="form-check me-4"><input type="checkbox" name="schedule[]" value="Wednesday" class="form-check-input" />Wednesday</label>
-                                <label class="form-check me-4"><input type="checkbox" name="schedule[]" value="Thursday" class="form-check-input" />Thursday</label>
-                                <label class="form-check me-4"><input type="checkbox" name="schedule[]" value="Friday" class="form-check-input" />Friday</label>
-                                <label class="form-check me-4"><input type="checkbox" name="schedule[]" value="Saturday" class="form-check-input" />Saturday</label>
-                                <label class="form-check me-4"><input type="checkbox" name="schedule[]" value="Sunday" class="form-check-input" />Sunday</label>
-                              </div>
-                            </div>
-
-
-                            <!-- Upload Course Resources -->
-                            <div class="fv-row mb-8">
-                              <label class="fs-6 fw-semibold mb-2">Upload Course Resources</label>
-                              <div class="dropzone" id="course_resources_dropzone">
-                                <div class="dz-message needsclick">
-                                  <i class="ki-duotone ki-file-up fs-3hx text-primary">
-                                    <span class="path1"></span>
-                                    <span class="path2"></span>
-                                  </i>
-                                  <div class="ms-4">
-                                    <h3 class="fs-3 fw-bold text-gray-900 mb-1">Drop files here or click to upload.</h3>
-                                    <span class="fw-semibold fs-4 text-muted">Upload syllabus, PDFs, or any course materials</span>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-
-                          <!-- Schedule Step Buttons -->
-                            <div class="d-flex justify-content-end">
-                                <!-- Previous Button -->
-                                <button type="button" class="btn btn-lg btn-light me-3" data-kt-stepper-element="previous">
-                                    Previous: Course Info
-                                </button>
-
-                                <!-- Next Button -->
-                                <button type="button" class="btn btn-lg btn-primary" data-kt-stepper-element="next">
-                                    <span class="indicator-label">Next: Teacher Assignment</span>
-                                    <span class="indicator-progress">
-                                        Please wait...
-                                        <span class="spinner-border spinner-border-sm align-middle ms-2"></span>
-                                    </span>
-                                </button>
-                            </div>
-
-                        </div>
-                      </div>
-                
-            </div>
-           </div>
-       </div>
-
-        </form>
-            
-       </div>
-
-    </div>
-</div>
-
-   
-
+<!-- Flatpickr JS -->
+     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+=======
 				</div>
 			</div>
 		</div>
@@ -501,6 +478,7 @@ modal.addEventListener('shown.bs.modal', function () {
 
 
     </script>
+>>>>>>> 356362c2d67dfe656a543bce4c1ef2631a812247
 
      <script src="{% static 'dashboard/vendors/@popperjs/popper.min.js' %}"></script>
       <script src="{% static 'dashboard/vendors/base/vendor.bundle.base.js' %}"></script>
@@ -536,9 +514,11 @@ modal.addEventListener('shown.bs.modal', function () {
 
 
 
-
-    </body>
+    
 </html>
+<<<<<<< HEAD
+{% endblock %}
+=======
 
 
 <!---
@@ -625,3 +605,4 @@ modal.addEventListener('shown.bs.modal', function () {
 </div>
 {% endblock %}
 ->
+>>>>>>> 356362c2d67dfe656a543bce4c1ef2631a812247

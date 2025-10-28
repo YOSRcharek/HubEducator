@@ -13,7 +13,23 @@ urlpatterns = [
 
     path('courses/', views.courses, name='courses'),
     path('courses/add/', views.add_courses, name='add_courses'),
-
+    path('courses/delete/<int:course_id>/', views.delete_course, name='course_delete'),
+    path('courses/edit/<int:course_id>/', views.course_edit, name='course_edit'),
+    path('courses/<int:course_id>/detail/', views.course_detail, name='course_detail'),
+    path('courses/<int:course_id>/schedule/', views.schedule_course, name='schedule_course'),
+    path('lessons/add/', views.add_lesson, name='add_lesson'),
+    path('sublessons/add/', views.add_sublesson, name='add_sublesson'),
+    path('lessons/<int:lesson_id>/delete/', views.delete_lesson, name='delete_lesson'),
+    path('sublessons/<int:sublesson_id>/delete/', views.delete_sublesson, name='delete_sublesson'),
+    path('lessons/update/', views.update_lesson, name='update_lesson'),
+    path('sublessons/update/', views.update_sublesson, name='update_sublesson'),
+    path('lessons/<int:lesson_id>/resources/', views.get_lesson_resources, name='get_lesson_resources'),
+    path('update_visibility/<str:type>/<int:id>/', views.toggle_visibility, name='toggle_visibility'),
+    path('course/<int:course_id>/assign-students/', views.assign_students_to_course, name='assign_students_to_course'),
+    path('course/<int:course_id>/remove-student/', views.remove_student_from_course, name='remove_student_from_course'),
+    path('review-like/<int:review_id>/', views.toggle_like_review, name='toggle_like_review'),
+    path('review-delete/<int:review_id>/', views.delete_review, name='delete_review'),
+    
     path('specialities/', views.SpecialityListView.as_view(), name='specialities'),
     path('specialities/add', views.SpecialityCreateView.as_view(), name='addSpecialities'),
     path('specialities/edit/<int:speciality_id>/', views.SpecialityUpdateView.as_view(), name='editSpecialities'),
@@ -26,4 +42,5 @@ urlpatterns = [
     path('certificates/results/<int:cert_id>/', views.certificate_results, name='certificate_results'),
     path('certificates/attempt/<int:attempt_id>/', views.attempt_details, name='attempt_details'),
     path('certificates/export/<int:cert_id>/', views.export_certificate_results_csv, name='export_certificate_results_excel'),
+
 ]
