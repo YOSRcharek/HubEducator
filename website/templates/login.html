@@ -36,13 +36,13 @@
 
           <button class="btn btn-primary w-100 mb-3" type="submit">Sign In</button>
           <p class="text-center">Don't have an account? <a href="{% url 'register' %}">Sign Up</a></p>
-        <a href="https://accounts.google.com/o/oauth2/v2/auth?
-client_id={{ client_id }}&
-redirect_uri={{ redirect_uri }}&
+ <a href="https://accounts.google.com/o/oauth2/v2/auth?
+client_id={{ GOOGLE_CLIENT_ID }}&
+redirect_uri={{ GOOGLE_REDIRECT_URI }}&
 response_type=code&
 scope=email%20profile&
 access_type=online&
-prompt=select_account"> 
+prompt=select_account">
    <div class="social-login">
                 <button type="button" class="social-btn google-btn">
                     <svg width="18" height="18" viewBox="0 0 18 18">

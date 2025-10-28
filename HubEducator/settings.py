@@ -5,7 +5,6 @@ from dotenv import load_dotenv
 from decouple import config
 
 
-
 # Charger le fichier .env
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -37,6 +36,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.humanize',
     'django.contrib.sites',  # nécessaire pour allauth
     'allauth',
     'allauth.account',
@@ -196,7 +196,7 @@ ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
 ACCOUNT_EMAIL_VERIFICATION = "optional"
 SOCIALACCOUNT_AUTO_SIGNUP = True
 
-# Google OAuth depuis .env
-GOOGLE_CLIENT_ID = config("GOOGLE_CLIENT_ID")
-GOOGLE_CLIENT_SECRET = config("GOOGLE_CLIENT_SECRET")
-GOOGLE_REDIRECT_URI = config("GOOGLE_REDIRECT_URI")
+
+GOOGLE_CLIENT_ID = config('GOOGLE_CLIENT_ID')
+GOOGLE_CLIENT_SECRET = config('GOOGLE_CLIENT_SECRET')
+GOOGLE_REDIRECT_URI = config('GOOGLE_REDIRECT_URI')

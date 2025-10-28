@@ -1,0 +1,1095 @@
+{% load static %}
+{% load custom_filters %}
+{% load review_tags %}
+ {% load humanize %}
+
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <title>HubEducator | Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="{% static 'dashboard/css/style.css' %}" />
+    <link href="{% static 'core/assets/css/style.bundle.css' %}" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="{% static 'dashboard/vendors/mdi/css/materialdesignicons.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'dashboard/css/detailscours.css' %}" />
+
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'website/img/favicons/favicon-32x32.png' %}" />
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'website/img/favicons/favicon-16x16.png' %}" />
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'website/img/favicons/favicon.ico' %}" />
+    <link rel="stylesheet" href="{% static 'dashboard/vendors/base/vendor.bundle.base.css' %}" />
+    <meta name="description" content="Axel admin core live demo. Check out all the features of the admin panel. A large number of settings, additional services and widgets." />
+    <meta name="keywords" content="Axel theme, bootstrap, bootstrap 5, admin themes, free admin themes, bootstrap admin, bootstrap core" />
+<meta name="csrf-token" content="{{ csrf_token }}">
+
+    <link rel="canonical" href="https://preview.keenthemes.com/axel-html-free" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700" />
+    <link href="{% static 'core/assets/plugins/global/plugins.bundle.css' %}" rel="stylesheet" type="text/css" />
+  </head>
+  <style>
+    .resources {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+    }
+
+    .resource-tag {
+      background-color: #f1f3f4;
+      color: #333;
+      padding: 5px 10px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: background-color 0.3s;
+    }
+
+    .resource-tag:hover {
+      background-color: #c8e6c9;
+    }
+
+    /* Couleurs selon le type */
+    .resource-video { background-color: #ffcc80; }
+    .resource-pdf { background-color: #8fd232ff; }
+    .resource-image { background-color: #f48fb1; }
+    .resource-audio { background-color: #81d4fa; }
+
+    .hidden { display: none; }
+    .btn-visibility {
+                background-color:#8fd232ff;
+                color: var(--bs-white);
+            }
+        .see-more-btn {
+          border: none;
+          background: none;
+          color: #00796b;
+          cursor: pointer;
+          font-size: 0.9rem;
+          font-weight: 600;
+        }
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.6);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      overflow-y: auto;
+      }
+
+    .modal.hidden {
+      display: none;
+    }
+
+    .modal-content {
+      background: #fff;
+      padding: 2rem;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 600px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+      animation: fadeIn 0.3s ease;
+    }
+
+    .modal-content h3 {
+      margin-bottom: 1.2rem;
+      font-size: 1.5rem;
+      color: #333;
+    }
+
+    /* Form fields */
+    .modal-content label {
+      display: block;
+      font-weight: 600;
+      margin-top: 1rem;
+      margin-bottom: 0.5rem;
+      color: #555;
+    }
+
+    .modal-content input[type="text"],
+    .modal-content textarea,
+    .modal-content input[type="file"] {
+      width: 100%;
+      padding: 0.6rem 0.8rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      transition: border-color 0.3s;
+    }
+
+    .modal-content input:focus,
+    .modal-content textarea:focus {
+      border-color: var(--bs-teal);
+      outline: none;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    /* Buttons */
+    .modal-actions .btn {
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .modal-actions .btn-primary {
+      background-color: var(--bs-teal);
+      color: white;
+      border: none;
+    }
+
+    .modal-actions .btn-primary:hover {
+      background-color: #008080cc;
+    }
+
+    .modal-actions .btn-secondary {
+      background-color: #ccc;
+      color: #333;
+      border: none;
+    }
+
+    .modal-actions .btn-secondary:hover {
+      background-color: #aaa;
+    }
+
+    /* Dropzone */
+    .dropzone {
+      border: 2px dashed #aaa;
+      border-radius: 12px;
+      padding: 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.3s, background-color 0.3s;
+    }
+
+    .dropzone:hover {
+      border-color: var(--bs-teal);
+      background-color: #f5faff;
+    }
+
+    .dropzone i {
+      font-size: 2rem;
+      color: var(--bs-teal);
+      margin-bottom: 0.5rem;
+    }
+
+    .dropzone .dz-message h3 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 0.3rem;
+    }
+
+    .dropzone .dz-message span {
+      font-size: 0.95rem;
+      color: #666;
+    }
+
+    /* Preview of uploaded files */
+    .lessonPreview, .sublessonPreview {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.8rem;
+    }
+
+    .lessonPreview div, .sublessonPreview div {
+      background: #e1f5fe;
+      padding: 0.4rem 0.6rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      color: #0277bd;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px);}
+      to { opacity: 1; transform: translateY(0);}
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(200px); opacity: 0;}
+      to { transform: translateX(0); opacity: 1;}
+    }
+
+    @keyframes slideOut {
+      from { transform: translateX(0); opacity: 1;}
+      to { transform: translateX(200px); opacity: 0;}
+    }
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 50px;
+      height: 28px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      background-color: #ccc;
+      border-radius: 28px;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      transition: 0.4s;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 22px;
+      width: 22px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      border-radius: 50%;
+      transition: 0.4s;
+    }
+
+    input:checked + .slider {
+      background-color: #4caf50;
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(22px);
+    }
+  </style>
+  <body>
+    {% include 'includes/navbarTeach.html' %}
+    <div>
+      <div>
+        <div style="margin-top: 30px;">
+          <div class="app-container">
+            <div class="course-header" style="display: flex; align-items: flex-start; gap: 1.5rem; flex-wrap: wrap;">
+              <!-- Image à gauche -->
+              <div class="course-image" style="flex-shrink: 0;">
+                <img src="{{ course.thumbnail.url }}" alt="thumbnail" style="width: 150px; height: 120px; object-fit: cover; border-radius: 8px;" />
+              </div>
+
+              <!-- Contenu à droite -->
+              <div class="course-details" style="flex: 1; min-width: 250px;">
+                <h1 class="course-title">{{ course.title }}</h1>
+
+                <div class="course-meta">
+                  <div class="meta-item">
+                    <i class="bi bi-person-fill"></i> <!-- icon bootstrap -->
+                    <span>Instructor: <strong>{{ course.teacher.get_full_name }}</strong></span>
+                  </div>
+
+                  <div class="meta-item">
+                    <i class="bi bi-book"></i>
+                    <span>Category: <strong>{{ course.category.name }}</strong></span>
+                  </div>
+
+                  <div class="meta-item">
+                    <i class="bi bi-people-fill"></i>
+                    <span>Capacity: <strong>{{ course.students.count|default:'0' }}/{{ course.capacity }}</strong> students</span>
+                  </div>
+
+                  {% if course.start_date or course.end_date %}
+                    <div class="meta-item">
+                      <i class="bi bi-calendar-event"></i>
+                      <span>
+                        {% if course.start_date %}
+                          Start: {{ course.start_date|date:'M d, Y' }}
+                        {% endif %}
+                        {% if course.end_date %}
+                          &nbsp; | End: {{ course.end_date|date:'M d, Y' }}
+                        {% endif %}
+                      </span>
+                    </div>
+                  {% endif %}
+                  <span class="badge {% if course.status == 'pending' %}
+                       badge-light-primary{% elif course.status == 'inprogress' %}
+                      badge-light-warning{% else %}
+                      badge-light-success
+                    {% endif %} fw-bold px-4 py-3">
+                    {{ course.status|title }}
+                  </span>
+                </div>
+
+                <p style="
+                  font-size: 1.2rem;
+                  line-height: 1.8;
+                  color: #546e7a;
+                  margin-bottom: 2rem;
+                  padding: 1.5rem;
+                  background: rgba(255, 255, 255, 0.8);
+                  border-radius: 16px;
+                  border-left: 5px solid rgba(58, 152, 14, 0.938);
+                  opacity: 1;
+                  transform: translateY(0);
+                  transition: all 0.8s ease-out;
+                  ">{{ course.description }}</p>
+                </div>
+            </div>
+
+            <div class="course-content">
+              <!-- Lessons Section -->
+              <div class="lessons-section">
+                <h2 class="section-title">
+                  <svg viewBox="0 0 24 24" width="24" height="24" fill="#546e7a">
+                    <path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM19 19H5V8H19V19ZM7 10H17V12H7V10ZM7 14H14V16H7V14Z" />
+                  </svg>Course Curriculum
+                </h2>
+
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <button class="add-lesson-btn" type="button">
+                    <svg width="18" height="18" viewbox="0 0 24 24" fill="currentColor">
+                      <path d="M19 13H13V19H11V13H5V11H11V5H13V11H19V13Z" />
+                    </svg>
+                    Add Lesson
+                  </button>
+
+                  <div style="display: flex; align-items: center; gap: 5px; margin-left: auto;">
+                    <label class="switch">
+            
+
+                      <input type="checkbox"
+                    data-visible="{{ course.visible|yesno:'true,false' }}"
+                    onchange='toggleVisibility("course", {{ course.id }}, this, "{% url "toggle_visibility" "course" course.id %}")'
+                    {% if course.visible %}checked{% endif %}>
+
+                      <span class="slider"></span>
+                    </label>
+
+                    <span class="switch-label" id="courseVisibilityLabel{{ course.id }}">
+                      {{ course.visible|yesno:"Visible,Hidden" }}
+                    </span>
+                  </div>
+                </div>
+
+                <div class="lessons-list">
+                  {% for lesson in lessons %}
+                    <div class="lesson-item">
+                      <div class="lesson-header">
+                        <div>
+                          <div class="lesson-title">{{ forloop.counter }}. {{ lesson.title }}</div>
+                          <div class="lesson-description">{{ lesson.description }}</div>
+                        </div>
+                        <div class="lesson-actions">
+                         
+
+                         <button class="btn btn-edit"
+                            data-url="{% url 'update_lesson' %}"
+                            onclick="openUpdateLessonModal(
+                                {{ lesson.id }},
+                                '{{ lesson.title|escapejs }}',
+                                '{{ lesson.description|escapejs }}',
+                                {% if lesson.resources_json %}JSON.parse('{{ lesson.resources_json|escapejs }}'){% else %}[]{% endif %}
+                            )">
+                            <svg width="12" height="12" viewbox="0 0 24 24" fill="currentColor">
+                              <path d="M20.71 7.04C21.1 6.65 21.1 6 20.71 5.63L18.37 3.29C18 2.9 17.35 2.9 16.96 3.29L15.12 5.12L18.87 8.87M3 17.25V21H6.75L17.81 9.93L14.06 6.18L3 17.25Z" />
+                            </svg>Edit
+                          </button>
+                          <button class="btn btn-delete" style="background-color: crimson; color: aliceblue;" onclick="confirmDeleteLesson({{ lesson.id }})">
+                            <svg width="12" height="12" viewbox="0 0 24 24" fill="white">
+                              <path d="M19 4H15.5L14.5 3H9.5L8.5 4H5V6H19M6 19A2 2 0 0 0 8 21H16A2 2 0 0 0 18 19V7H6V19Z" />
+                            </svg>Delete
+                          </button>
+                          <!-- Visibility Button with Label -->
+                            <button class="btn btn-visibility"
+                              onclick="toggleVisibility('lesson', {{ lesson.id }}, this, '{% url 'toggle_visibility' 'lesson' lesson.id %}')"
+                              data-visible="{{ lesson.visible|yesno:'true,false' }}"
+                              style="display: flex; align-items: center; gap: 5px;">
+                          
+                                <svg width="12" height="12" viewbox="0 0 24 24" fill="currentColor">
+                                  {% if lesson.visible %}
+                                    <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5C21.27 7.61 17 4.5 12 4.5zm0 12c-2.48 0-4.5-2.02-4.5-4.5S9.52 7.5 12 7.5 16.5 9.52 16.5 12 14.48 16.5 12 16.5zm0-7c-1.38 0-2.5 1.12-2.5 2.5S10.62 14.5 12 14.5 14.5 13.38 14.5 12 13.38 9.5 12 9.5z"/>
+                                  {% else %}
+                                    <path d="M12 6a9.77 9.77 0 0 0-8.84 5.5A9.77 9.77 0 0 0 12 17a9.77 9.77 0 0 0 8.84-5.5A9.77 9.77 0 0 0 12 6zm0 10c-2.48 0-4.5-2.02-4.5-4.5S9.52 7 12 7s4.5 2.02 4.5 4.5S14.48 16 12 16z"/>
+                                  {% endif %}
+                                </svg>
+
+                                <!-- Label -->
+                                <span class="btn-visibility-label" id="lessonVisibilityLabel{{ lesson.id }}">
+                                    {{ lesson.visible|yesno:"Visible,Hidden" }}
+                                </span>
+                            </button>
+
+                        </div>
+                      </div>
+                      <div class="resources">
+                        {% if lesson.resource_list %}
+                          {% for resource in lesson.resource_list|slice:':4' %}
+                           <span class="resource-tag resource-{{ resource.resource_type|resource_class }}" 
+                                onclick="openResource('{{ resource.file.url }}', '{{ resource.resource_type }}')">
+                            {{ resource.title }}
+                          </span>
+
+                          {% endfor %}
+                          {% if lesson.resource_list|length > 4 %}
+                            <button class="see-more-btn" onclick="toggleResources(this)">See more</button>
+                            <div class="extra-resources hidden">
+                              {% for resource in lesson.resource_list|slice:'4:' %}
+                               <span class="resource-tag resource-{{ resource.resource_type|resource_class }}" 
+                                  onclick="openResource('{{ resource.file.url }}', '{{ resource.resource_type }}')">
+                              {{ resource.title }}
+                            </span>
+
+                              {% endfor %}
+                            </div>
+                          {% endif %}
+                        {% else %}
+                          <span class="resource-tag">No resource</span>
+                        {% endif %}
+                      </div>
+
+                      <div class="sub-lessons">
+                        {% for sub in lesson.sublessons %}
+                          <div class="sub-lesson">
+                            <div class="sub-lesson-header">
+                              <div>
+                                <div class="sub-lesson-title">{{ forloop.parentloop.counter }}.{{ forloop.counter }} {{ sub.title }}</div>
+                                <div class="sub-lesson-content">{{ sub.content }}</div>
+                              </div>
+                              <div class="lesson-actions">
+                              <button class="btn btn-edit"
+                                onclick="openUpdateSubLessonModal(
+                                    {{ sub.id }},
+                                    '{{ sub.title|escapejs }}',
+                                    '{{ sub.content|escapejs }}',
+                                    {% if sub.resources_json %}JSON.parse('{{ sub.resources_json|escapejs }}'){% else %}[]{% endif %},
+                                    '{% url 'update_sublesson' %}'
+                                )"> <svg width="12" height="12" viewbox="0 0 24 24" fill="currentColor">> <path d="M20.71 7.04C21.1 6.65 21.1 6 20.71 5.63L18.37 3.29C18 2.9 17.35 2.9 16.96 3.29L15.12 5.12L18.87 8.87M3 17.25V21H6.75L17.81 9.93L14.06 6.18L3 17.25Z" />
+                                                          </svg>Edit
+                                </button>
+                                <button class="btn btn-delete btn-small" style="background-color: crimson; color: aliceblue;" onclick="confirmDeleteSubLesson({{ sub.id }})">
+                                  <svg width="12" height="12" viewbox="0 0 24 24" fill="currentColor">
+                                    <path d="M19 4H15.5L14.5 3H9.5L8.5 4H5V6H19M6 19A2 2 0 0 0 8 21H16A2 2 0 0 0 18 19V7H6V19Z" />
+                                  </svg>Delete
+                                </button>
+                               <button class="btn btn-visibility"
+                                    onclick="toggleVisibility('sublesson', {{ sub.id }}, this, '{% url 'toggle_visibility' 'sublesson' sub.id %}')"
+                                    data-visible="{{ sub.visible|yesno:'true,false' }}"
+                                    style="display: flex; align-items: center; gap: 5px;">
+
+                                  
+                                  <svg width="12" height="12" viewbox="0 0 24 24" fill="currentColor">
+                                    {% if sub.visible %}
+                                      <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5C21.27 7.61 17 4.5 12 4.5zm0 12c-2.48 0-4.5-2.02-4.5-4.5S9.52 7.5 12 7.5 16.5 9.52 16.5 12 14.48 16.5 12 16.5zm0-7c-1.38 0-2.5 1.12-2.5 2.5S10.62 14.5 12 14.5 14.5 13.38 14.5 12 13.38 9.5 12 9.5z"/>
+                                    {% else %}
+                                      <path d="M12 6a9.77 9.77 0 0 0-8.84 5.5A9.77 9.77 0 0 0 12 17a9.77 9.77 0 0 0 8.84-5.5A9.77 9.77 0 0 0 12 6zm0 10c-2.48 0-4.5-2.02-4.5-4.5S9.52 7 12 7s4.5 2.02 4.5 4.5S14.48 16 12 16z"/>
+                                    {% endif %}
+                                  </svg>
+
+                                  <!-- Label -->
+                                  <span class="btn-visibility-label" id="sublessonVisibilityLabel{{ sub.id }}">
+                                      {{ sub.visible|yesno:"Visible,Hidden" }}
+                                  </span>
+                              </button>
+
+                              </div>
+                            </div>
+                            <div class="resources">
+                              {% if sub.resource_list %}
+                                {% for resource in sub.resource_list|slice:':4' %}
+                                 <span class="resource-tag resource-{{ resource.resource_type|resource_class }}" 
+                                  onclick="openResource('{{ resource.file.url }}', '{{ resource.resource_type }}')">
+                                   {{ resource.title }}
+                                  </span>
+
+                                {% endfor %}
+                                {% if sub.resource_list|length > 4 %}
+                                  <button class="see-more-btn" onclick="toggleResources(this)">See more</button>
+                                  <div class="extra-resources hidden">
+                                    {% for resource in sub.resource_list|slice:'4:' %}
+                                     <span class="resource-tag resource-{{ resource.resource_type|resource_class }}" 
+                                          onclick="openResource('{{ resource.file.url }}', '{{ resource.resource_type }}')">
+                                      {{ resource.title }}
+                                    </span>
+
+                                    {% endfor %}
+                                  </div>
+                                {% endif %}
+                              {% else %}
+                                <span class="resource-tag">No resource</span>
+                              {% endif %}
+                            </div>
+                          </div>
+                        {% endfor %}
+
+                       <button class="btn btn-add btn-small" type="button" onclick="openAddSubLessonModal({{ lesson.id }})">
+                          <svg width="18" height="18" viewbox="0 0 24 24" fill="currentColor">
+                            <path d="M19 13H13V19H11V13H5V11H11V5H13V11H19V13Z" />
+                          </svg>Add Sublesson
+                        </button>
+                      </div>
+                    </div>
+                  {% empty %}
+                    <p>No lessons added yet.</p>
+                  {% endfor %}
+                </div>
+              </div>
+
+              <!-- Sidebar -->
+             <div class="sidebar">
+             <div class="info-card">
+                <h3 class="section-title">
+                        <svg class="icon" viewbox="0 0 24 24">
+                                <path
+                                        d="M11 9H13V7H11M12 20C7.59 20 4 16.41 4 12C4 7.59 7.59 4 12 4C16.41 4 20 7.59 20 12C20 16.41 16.41 20 12 20ZM12 2A10 10 0 0 0 2 12A10 10 0 0 0 12 22A10 10 0 0 0 22 12A10 10 0 0 0 12 2ZM11 17H13V11H11V17Z" />
+                        </svg> Informations
+                </h3>
+                <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                        <div class="meta-item"><strong>Created:</strong> {{ course.created_at|date:'M d, Y' }}
+                        </div>
+                       <div class="meta-item">
+                          <strong>Duration:</strong>
+                          {% if duration_weeks != None %}
+                              {{ duration_weeks }} week{% if duration_weeks > 1 %}s{% endif %}
+                              {% if duration_days > 0 %} {{ duration_days }} day{% if duration_days > 1 %}s{% endif %}{% endif %}
+                          {% else %}
+                              Not specified
+                          {% endif %}
+                      </div>
+
+
+                      <div class="meta-item">
+                        <strong>Format:</strong> 
+                      Online
+                    </div>
+
+                    <div class="meta-item">
+                        <strong>Prerequisites:</strong> 
+                        {% if course.prerequisites %}{{ course.prerequisites }}{% else %}Not yet{% endif %}
+                    </div>
+
+                    <div class="meta-item">
+                        <strong>Certification:</strong> 
+                        {% if course.certification != None %}{{ course.certification|yesno:'Yes,No' }}{% else %}Not yet{% endif %}
+                    </div>
+
+                         <div class="meta-item"><strong>Progress:</strong>                        
+                          <div class="h-4px w-100 bg-light mb-1" data-bs-toggle="tooltip" title="Course progress">
+                                {% if course.status == 'pending' %}
+
+                                <div class="bg-primary rounded h-4px" role="progressbar" style="width: 10%"
+                                        aria-valuenow="10" aria-valuemin="0" aria-valuemax="100"></div>
+                                {% elif course.status == 'inprogress' %}
+                                <div class="bg-warning rounded h-4px" role="progressbar" style="width: 50%"
+                                        aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                                {% else %}
+                                <div class="bg-success rounded h-4px" role="progressbar" style="width: 100%"
+                                        aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                                {% endif %}
+                        </div>
+                         </div>
+                </div>
+             </div>
+              <div class="info-card">
+             
+                          <h3 class="section-title">
+                              <svg class="icon" viewBox="0 0 24 24">
+                                  <path d="M12,17.27L18.18,21L16.54,13.97L22,9.24L14.81,8.62L12,2L9.19,8.62L2,9.24L7.45,13.97L5.82,21L12,17.27Z" />
+                              </svg>
+                              Student Reviews
+                          </h3>
+                          <!-- Reviews List -->
+                        <div class="reviews-list">
+                            <div class="reviews-header">
+                                <h4 class="reviews-count">{{ reviews.count }} Reviews</h4>
+                                <div class="average-rating">
+                                    <div class="rating-stars">
+                                        {% for i in avg_full_stars|times %}
+                                            <span class="star filled">★</span>
+                                        {% endfor %}
+                                        {% for i in avg_empty_stars|times %}
+                                            <span class="star">★</span>
+                                        {% endfor %}
+                                    </div>
+                                    <span class="rating-number">{{ avg_rating|floatformat:1 }}/5</span>
+                                </div>
+                            </div>
+
+                            {% for review in reviews %}
+                            <div class="student-card" id="review-{{ review.id }}">
+                                <div class="review-header">
+                                    <div class="reviewer-info">
+                                        <div class="student-avatar">{{ review.student.username|slice:":2"|upper }}</div>
+                                        <div class="reviewer-details">
+                                            <h5 class="reviewer-name">{{ review.student.get_full_name|default:review.student.username }}</h5>
+                                            <div class="review-meta">
+                                                <div class="rating-stars">
+                                                    {% for i in review.full_stars|times %}
+                                                        <span class="star filled">★</span>
+                                                    {% endfor %}
+                                                    {% for i in review.empty_stars|times %}
+                                                        <span class="star">★</span>
+                                                    {% endfor %}
+                                                </div>
+                                                <span class="review-date">{{ review.time_ago }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="review-content">
+                                    <h6 class="review-title">{{ review.title }}</h6>
+                                    <p class="review-text">{{ review.content }}</p>
+                                </div>
+
+                                <div class="review-actions">
+                                    <!-- Like / Unlike -->
+                                    <button class="action-btn helpful-btn {% if review.user_liked %}liked{% endif %}" 
+                                            onclick="toggleLike({{ review.id }}, this)">
+                                        <svg width="16" height="16" viewBox="0 0 24 24">
+                                            <path fill="currentColor" d="M23,10C23,8.89 22.1,8 21,8H14.68L15.64,3.43C15.66,3.33 15.67,3.22 15.67,3.11C15.67,2.7 15.5,2.32 15.23,2.05L14.17,1L7.59,7.58C7.22,7.95 7,8.45 7,9V19A2,2 0 0,0 9,21H18C18.83,21 19.54,20.5 19.84,19.78L22.86,12.73C22.95,12.5 23,12.26 23,12V10.08L23,10M1,21H5V9H1V21Z"/>
+                                        </svg>
+                                        Helpful (<span id="like-count-{{ review.id }}">{{ review.likes_count }}</span>)
+                                    </button>
+
+                                    <!-- Delete review -->
+                                    {% if request.user == review.student or request.user.role == 'teacher' %}
+                                    <button class="action-btn delete-btn" onclick="deleteReview({{ review.id }}, this)">
+                                        <svg width="16" height="16" viewBox="0 0 24 24">
+                                            <path fill="currentColor" d="M9,3V4H4V6H20V4H15V3H9M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z"/>
+                                        </svg>
+                                        Delete
+                                    </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% empty %}
+                                <p>No reviews yet.</p>
+                            {% endfor %}
+
+                            <div class="load-more-reviews center">
+                                <button class="action-btn reply-btn" onclick="loadMoreReviews()">Load More Reviews</button>
+                            </div>
+                        </div>
+
+                    
+
+                
+              </div>
+
+      </div>
+
+            </div>
+
+           <div class="students-section">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+                    <h2 class="section-title"> <svg class="icon" viewbox="0 0 24 24"><path d="M16 4C18.2 4 20 5.8 20 8S18.2 12 16 12 12 10.2 12 8 13.8 4 16 4M16 14C20.4 14 24 15.8 24 18V20H8V18C8 15.8 11.6 14 16 14M8.5 4C10.7 4 12.5 5.8 12.5 8S10.7 12 8.5 12 4.5 10.2 4.5 8 6.3 4 8.5 4M8.5 14C12.9 14 16.5 15.8 16.5 18V20H0V18C0 15.8 4.1 14 8.5 14Z" />
+                   </svg> Enrolled Students ({{ students|length }})</h2>
+                   <button class="btn btn-edit" onclick="openModal('addStudentsModal')"> <svg width="18" height="18" viewbox="0 0 24 24" fill="currentColor">
+                      <path d="M19 13H13V19H11V13H5V11H11V5H13V11H19V13Z" />
+                    </svg>Add Student</button>
+
+
+                </div>
+
+             <div class="students-grid">
+                {% for student in students %}
+                <div class="student-card" style="position:relative;">
+                   <span class="remove-student-btn" 
+                        data-student-id="{{ student.id }}"
+                        data-url="{% url 'remove_student_from_course' course.id %}"
+                        style="position:absolute; top:8px; right:8px; cursor:pointer; color:red; font-size:1.2rem;">
+                      &#10006; <!-- croix X -->
+                  </span>
+                    <div class="student-avatar">
+                        {% if student.profile_picture %}
+                            <img src="{{ student.profile_picture.url }}" alt="{{ student.username }}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;">
+                        {% else %}
+                            {{ student.username|slice:":2"|upper }}
+                        {% endif %}
+                    </div>
+                    <div style="font-weight:600;color:#2c3e50;">
+                        {{ student.username }}
+                    </div>
+                    <div style="font-size:0.8rem;color:#546e7a;">
+                        {{ student.role|title }}{% if student.is_active %} actif{% else %} inactif{% endif %}
+                    </div>
+                      
+
+                </div>
+                {% endfor %}
+
+                {% if students.count > 4 %}
+                <div class="student-card">
+                    <div class="student-avatar">+{{ students.count|add:'-4' }}</div>
+                    <div style="font-weight:600;color:#2c3e50;">And {{ students.count|add:'-4' }} more...</div>
+                    <div style="font-size:0.8rem;color:#546e7a;">View All</div>
+                </div>
+                {% endif %}
+            </div>
+
+            </div>
+           </div>
+         
+    </div>
+
+<!-- Add Students Modal -->
+<div id="addStudentsModal" class="modal hidden">
+  <div class="modal-content">
+    <h3>Add Students to {{ course.title }}</h3>
+    <input type="text" id="searchStudentInput" class="form-control" placeholder="Search students...">
+    <div class="students-list" style="max-height:400px;overflow-y:auto;">
+        {% for user in all_students %}
+        <div class="student-list-item" style="display:flex;align-items:center;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid #eee;">
+            <div style="display:flex;align-items:center;gap:0.5rem;">
+                <div class="student-avatar">
+                    {% if user.profile_picture %}
+                        <img src="{{ user.profile_picture.url }}" alt="{{ user.username }}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;">
+                    {% else %}
+                        {{ user.username|slice:":2"|upper }}
+                    {% endif %}
+                </div>
+                <div>
+                    <div style="font-weight:600;">{{ user.first_name }} {{ user.last_name }}</div>
+                    <div style="font-size:0.8rem;color:#546e7a;">{{ user.email }}</div>
+                    <div style="font-size:0.75rem;color:#999;">{{ user.role|title }}</div>
+                </div>
+            </div>
+            <input type="checkbox" class="select-student" value="{{ user.id }}"
+                {% if user in course.students.all %}checked{% endif %}>
+        </div>
+        {% empty %}
+            <p>No students available</p>
+        {% endfor %}
+    </div>
+
+    <div class="modal-actions" style="margin-top:1rem;">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('addStudentsModal')">Cancel</button>
+      <button type="button" class="btn btn-primary" 
+        id="assignStudentsBtn" 
+        data-url="{% url 'assign_students_to_course' course.id %}">
+   Assign Selected
+  </button>
+
+
+    </div>
+  </div>
+</div>
+<!-- Add Lesson Modal -->
+<div id="addLessonModal" class="modal hidden">
+  <div class="modal-content">
+    <h3>Add New Lesson</h3>
+    <form id="addLessonForm" enctype="multipart/form-data">
+      {% csrf_token %}
+      <input type="hidden" name="course_id" value="{{ course.id }}">
+      
+      <label>Title</label>
+      <input type="text" name="title" class="form-control" required>
+
+      <label>Description</label>
+      <textarea name="description" class="form-control" required></textarea>
+
+      <label>Upload Resources</label>
+      <div class="dropzone" onclick="document.getElementById('lessonResources').click()">
+        <div class="dz-message">
+          <i class="ki-duotone ki-file-up"></i>
+          <div>
+            <h3>Drop files here or click to upload.</h3>
+            <span>Upload lesson resources</span>
+          </div>
+        </div>
+      </div>
+      <input type="file" id="lessonResources" name="resources" multiple class="d-none" onchange="previewFiles(this, 'lessonPreview')">
+      <div id="lessonPreview" class="lessonPreview"></div>
+
+      <div class="modal-actions">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="button" class="btn btn-secondary" onclick="closeModal('addLessonModal')">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+<!-- Popup Add SubLesson -->
+<div id="addSubLessonModal" class="modal hidden">
+  <div class="modal-content">
+    <h3>Add New SubLesson</h3>
+    <form id="addSubLessonForm" enctype="multipart/form-data">
+      {% csrf_token %}
+      <input type="hidden" name="lesson_id" id="subLessonLessonId">
+
+      <label>Title</label>
+      <input type="text" name="title" class="form-control" required>
+
+      <label>Content</label>
+      <textarea name="content" class="form-control" required></textarea>
+
+      <label>Upload Resources</label>
+      <div class="dropzone" onclick="document.getElementById('subLessonResources').click()">
+        <div class="dz-message">
+          <i class="ki-duotone ki-file-up"></i>
+          <div>
+            <h3>Drop files here or click to upload.</h3>
+            <span>Upload sublesson resources</span>
+          </div>
+        </div>
+      </div>
+      <input type="file" id="subLessonResources" name="resources" multiple class="d-none" onchange="previewFiles(this, 'sublessonPreview')">
+      <div id="sublessonPreview" class="sublessonPreview"></div>
+
+      <div class="modal-actions">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="button" class="btn btn-secondary" onclick="closeModal('addSubLessonModal')">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+<!-- Update Lesson Modal -->
+<div id="updateLessonModal" class="modal hidden">
+  <div class="modal-content">
+    <h3>Update Lesson</h3>
+    <form id="updateLessonForm" enctype="multipart/form-data">
+      {% csrf_token %}
+      <input type="hidden" name="lesson_id" id="updateLessonId">
+
+      <label>Title</label>
+      <input type="text" name="title" id="updateLessonTitle" class="form-control" required>
+
+      <label>Description</label>
+      <textarea name="description" id="updateLessonDescription" class="form-control" required></textarea>
+
+      <label>Existing Resources</label>
+      <div id="updateLessonExistingResources" class="existing-resources"></div>
+
+      <label>Upload Resources</label>
+      <div class="dropzone" onclick="document.getElementById('updateLessonResources').click()">
+        <div class="dz-message">
+          <h3>Drop files here or click to upload.</h3>
+        </div>
+      </div>
+      <input type="file" id="updateLessonResources" name="resources" multiple class="d-none">
+      <div id="updateLessonPreview" class="lessonPreview"></div>
+
+      <div class="modal-actions">
+        <button type="submit" class="btn btn-primary">Update</button>
+        <button type="button" class="btn btn-secondary" onclick="closeModal('updateLessonModal')">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+<div id="updateSubLessonModal" class="modal hidden">
+  <div class="modal-content">
+    <h3>Update SubLesson</h3>
+    <form id="updateSubLessonForm" enctype="multipart/form-data">
+      {% csrf_token %}
+      <input type="hidden" name="sublesson_id" id="updateSubLessonId">
+
+      <label>Title</label>
+      <input type="text" name="title" id="updateSubLessonTitle" class="form-control" required>
+
+      <label>Content</label>
+      <textarea name="content" id="updateSubLessonContent" class="form-control" required></textarea>
+
+      <label>Existing Resources</label>
+      <div id="updateSubLessonExistingResources" class="existing-resources"></div>
+
+      <label>Upload Resources</label>
+      <div class="dropzone" onclick="document.getElementById('updateSubLessonResources').click()">
+        <div class="dz-message">
+          <h3>Drop files here or click to upload.</h3>
+        </div>
+      </div>
+      <input type="file" id="updateSubLessonResources" name="resources" multiple class="d-none">
+      <div id="updateSubLessonPreview" class="sublessonPreview"></div>
+
+      <div class="modal-actions">
+        <button type="submit" class="btn btn-primary">Update</button>
+        <button type="button" class="btn btn-secondary" onclick="closeModal('updateSubLessonModal')">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+<script>
+  document.querySelectorAll('.remove-student-btn').forEach(btn => {
+      btn.addEventListener('click', function () {
+          const studentId = this.getAttribute('data-student-id');
+          const url = this.getAttribute('data-url');
+
+          fetch(url, {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken')},
+              body: JSON.stringify({student_id: studentId})
+          }).then(res => res.json())
+            .then(data => {
+              if (data.status === 'success') {
+                  location.reload(); // ou supprimer dynamiquement la card
+              }
+          });
+      });
+  });
+
+    const searchInput = document.getElementById('searchStudentInput');
+    if (searchInput) {
+      // Debounce to be gentle with rendering if many items
+      let timer = null;
+      searchInput.addEventListener('input', function () {
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+          const q = this.value.toLowerCase().trim();
+          document.querySelectorAll('.student-list-item').forEach(item => {
+            const text = item.innerText.toLowerCase();
+            item.style.display = text.includes(q) ? '' : 'none';
+          });
+        }, 120);
+      });
+    }
+function toggleLike(reviewId, btn) {
+    fetch(`/review-like/${reviewId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Accept': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        const countSpan = document.getElementById(`like-count-${reviewId}`);
+        countSpan.textContent = data.likes_count;
+
+        if (data.liked) {
+            btn.classList.add('liked');
+        } else {
+            btn.classList.remove('liked');
+        }
+    });
+}
+
+function deleteReview(reviewId, btn) {
+    if(!confirm('Are you sure you want to delete this review?')) return;
+
+    fetch(`/review-delete/${reviewId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Accept': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if(data.deleted){
+            const reviewDiv = document.getElementById(`review-${reviewId}`);
+            reviewDiv.remove();
+        } else {
+            alert(data.error || 'Cannot delete review');
+        }
+    });
+}
+
+function getCSRFToken() {
+    const name = 'csrftoken';
+    const cookies = document.cookie.split(';');
+    for (let c of cookies) {
+        const cookie = c.trim();
+        if (cookie.startsWith(name + '=')) {
+            return cookie.substring(name.length + 1);
+        }
+    }
+    return '';
+}
+
+function toggleVisibility(type, id, btn, url) {
+    // Lecture de la visibilité actuelle
+    const currentlyVisible = btn.dataset.visible === 'true';
+    const newVisible = !currentlyVisible;
+
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCSRFToken(),
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ visible: newVisible })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            // ✅ Mise à jour du dataset
+            btn.dataset.visible = newVisible ? 'true' : 'false';
+
+            // ✅ Mise à jour du label
+            const label = document.getElementById(`${type}VisibilityLabel${id}`);
+            if (label) label.textContent = newVisible ? 'Visible' : 'Hidden';
+
+            // ✅ Mise à jour de l’icône
+            const svg = btn.querySelector('svg');
+            if (svg) {
+                svg.innerHTML = newVisible 
+                    ? `<path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5C21.27 7.61 17 4.5 12 4.5zm0 12c-2.48 0-4.5-2.02-4.5-4.5S9.52 7.5 12 7.5 16.5 9.52 16.5 12 14.48 16.5 12 16.5zm0-7c-1.38 0-2.5 1.12-2.5 2.5S10.62 14.5 12 14.5 14.5 13.38 14.5 12 13.38 9.5 12 9.5z"/>`
+                    : `<path d="M12 6a9.77 9.77 0 0 0-8.84 5.5A9.77 9.77 0 0 0 12 17a9.77 9.77 0 0 0 8.84-5.5A9.77 9.77 0 0 0 12 6zm0 10c-2.48 0-4.5-2.02-4.5-4.5S9.52 7 12 7s4.5 2.02 4.5 4.5S14.48 16 12 16z"/>`;
+            }
+
+        } else {
+            console.error('Erreur:', data.error);
+            alert('⚠️ Erreur serveur : ' + data.error);
+        }
+    })
+    .catch(err => {
+        console.error('Erreur:', err);
+        alert('⚠️ Erreur lors de la requête');
+    });
+}
+document.getElementById('assignStudentsBtn').addEventListener('click', function() {
+    const selected = Array.from(document.querySelectorAll('.select-student:checked'))
+                          .map(el => el.value);
+
+    if(selected.length === 0){
+        alert("Please select at least one student");
+        return;
+    }
+
+    // Récupération de l'URL depuis data-url
+    const assignStudentsUrl = this.dataset.url;
+
+    fetch(assignStudentsUrl, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrfToken,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ students: selected })  // ⚠️ clé = "students" pour matcher ton view
+    })
+    .then(res => {
+        if(!res.ok) throw new Error("Server error");
+        return res.json();
+    })
+    .then(data => {
+        if(data.status === 'success'){
+            location.reload();
+        } else {
+            alert("Error assigning students: " + (data.error || ""));
+        }
+    })
+    .catch(err => console.error("Assign students failed:", err));
+});
+</script>
+
+<script src="{% static 'js/detailsCourse.js' %}"></script>
+
+    <script src="{% static 'dashboard/js/detailsCourse.js' %}"></script>
+
+   
+    <script src="{% static 'dashboard/js/template.js' %}"></script>
+
+    <script src="{% static 'dashboard/vendors/progressbar.js/progressbar.min.js' %}"></script>
+    <!-- Custom js for this page -->
+    <script src="{% static 'dashboard/js/dashboard.js' %}"></script>
+  
+
+  </body>
+</html>

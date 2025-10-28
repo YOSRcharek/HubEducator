@@ -30,295 +30,347 @@
                         <div class="stepper-nav justify-content-center py-2">
                             <div class="stepper-item current" data-kt-stepper-element="nav"><h3 class="stepper-title">Course Info</h3></div>
                             <div class="stepper-item" data-kt-stepper-element="nav"><h3 class="stepper-title">Lessons</h3></div>
-                            <div class="stepper-item" data-kt-stepper-element="nav"><h3 class="stepper-title">Sub-lessons</h3></div>
                             <div class="stepper-item" data-kt-stepper-element="nav"><h3 class="stepper-title">Confirmation</h3></div>
                         </div>
                     </div> 
                 </div>
                 <div class="bg-white">
-    <form id="course-form" action="{% url 'add_courses' %}" method="post" enctype="multipart/form-data" class="container p-4">
-        {% csrf_token %}
-        <!-- ---------- CONTENT PANELS ---------- -->
-        <div class="mt-4 p-4">
 
-            <!-- STEP 1: Course Info -->
-            <div class="current" data-kt-stepper-element="content" data-stepindex="0">                      
-                <div class="w-100">
-                    <div class="pb-7 pb-lg-12">
-                        <h1 class="fw-bold text-dark">Course Information</h1>
-                        <div class="text-muted fw-semibold fs-4">Please provide the details of the course below.</div>
+
+<form id="course-form" action="{% url 'add_courses' %}" method="post" enctype="multipart/form-data" class="container p-4">
+    {% csrf_token %}
+    <div class="mt-4 p-4">
+
+        <!-- STEP 1: Course Info -->
+        <div class="current" data-kt-stepper-element="content" data-stepindex="0">
+            <div class="w-100">
+                <div class="pb-7 pb-lg-12">
+                    <h1 class="fw-bold text-dark">Course Information</h1>
+                    <div class="text-muted fw-semibold fs-4">Please provide the details of the course below.</div>
+                </div>
+
+                <div class="fv-row mb-8">
+                    <label class="form-label fs-6 fw-bold text-dark">Course Title</label>
+                    <input type="text" name="title" class="form-control form-control-lg form-control-solid" placeholder="Enter course title" />
+                    <div class="invalid-feedback"></div>
+                </div>
+
+                <div class="fv-row mb-8">
+                    <label class="form-label fs-6 fw-bold text-dark">Description</label>
+                    <textarea name="description" class="form-control form-control-lg form-control-solid" rows="4" placeholder="Write a short description of the course"></textarea>
+                    <div class="invalid-feedback"></div>
+                </div>
+
+                <div class="fv-row mb-8 row">
+                    <div class="col-md-4">
+                        <label class="form-label fs-6 fw-bold text-dark">Max Capacity</label>
+                        <input type="number" name="capacity" class="form-control form-control-lg form-control-solid" placeholder="Ex: 30 students" />
+                        <div class="invalid-feedback"></div>
                     </div>
-
-                    <div class="fv-row mb-8">
-                        <label class="form-label fs-6 fw-bold text-dark">Course Title</label>
-                        <input type="text" name="title" class="form-control form-control-lg form-control-solid" placeholder="Enter course title" required />
+                    <div class="col-md-4">
+                        <label class="form-label fs-6 fw-bold text-dark">Level</label>
+                        <select name="level" class="form-select form-select-lg form-select-solid">
+                            <option value="">Select a level</option>
+                            <option value="beginner">Beginner</option>
+                            <option value="intermediate">Intermediate</option>
+                            <option value="advanced">Advanced</option>
+                        </select>
+                        <div class="invalid-feedback"></div>
                     </div>
-
-                    <div class="fv-row mb-8">
-                        <label class="form-label fs-6 fw-bold text-dark">Description</label>
-                        <textarea name="description" class="form-control form-control-lg form-control-solid" rows="4" placeholder="Write a short description of the course"></textarea>
+                    <div class="col-md-4">
+                        <label class="form-label fs-6 fw-bold text-dark">Category</label>
+                        <select name="category" class="form-select form-select-lg form-select-solid">
+                            <option value="">Select a category</option>
+                            {% for cat in categories %}
+                                <option value="{{ cat.name }}">{{ cat.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="invalid-feedback"></div>
                     </div>
-
                     <div class="fv-row mb-8 row">
                         <div class="col-md-6">
-                            <label class="form-label fs-6 fw-bold text-dark">Max Capacity</label>
-                            <input type="number" name="capacity" class="form-control form-control-lg form-control-solid" placeholder="Ex: 30 students" />
+                            <label class="form-label fs-6 fw-bold text-dark">Start Date</label>
+                            <input type="date" name="start_date" class="form-control form-control-lg form-control-solid" />
+                            <div class="invalid-feedback"></div>
                         </div>
+
                         <div class="col-md-6">
-                            <label class="form-label fs-6 fw-bold text-dark">Category</label>
-                            <select name="category" class="form-select form-select-lg form-select-solid">
-                                <option value="">Select a category</option>
-                                <option value="science">Science</option>
-                                <option value="math">Mathematics</option>
-                                <option value="programming">Programming</option>
-                                <option value="languages">Languages</option>
-                                <option value="other">Other</option>
-                            </select>
+                            <label class="form-label fs-6 fw-bold text-dark">End Date</label>
+                            <input type="date" name="end_date" class="form-control form-control-lg form-control-solid" />
+                            <div class="invalid-feedback"></div>
                         </div>
                     </div>
 
-                    <div class="fv-row mb-8">
-                        <label class="form-label fs-6 fw-bold text-dark">Course Thumbnail</label>
-                            <div class="dropzone sublesson-dropzone needsclick" data-type="sublesson">
-                              <div class="dz-message needsclick">
-                                <i class="ki-duotone ki-file-up fs-3hx text-primary"><span class="path1"></span><span class="path2"></span></i>
-                                <div class="ms-4">
-                                  <h3 class="fs-3 fw-bold text-gray-900 mb-1">Drop files here or click to upload.</h3>
-                                  <span class="fw-semibold fs-4 text-muted">Upload videos, PDFs, or any sublesson materials</span>
-                                </div>
-                              </div>
+                </div>
+
+                <div class="fv-row mb-8">
+                    <label class="form-label fs-6 fw-bold text-dark">Course Thumbnail</label>
+                    <div id="dropzoneThumbnail" class="dropzone needsclick text-center p-4">
+                        <div class="dz-message">
+                            <i class="ki-duotone ki-file-up fs-3hx text-primary"></i>
+                            <div class="ms-4">
+                                <h3 class="fs-3 fw-bold text-gray-900 mb-1">Drop files here or click to upload.</h3>
+                                <span class="fw-semibold fs-4 text-muted">Upload image</span>
                             </div>
-
-                            <!-- real file input (hidden) -->
-                                 <input type="file" name="thumbnail" class="form-control form-control-lg form-control-solid" />
-                                  <div class="mt-2 sublesson-files-list"></div>
-                    </div>
-
-                    <div class="d-flex justify-content-end">
-                        <button type="button" class="btn btn-lg btn-primary" data-kt-element="type-next">Next: Lessons</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- STEP 2: Lessons (dynamic) -->
-            <div data-kt-stepper-element="content" data-stepindex="1" style="display:none;">
-                <div class="w-100">
-                    <div class="pb-7 pb-lg-12">
-                        <h1 class="fw-bold text-dark">Lessons</h1>
-                        <div class="text-muted fw-semibold fs-4">Add one or more lessons. Each lesson can have resources attached.</div>
-                    </div>
-
-                    <div id="lessons-list" class="mb-6"></div>
-
-                    <div class="mb-6">
-                        <button type="button" id="add-lesson-btn" class="btn btn-outline-primary">+ Add Lesson</button>
-                    </div>
-
-                    <div class="d-flex justify-content-between">
-                        <button type="button" class="btn btn-lg btn-light" data-kt-element="settings-previous">Previous</button>
-                        <div>
-                            <button type="button" class="btn btn-lg btn-primary me-2" data-kt-element="settings-next">Next: Sub-lessons</button>
                         </div>
                     </div>
+                    <input type="file" name="thumbnail" id="thumbnailInput" accept="image/*" class="d-none" />
+                    <div class="invalid-feedback"></div>
+                    <div id="preview-area" class="mt-3"></div>
+                </div>
+
+                <div class="d-flex justify-content-end">
+                    <button type="button" class="btn btn-lg btn-primary" data-kt-element="type-next">Next: Lessons</button>
                 </div>
             </div>
-
-            <!-- STEP 3: Sub-lessons (dynamic) -->
-            <div data-kt-stepper-element="content" data-stepindex="2" style="display:none;">
-                <div class="w-100">
-                    <div class="pb-7 pb-lg-12">
-                        <h1 class="fw-bold text-dark">Sub-lessons</h1>
-                        <div class="text-muted fw-semibold fs-4">Add sub-lessons and attach resources per sub-lesson (or attach to a lesson).</div>
-                    </div>
-
-                    <div id="sublessons-list" class="mb-6"></div>
-
-                    <div class="mb-6">
-                        <button type="button" id="add-sublesson-btn" class="btn btn-outline-primary">+ Add SubLesson</button>
-                    </div>
-
-                    <div class="d-flex justify-content-between">
-                        <button type="button" class="btn btn-lg btn-light" data-kt-element="team-previous">Previous</button>
-                        <div>
-                            <button type="button" class="btn btn-lg btn-primary me-2" data-kt-element="team-next">Next: Confirmation</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- STEP 4: Confirmation -->
-            <div data-kt-stepper-element="content" data-stepindex="3" style="display:none;">
-                <div class="w-100 text-center pb-12">
-                    <h1 class="fw-bold text-dark">Course Created!</h1>
-                    <div class="text-muted fw-semibold fs-4">Review and submit your course.</div>
-                      <div class="text-center px-4">
-                                  <img src="{% static 'core/assets/media/illustrations/sketchy-1/9.png' %}" alt="" class="mww-100 mh-350px" />
-                                </div>
-                    <button type="button" class="btn btn-lg btn-light" data-kt-element="files-previous">Previous</button>
-                    <button type="submit" class="btn btn-lg btn-primary mt-4" id="submit-course-btn">Create Course</button>
-                </div>
-            </div>
-
         </div>
-    </form>
-</div>
 
-<!-- Templates -->
+        <!-- STEP 2: Lessons -->
+        <div data-kt-stepper-element="content" data-stepindex="1" style="display:none;">
+            <div class="w-100">
+                <div class="pb-7 pb-lg-12">
+                    <h1 class="fw-bold text-dark">Lessons</h1>
+                    <div class="text-muted fw-semibold fs-4">Add one or more lessons. Each lesson can have sub-lessons attached.</div>
+                </div>
+
+                <div id="lessons-list" class="mb-6"></div>
+
+                <div class="mb-6">
+                    <button type="button" id="add-lesson-btn" class="btn btn-outline-primary">+ Add Lesson</button>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <button type="button" class="btn btn-lg btn-light" data-kt-element="settings-previous">Previous</button>
+                    <div>
+                        <button type="button" class="btn btn-lg btn-primary me-2" data-kt-element="settings-next">Next: Confirmation</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP 3: Confirmation -->
+        <div data-kt-stepper-element="content" data-stepindex="2" style="display:none;">
+            <div class="w-100 text-center pb-12">
+                <h1 class="fw-bold text-dark">Course Created!</h1>
+                <div class="text-muted fw-semibold fs-4">Review and submit your course.</div>
+                <div class="text-center px-4">
+                    <img src="{% static 'core/assets/media/illustrations/course_created.png' %}" alt="" class="mww-100 mh-350px" />
+                </div>
+                <button type="button" class="btn btn-lg btn-light" data-kt-element="files-previous">Previous</button>
+                <button type="submit" class="btn btn-lg btn-primary mt-4" id="submit-course-btn">Create Course</button>
+            </div>
+        </div>
+
+    </div>
+</form>
+
+<!-- Templates pour Lessons/SubLessons (inchangé) -->
+
 <template id="lesson-template">
     <div class="card mb-4 lesson-item">
         <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="mb-0 lesson-title-placeholder">New Lesson</h5>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h5>New Lesson</h5>
                 <button type="button" class="btn btn-sm btn-danger remove-lesson-btn">Remove</button>
             </div>
-            <div class="row g-3">
-                <div class="col-md-6">
-                    <label class="form-label fs-6 fw-semibold">Lesson Title</label>
-                    <input type="text" class="form-control lesson-title" name="lesson_title[]" placeholder="Lesson title" required />
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label fs-6 fw-semibold">Order</label>
-                    <input type="number" class="form-control lesson-order" name="lesson_order[]" value="0" />
-                </div>
-                <div class="col-12">
-                    <label class="form-label fs-6 fw-semibold">Description</label>
-                    <textarea class="form-control lesson-description" name="lesson_description[]" rows="2"></textarea>
-                </div>
-                <div class="col-12 mt-3">
-                    <label class="fs-6 fw-semibold mb-2">Upload Lesson Resources</label>
-                            <div class="dropzone sublesson-dropzone needsclick" data-type="sublesson">
-                              <div class="dz-message needsclick">
-                                <i class="ki-duotone ki-file-up fs-3hx text-primary"><span class="path1"></span><span class="path2"></span></i>
-                                <div class="ms-4">
-                                  <h3 class="fs-3 fw-bold text-gray-900 mb-1">Drop files here or click to upload.</h3>
-                                  <span class="fw-semibold fs-4 text-muted">Upload videos, PDFs, or any sublesson materials</span>
-                                </div>
-                              </div>
-                            </div>
+            <input type="text" name="lesson_title[]" placeholder="Lesson title" class="form-control mb-2" />
+            <div class="invalid-feedback"></div>
+            <textarea name="lesson_description[]" placeholder="Lesson description" class="form-control mb-2"></textarea>
+            <div class="invalid-feedback"></div>
 
-                            <!-- real file input (hidden) -->
-                             <input type="file" class="form-control" name="lesson_resources[]" multiple />
-                            <div class="mt-2 sublesson-files-list"></div>
+            <div class="dropzone needsclick text-center p-4 mb-2 lesson-dropzone">
+                <div class="dz-message">
+                    <i class="ki-duotone ki-file-up fs-3hx text-primary"></i>
+                    <div class="ms-4">
+                        <h3 class="fs-3 fw-bold text-gray-900 mb-1">Drop files here or click to upload.</h3>
+                        <span class="fw-semibold fs-4 text-muted">Upload lesson resources</span>
+                    </div>
                 </div>
             </div>
+            <input type="file" name="lesson_resources[]" multiple class="d-none lessonFilesInput" />
+            <div class="lessonPreview mt-2 d-flex flex-wrap gap-2"></div>
+
+            <div class="sublessons-list mt-2"></div>
+            <button type="button" class="btn btn-outline-primary btn-sm mt-2 add-sublesson-btn">+ Add SubLesson</button>
         </div>
     </div>
 </template>
 
 <template id="sublesson-template">
-    <div class="card mb-4 sublesson-item">
+    <div class="card mb-2 sublesson-item">
         <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="mb-0 sublesson-title-placeholder">New SubLesson</h5>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6>New SubLesson</h6>
                 <button type="button" class="btn btn-sm btn-danger remove-sublesson-btn">Remove</button>
             </div>
-            <div class="row g-3">
-                <div class="col-md-6">
-                    <label class="form-label fs-6 fw-semibold">SubLesson Title</label>
-                    <input type="text" class="form-control sublesson-title" name="sublesson_title[]" placeholder="SubLesson title" required />
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label fs-6 fw-semibold">Attach to Lesson</label>
-                    <select class="form-select sublesson-attach-lesson" name="sublesson_lesson[]">
-                        <!-- options inserted dynamically via JS -->
-                    </select>
-                </div>
-                <div class="col-12">
-                    <label class="form-label fs-6 fw-semibold">Content</label>
-                    <textarea class="form-control sublesson-content" name="sublesson_content[]" rows="2"></textarea>
-                </div>
-                <div class="col-12 mt-3">
-                    <label class="fs-6 fw-semibold mb-2">Upload SubLesson Resources</label>
-                             <div class="dropzone sublesson-dropzone needsclick" data-type="sublesson">
-                              <div class="dz-message needsclick">
-                                <i class="ki-duotone ki-file-up fs-3hx text-primary"><span class="path1"></span><span class="path2"></span></i>
-                                <div class="ms-4">
-                                  <h3 class="fs-3 fw-bold text-gray-900 mb-1">Drop files here or click to upload.</h3>
-                                  <span class="fw-semibold fs-4 text-muted">Upload videos, PDFs, or any sublesson materials</span>
-                                </div>
-                              </div>
-                            </div>
+            <input type="text" name="sublesson_title[]" placeholder="SubLesson title" class="form-control mb-2" />
+            <div class="invalid-feedback"></div>
+            <textarea name="sublesson_content[]" placeholder="Content" class="form-control mb-2"></textarea>
+            <div class="invalid-feedback"></div>
 
-                            <!-- real file input (hidden) -->
-                            <input type="file" class="form-control" name="sublesson_resources[]" multiple />
-
-                            <div class="mt-2 sublesson-files-list"></div>
+            <div class="dropzone needsclick text-center p-4 mb-2 sublesson-dropzone">
+                <div class="dz-message">
+                    <i class="ki-duotone ki-file-up fs-3hx text-primary"></i>
+                    <div class="ms-4">
+                        <h3 class="fs-3 fw-bold text-gray-900 mb-1">Drop files here or click to upload.</h3>
+                        <span class="fw-semibold fs-4 text-muted">Upload sublesson resources</span>
+                    </div>
                 </div>
             </div>
+            <input type="file" name="sublesson_resources[]" multiple class="d-none sublessonFilesInput" />
+            <div class="sublessonPreview mt-2 d-flex flex-wrap gap-2"></div>
         </div>
     </div>
 </template>
 
 <script>
 (function(){
-  // Stepper logic
-  const navItems = document.querySelectorAll('[data-kt-stepper-element="nav"]');
-  const contents = Array.from(document.querySelectorAll('[data-kt-stepper-element="content"]'));
+const navItems = document.querySelectorAll('[data-kt-stepper-element="nav"]');
+const contents = Array.from(document.querySelectorAll('[data-kt-stepper-element="content"]'));
+const initialLessonTemplate = document.getElementById('lesson-template');
+const initialSublessonTemplate = document.getElementById('sublesson-template');
+let lessonCounter = 0;
+let sublessonCounter = 0;
 
-  function showStep(index) {
-    navItems.forEach(n => n.classList.toggle('current', Number(n.dataset.stepindex) === index));
-    contents.forEach(c => c.style.display = Number(c.dataset.stepindex) === index ? '' : 'none');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
+// Afficher un step et mettre à jour la nav active
+function showStep(index){
+    contents.forEach((c,i)=> c.style.display=(i===index?'block':'none'));
+    navItems.forEach((n,i)=> n.classList.toggle('current', i===index));
+    window.scrollTo({top:0, behavior:'smooth'});
+}
 
-  navItems.forEach(n => {
-    n.style.cursor = 'pointer';
-    n.addEventListener('click', () => showStep(Number(n.dataset.stepindex)));
-  });
+// Validation par step
+function validateStep(stepIndex){
+    const step = contents[stepIndex];
+    let valid = true;
 
-  document.querySelectorAll('button[data-kt-element="type-next"]').forEach(btn => btn.addEventListener('click', () => showStep(1)));
-  document.querySelectorAll('button[data-kt-element="settings-next"]').forEach(btn => btn.addEventListener('click', () => showStep(2)));
-  document.querySelectorAll('button[data-kt-element="team-next"]').forEach(btn => btn.addEventListener('click', () => showStep(3)));
-  document.querySelectorAll('button[data-kt-element="settings-previous"]').forEach(btn => btn.addEventListener('click', () => showStep(0)));
-  document.querySelectorAll('button[data-kt-element="team-previous"]').forEach(btn => btn.addEventListener('click', () => showStep(1)));
-  document.querySelectorAll('button[data-kt-element="files-previous"]').forEach(btn => btn.addEventListener('click', () => showStep(2)));
+    // Reset erreurs
+    step.querySelectorAll('.invalid-feedback').forEach(div=>div.textContent='');
+    step.querySelectorAll('input, select, textarea').forEach(input=>input.classList.remove('is-invalid'));
 
-  // Helper pour attacher le Remove
-  function attachRemoveButtons() {
-    document.querySelectorAll('.remove-lesson-btn, .remove-sublesson-btn').forEach(btn => {
-      btn.onclick = e => {
-        const root = e.target.closest('.lesson-item, .sublesson-item');
-        if(root) root.remove();
-      };
+    if(stepIndex===0){ // Course
+        const title = step.querySelector('input[name="title"]');
+        const category = step.querySelector('select[name="category"]');
+        if(!title.value.trim()){ title.classList.add('is-invalid'); title.nextElementSibling.textContent='Title required'; valid=false; }
+        if(!category.value){ category.classList.add('is-invalid'); category.nextElementSibling.textContent='Category required'; valid=false; }
+    }
+
+    if(stepIndex===1){ // Lessons
+        const lessons = step.querySelectorAll('.lesson-item');
+        if(lessons.length===0){ alert("Add at least one lesson"); return false; }
+
+        lessons.forEach(lesson=>{
+            const ltitle = lesson.querySelector('input[name^="lesson_title"]');
+            if(!ltitle.value.trim()){ ltitle.classList.add('is-invalid'); ltitle.nextElementSibling.textContent='Lesson title required'; valid=false; }
+
+            const subs = lesson.querySelectorAll('.sublesson-item');
+            subs.forEach(sub=>{
+                const stitle = sub.querySelector('input[name^="sublesson_title"]');
+                if(!stitle.value.trim()){ stitle.classList.add('is-invalid'); stitle.nextElementSibling.textContent='SubLesson title required'; valid=false; }
+            });
+        });
+    }
+    return valid;
+}
+
+// Nav clickable
+navItems.forEach((nav,i)=>{
+    nav.addEventListener('click',()=>{
+        const currentIndex = Array.from(contents).findIndex(c=>c.style.display==='block');
+        // Validation de l'étape actuelle avant de passer
+        if(validateStep(currentIndex)) showStep(i);
     });
-  }
+});
 
-  // Ajouter Lesson
-  document.getElementById('add-lesson-btn')?.addEventListener('click', ()=>{
-    const template = document.getElementById('lesson-template');
-    if(template){
-      const clone = template.content.cloneNode(true);
-      document.getElementById('lessons-list').appendChild(clone);
-      attachRemoveButtons();
-    }
-  });
+// Next/Previous buttons
+document.querySelectorAll('[data-kt-element="type-next"], [data-kt-element="settings-next"]').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+        const stepIndex = parseInt(btn.closest('[data-kt-stepper-element="content"]').getAttribute('data-stepindex'));
+        if(validateStep(stepIndex)) showStep(stepIndex+1);
+    });
+});
+document.querySelectorAll('[data-kt-element="settings-previous"], [data-kt-element="files-previous"]').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+        const stepIndex = parseInt(btn.closest('[data-kt-stepper-element="content"]').getAttribute('data-stepindex'));
+        showStep(stepIndex-1);
+    });
+});
 
-  // Ajouter Sublesson
-  document.getElementById('add-sublesson-btn')?.addEventListener('click', ()=>{
-    const template = document.getElementById('sublesson-template');
-    if(template){
-      const clone = template.content.cloneNode(true);
-      document.getElementById('sublessons-list').appendChild(clone);
-      attachRemoveButtons();
-    }
-  });
+// Gestion fichiers + preview
+function handleFiles(event, previewArea){
+    const files = Array.from(event.target.files);
+    previewArea.innerHTML = "";
+    files.forEach(file=>{
+        const container = document.createElement("div");
+        container.style.position="relative"; container.style.display="inline-block"; container.style.marginRight="5px";
+        const img = document.createElement("img");
+        img.src = URL.createObjectURL(file);
+        img.classList.add("img-fluid","rounded","shadow"); img.style.maxWidth="120px"; img.style.maxHeight="120px";
+        const btn = document.createElement("button"); btn.innerHTML="&times;";
+        btn.style.position="absolute"; btn.style.top="2px"; btn.style.right="2px";
+        btn.classList.add("btn","btn-sm","btn-danger"); btn.onclick=()=>container.remove();
+        container.appendChild(img); container.appendChild(btn); previewArea.appendChild(container);
+    });
+}
 
-  // Au chargement, ajouter 1 lesson et 1 sublesson par défaut
-  const initialLessonTemplate = document.getElementById('lesson-template');
-  const initialSublessonTemplate = document.getElementById('sublesson-template');
+function attachSublessonEvents(subRoot){
+    subRoot.querySelector('.remove-sublesson-btn')?.addEventListener('click',()=>subRoot.remove());
+    const dz = subRoot.querySelector('.sublesson-dropzone');
+    const input = subRoot.querySelector('.sublessonFilesInput');
+    const previewArea = subRoot.querySelector('.sublessonPreview');
+    dz?.addEventListener('click',()=>input.click());
+    input?.addEventListener('change',e=>handleFiles(e,previewArea));
+}
 
-  if(initialLessonTemplate){
+function attachLessonEvents(lessonRoot){
+    lessonRoot.querySelector('.remove-lesson-btn')?.addEventListener('click',()=>lessonRoot.remove());
+    const dz = lessonRoot.querySelector('.lesson-dropzone');
+    const input = lessonRoot.querySelector('.lessonFilesInput');
+    const previewArea = lessonRoot.querySelector('.lessonPreview');
+    dz?.addEventListener('click',()=>input.click());
+    input?.addEventListener('change',e=>handleFiles(e,previewArea));
+
+    lessonRoot.querySelector('.add-sublesson-btn')?.addEventListener('click',()=>{
+        sublessonCounter++;
+        const subContainer = lessonRoot.querySelector('.sublessons-list');
+        const subClone = initialSublessonTemplate.content.cloneNode(true);
+        subContainer.appendChild(subClone);
+        const newSub = subContainer.querySelector('.sublesson-item:last-child');
+        attachSublessonEvents(newSub);
+    });
+}
+
+function addLesson(){
+    lessonCounter++;
     const clone = initialLessonTemplate.content.cloneNode(true);
-    document.getElementById('lessons-list').appendChild(clone);
-  }
-  if(initialSublessonTemplate){
-    const clone = initialSublessonTemplate.content.cloneNode(true);
-    document.getElementById('sublessons-list').appendChild(clone);
-  }
-  attachRemoveButtons();
+    const lessonsList = document.getElementById('lessons-list');
+    lessonsList.appendChild(clone);
+    const newLesson = lessonsList.lastElementChild;
+    attachLessonEvents(newLesson);
+}
+document.getElementById('add-lesson-btn').addEventListener('click',addLesson);
+addLesson();
 
+// Thumbnail preview
+const dropThumbnail = document.getElementById("dropzoneThumbnail");
+const thumbInput = document.getElementById("thumbnailInput");
+dropThumbnail.addEventListener("click",()=>thumbInput.click());
+thumbInput.addEventListener("change",e=>{
+    const file=e.target.files[0];
+    if(file){
+        const previewImg=document.createElement("img");
+        previewImg.src=URL.createObjectURL(file);
+        previewImg.classList.add("img-fluid","rounded","shadow","mt-2");
+        previewImg.style.maxWidth="200px";
+        document.getElementById("preview-area").innerHTML="";
+        document.getElementById("preview-area").appendChild(previewImg);
+    }
+});
+
+showStep(0);
 })();
 </script>
+
 
   
 

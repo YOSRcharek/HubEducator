@@ -1,0 +1,412 @@
+ {% extends 'baseF.html' %}
+ {% load static %}
+
+ 
+
+      {% include 'includes/nav.html' %}
+{% block title %}Courses Page{% endblock %}
+
+{% block content %}
+ <link rel="stylesheet" href="{% static 'website/css/courses.css' %}">
+<main class="container">
+    <div class="header">
+        <h1>Course Catalog</h1>
+        <p>Explore our courses and enhance your skills</p>
+    </div>
+
+    <section class="filters-section">
+        <div class="filters-grid">
+            <div class="filter-group">
+                <label class="filter-label">Search</label>
+                <input type="text" class="search-box" placeholder="Course name, teacher..." id="searchInput">
+            </div>
+            <div class="filter-group">
+                <label class="filter-label">Category</label>
+                <select class="filter-select" id="categoryFilter">
+                    <option value="">All Categories</option>
+                    <option value="Computer Science">Computer Science</option>
+                    <option value="Science">Science</option>
+                    <option value="Languages">Languages</option>
+                    <option value="Arts">Arts</option>
+                    <option value="Business">Business</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="filter-label">Level</label>
+                <select class="filter-select" id="levelFilter">
+                    <option value="">All Levels</option>
+                    <option value="beginner">Beginner</option>
+                    <option value="intermediate">Intermediate</option>
+                    <option value="advanced">Advanced</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="filter-label">Status</label>
+                <select class="filter-select" id="statusFilter">
+                    <option value="">All Statuses</option>
+                    <option value="pending">Pending</option>
+                    <option value="inprogress">In Progress</option>
+                    <option value="completed">Completed</option>
+                </select>
+            </div>
+        </div>
+    </section>
+
+    <section class="courses-grid" id="coursesGrid">
+        {% for course in page_obj %}
+        <article class="course-card">
+            <!-- Thumbnail + Status -->
+            <div class="course-thumbnail category-{{ forloop.counter }}">
+                {% if course.thumbnail %}
+                    <img src="{{ course.thumbnail.url }}" alt="thumbnail" class="course-img" />
+                {% else %}
+                    <div class="course-icon">
+                        {% if course.category.name == "Computer Science" %}💻{% endif %}
+                        {% if course.category.name == "Science" %}🧪{% endif %}
+                        {% if course.category.name == "Languages" %}🗣️{% endif %}
+                        {% if course.category.name == "Arts" %}🎨{% endif %}
+                        {% if course.category.name == "Business" %}📊{% endif %}
+                        {% if course.category.name == "AI" %}🤖{% endif %}
+                    </div>
+                {% endif %}
+
+                <!-- Status badge -->
+                <div class="status-badge 
+                    {% if course.status == 'pending' %}status-pending
+                    {% elif course.status == 'inprogress' %}status-inprogress
+                    {% else %}status-completed{% endif %}">
+                    {% if course.status == 'pending' %}Pending
+                    {% elif course.status == 'inprogress' %}In Progress
+                    {% else %}Completed{% endif %}
+                </div>
+            </div>
+
+            <!-- Course content -->
+            <div class="course-content">
+                <div class="course-meta">
+                    <span class="course-category">{{ course.category.name }}</span>
+                    <span class="course-level level-{{ course.level|default:'beginner' }}">
+                        Level: {{ course.get_level_display|default:"Beginner" }}
+                    </span>
+                    </div>
+
+                <h3 class="course-title">{{ course.title }}</h3>
+                <p class="course-description">
+                    {{ course.description|truncatewords:10 }}
+                </p>
+
+                <div class="course-info">
+                    <span class="course-teacher">👨‍🏫 {{ course.teacher.username }}</span>
+                    <span class="course-capacity">{{ course.capacity }} seats</span>
+                </div>
+
+               <div class="course-dates">
+                {% if course.start_date or course.end_date %}
+                    {% if course.start_date %}
+                    <div class="date-item">
+                        <span>📅</span>
+                        <span>Start: {{ course.start_date|date:"d M Y" }}</span>
+                    </div>
+                    {% endif %}
+                    {% if course.end_date %}
+                    <div class="date-item">
+                        <span>🏁</span>
+                        <span>End: {{ course.end_date|date:"d M Y" }}</span>
+                    </div>
+                    {% endif %}
+                {% else %}
+                    <div class="date-item no-date">
+                        <span>❌</span>
+                        <span>No specific date</span>
+                    </div>
+                {% endif %}
+            </div>
+
+               <div class="meta-item">
+                <strong>Progress:</strong>
+                <div class="progress-section">
+                    <div class="progress-label">
+                        {% if course.status == 'pending' %}
+                            <span>10%</span>
+                        {% elif course.status == 'inprogress' %}
+                            <span>50%</span>
+                        {% else %}
+                            <span>100%</span>
+                        {% endif %}
+                    </div>
+                    <div class="progress-bar">
+                        {% if course.status == 'pending' %}
+                            <div class="progress-fill math" style="width: 10%;"></div>
+                        {% elif course.status == 'inprogress' %}
+                            <div class="progress-fill science" style="width: 50%;"></div>
+                        {% else %}
+                            <div class="progress-fill art" style="width: 100%;"></div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+         <div class="course-action-single" style="margin-top: 10px;">
+            {% if user.is_authenticated %}
+                {% if user in course.students.all %}
+                    <!-- User is enrolled → Access to course -->
+                    <a href="{% url 'courseDetails' course.id %}" onclick="window.location.href=this.href; return false;" class="btn-view-course" style="width: 100%; text-align: center; display: inline-block;">
+                        Access To course
+                    </a>
+                {% else %}
+                    <!-- User not enrolled → Enroll to course -->
+                  <form method="post"
+                    action="{% url 'enroll_course' course.id %}"
+                    class="enroll-form"
+                    style="margin: 0;">
+                    {% csrf_token %}
+                    <button type="button"
+                            class="btn-enroll-course"
+                            style="width: 100%;"
+                            onclick="confirmEnroll(this.form, '{{ course.title }}')">
+                        Enroll to course
+                    </button>
+                </form>
+
+                {% endif %}
+            {% else %}
+                <!-- Not logged in → redirect to login first -->
+                <a href="{% url 'login' %}?next={% url 'courseDetails' course.id %}" class="btn-view-course" style="width: 100%; text-align: center; display: inline-block;">
+                    Enroll to course
+                </a>
+            {% endif %}
+        </div>
+
+
+
+
+            </article>
+        {% empty %}
+        <p class="text-center text-muted">No courses available at the moment.</p>
+        {% endfor %}
+
+    </section>
+     </section>
+
+
+    <!-- Pagination -->
+    <div class="d-flex justify-content-center mt-4">
+        <nav>
+            <ul class="pagination">
+                {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                    </li>
+                {% endif %}
+
+                {% for num in page_obj.paginator.page_range %}
+                    <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                    </li>
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    <!-- 🔹 Popup de confirmation d'inscription -->
+ <div id="enrollPopup" class="popup-overlay hidden">
+    <div class="popup-content">
+        <h3>Confirmer votre inscription</h3>
+        <p id="popup-message">Voulez-vous vraiment vous inscrire à ce cours ?</p>
+
+        <div class="popup-buttons">
+            <button id="confirmEnrollBtn" class="btn-confirm">Oui, je confirme</button>
+            <button id="cancelEnrollBtn" class="btn-cancel">Annuler</button>
+        </div>
+    </div>
+</div>
+
+
+</main>
+
+<style>
+    
+.popup-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+}
+
+.popup-content {
+    background: #fff;
+    padding: 25px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    width: 350px;
+    animation: popupShow 0.25s ease-in-out;
+}
+
+@keyframes popupShow {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+.popup-buttons {
+    margin-top: 15px;
+    display: flex;
+    justify-content: space-around;
+}
+
+.btn-confirm {
+    background-color: #007bff;
+    color: white;
+    padding: 8px 18px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.btn-cancel {
+    background-color: #ccc;
+    color: #333;
+    padding: 8px 18px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.hidden {
+    display: none;
+}
+
+    .btn-enroll-course {
+        width: 100%;
+        padding: 0.75rem;
+        background: #FDC800;
+        color: var(--bs-secondary);
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-enroll-course:hover {
+        background: #c2a437;
+        transform: translateY(-2px);
+        color: var(--bs-secondary);
+    }
+</style>
+
+    <script>
+        // Fonctionnalité de recherche et filtrage
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+            const categoryFilter = document.getElementById('categoryFilter');
+            const levelFilter = document.getElementById('levelFilter');
+            const statusFilter = document.getElementById('statusFilter');
+            const courseCards = document.querySelectorAll('.course-card');
+
+            function filterCourses() {
+                const searchTerm = searchInput.value.toLowerCase();
+                const selectedCategory = categoryFilter.value;
+                const selectedLevel = levelFilter.value;
+                const selectedStatus = statusFilter.value;
+
+                courseCards.forEach(card => {
+                    const title = card.querySelector('.course-title').textContent.toLowerCase();
+                    const teacher = card.querySelector('.course-teacher').textContent.toLowerCase();
+                    const category = card.querySelector('.course-category').textContent;
+                    const level = card.querySelector('.course-level').classList.contains('level-beginner') ? 'beginner' :
+                                 card.querySelector('.course-level').classList.contains('level-intermediate') ? 'intermediate' : 'advanced';
+                    const status = card.querySelector('.status-badge').classList.contains('status-pending') ? 'pending' :
+                                  card.querySelector('.status-badge').classList.contains('status-inprogress') ? 'inprogress' : 'completed';
+
+                    const matchesSearch = title.includes(searchTerm) || teacher.includes(searchTerm);
+                    const matchesCategory = !selectedCategory || category === selectedCategory;
+                    const matchesLevel = !selectedLevel || level === selectedLevel;
+                    const matchesStatus = !selectedStatus || status === selectedStatus;
+
+                    if (matchesSearch && matchesCategory && matchesLevel && matchesStatus) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            }
+
+            searchInput.addEventListener('input', filterCourses);
+            categoryFilter.addEventListener('change', filterCourses);
+            levelFilter.addEventListener('change', filterCourses);
+            statusFilter.addEventListener('change', filterCourses);
+        });
+
+        // Animation au scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.course-card').forEach(card => {
+            observer.observe(card);
+        });
+
+        // Gestion des clics sur les boutons "Voir les détails"
+        document.querySelectorAll('.btn-view-course').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Animation de clic
+                this.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    this.style.transform = '';
+                }, 150);
+                
+                // Ici vous pouvez rediriger vers la page de détails
+                console.log('Redirection vers la page de détails du cours');
+            });
+        });
+   document.addEventListener("DOMContentLoaded", () => {
+    let currentForm = null;
+
+    // Fonction déclenchée au clic sur le bouton "Enroll"
+    window.confirmEnroll = function (form, courseName) {
+        currentForm = form;
+        document.getElementById("popup-message").innerText =
+            `Voulez-vous vraiment vous inscrire au cours « ${courseName} » ?`;
+        document.getElementById("enrollPopup").classList.remove("hidden");
+    };
+
+    // Bouton "Oui"
+    document.getElementById("confirmEnrollBtn").addEventListener("click", function () {
+        if (currentForm) currentForm.submit();
+        closePopup();
+    });
+
+    // Bouton "Annuler"
+    document.getElementById("cancelEnrollBtn").addEventListener("click", closePopup);
+
+    // Fermer la popup
+    function closePopup() {
+        document.getElementById("enrollPopup").classList.add("hidden");
+    }
+});
+
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'994c4096f0e17aa7',t:'MTc2MTUwNTgxMS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+
+{% endblock %}
