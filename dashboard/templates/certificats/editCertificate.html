@@ -1,0 +1,544 @@
+{% extends 'baseB.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    body {
+        background: #f6f8fb;
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    .certificate-form {
+        background: #fff;
+        padding: 35px;
+        border-radius: 18px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        max-width: 1000px;
+        margin: 40px auto;
+        transition: 0.3s;
+    }
+
+    .certificate-form:hover {
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+    }
+
+    .form-section {
+        margin-bottom: 30px;
+    }
+
+    h2.title-main {
+        font-size: 3.5rem;        /* agrandir le texte */
+        font-weight: 700;         /* plus épais */
+        text-align: center;       /* centré */
+        color: #120d30;           /* texte en noir */
+        font-family: "Times New Roman", Times, serif; /* police Times */
+        margin-bottom: 25px;
+    }
+
+    .form-label {
+        font-weight: 500;
+        color: #495057;
+    }
+
+    .form-control,
+    .form-select {
+        border-radius: 10px;
+        padding: 10px 14px;
+        border: 1px solid #ced4da;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.1);
+    }
+
+    .exercise-block {
+        border: 2px solid #e3e7ec;
+        border-radius: 14px;
+        padding: 20px;
+        margin-bottom: 18px;
+        background: #fdfdff;
+        transition: 0.3s;
+    }
+
+    .exercise-block:hover {
+        border-color: #0d6efd;
+        background: #f8faff;
+    }
+
+    .exercise-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+
+    .exercise-type {
+        font-weight: 600;
+        color: #0d6efd;
+        font-size: 1.1rem;
+    }
+
+    .remove-form {
+        background-color: #dc3545 !important;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        padding: 5px 10px;
+    }
+    .add-form-btn,
+    .add-option {
+        background-color: transparent; /* pas de fond */
+        color: #6c757d; /* gris bootstrap */
+        border: 2px solid #6c757d; /* contour gris */
+        padding: 8px 16px;
+        border-radius: 8px;
+        transition: 0.3s;
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+
+    /* Effet au survol */
+    .add-form-btn:hover,
+    .add-option:hover {
+        background-color: #6c757d; /* fond gris au survol */
+        color: white; /* texte devient blanc */
+    }
+
+
+    .save-btn {
+        background: #0d6efd;
+        color: white;
+        border-radius: 8px;
+        padding: 10px 30px;
+        transition: 0.3s;
+        border: none;
+    }
+
+    .save-btn:hover {
+        background: #0b5ed7;
+    }
+
+    .exercise-content {
+        display: none;
+        margin-top: 10px;
+    }
+
+    .exercise-content.active {
+        display: block;
+    }
+
+    .option-input {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 5px;
+        align-items: center;
+    }
+
+    .section-title {
+        color: #6c757d;
+        font-weight: 600;
+        margin-bottom: 10px;
+        border-bottom: 2px solid #e9ecef;
+        padding-bottom: 5px;
+    }
+
+    .shadow-sm {
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    .btn-sm {
+        padding: 2px 6px;
+        font-size: 0.8rem;
+    }
+</style>
+
+<div class="certificate-form shadow-sm">
+    <h2 class="title-main">Edit Certificate</h2>
+
+    <form method="post" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+
+        <!-- Certificate Info Section -->
+        <div class="form-section">
+            <h5 class="section-title">📄 Certificate Information</h5>
+
+            <div class="mb-3">
+                {{ cert_form.title.label_tag }}
+                {{ cert_form.title }}
+                {% if cert_form.title.errors %}<div class="text-danger">{{ cert_form.title.errors }}</div>{% endif %}
+            </div>
+
+            <div class="mb-3">
+                {{ cert_form.description.label_tag }}
+                {{ cert_form.description }}
+                {% if cert_form.description.errors %}<div class="text-danger">{{ cert_form.description.errors }}</div>{% endif %}
+            </div>
+
+            <div class="mb-3">
+                {{ cert_form.speciality.label_tag }}
+                {{ cert_form.speciality }}
+                <datalist id="specialities">
+                    {% for speciality in specialities %}
+                        <option value="{{ speciality.name }}">
+                    {% endfor %}
+                </datalist>
+                {% if cert_form.speciality.errors %}<div class="text-danger">{{ cert_form.speciality.errors }}</div>{% endif %}
+                <small class="form-text text-muted">Enter the speciality name. If it doesn't exist, it will be created automatically.</small>
+            </div>
+
+            <div class="mb-3">
+                <label for="id_cover_image" class="form-label">Cover Image</label>
+                {% if cert_form.instance.cover_image %}
+                    <div class="mt-2 mb-2">
+                        <img src="{{ cert_form.instance.cover_image }}" alt="Cover" style="max-width:220px;border-radius:8px;">
+                    </div>
+                    <small class="text-muted">Optional: Upload new image to replace current one</small>
+                {% endif %}
+                <input type="hidden" role="uploadcare-uploader" name="cover_image" id="id_cover_image"
+                    data-clearable="true" data-public-key="80a35ae75c230fc4117e"
+                    {% if cert_form.instance and cert_form.instance.cover_image %} value="{{ cert_form.instance.cover_image }}"{% endif %} />
+            </div>
+        </div>
+
+        <!-- Exercises Section (optionnel : si 'formset' fourni) -->
+        {% if formset %}
+        <div class="form-section">
+            <h5 class="section-title">🧩 Exercises / Quiz</h5>
+            {% if exercise_error %}
+                <div class="text-danger mb-3">{{ exercise_error }}</div>
+            {% endif %}
+            <div id="formset">
+                {{ formset.management_form }}
+{% for form in formset %}
+<div class="exercise-block">
+    <div class="exercise-header">
+        <span class="exercise-type">Exercise {{ forloop.counter }}</span>
+        <button type="button" class="remove-form btn btn-sm">✖</button>
+    </div>
+
+    <!-- ✅ Afficher les erreurs globales du formulaire -->
+    {% if form.non_field_errors %}
+        <div class="text-danger mb-2">
+            {% for error in form.non_field_errors %}
+                <div>{{ error }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="exercise-body">
+        <!-- Type -->
+        {{ form.exercise_type.label_tag }}
+        {{ form.exercise_type }}
+        {% if form.exercise_type.errors %}
+            <div class="text-danger">{{ form.exercise_type.errors }}</div>
+        {% endif %}
+
+        <!-- Question -->
+        {{ form.question.label_tag }}
+        {{ form.question }}
+        {% if form.question.errors %}
+            <div class="text-danger">{{ form.question.errors }}</div>
+        {% endif %}
+
+        <div style="display:none;">
+            {{ form.DELETE }}
+        </div>
+
+        {# Render hidden fields (id, etc.) so existing instances submit their PKs #}
+        {% for hidden in form.hidden_fields %}
+            {{ hidden }}
+        {% endfor %}
+
+        <!-- True/False -->
+        <div class="exercise-content truefalse">
+            <label class="form-label">Correct Answer</label>
+            <select class="form-select" name="{{ form.correct_answer.html_name }}">
+                <option value="">Select correct answer</option>
+                <option value="True" {% if form.correct_answer.value == "True" %}selected{% endif %}>True</option>
+                <option value="False" {% if form.correct_answer.value == "False" %}selected{% endif %}>False</option>
+            </select>
+            {% if form.correct_answer.errors %}
+                <div class="text-danger">{{ form.correct_answer.errors }}</div>
+            {% endif %}
+        </div>
+
+        <!-- Text -->
+        <div class="exercise-content text">
+            <label class="form-label">Correct Answer</label>
+            <input type="text" class="form-control text-correct-answer"
+                   value="{{ form.correct_answer.value }}"
+                   name="{{ form.correct_answer.html_name }}">
+            {% if form.correct_answer.errors %}
+                <div class="text-danger">{{ form.correct_answer.errors }}</div>
+            {% endif %}
+        </div>
+
+        <!-- QCU -->
+        <div class="exercise-content qcu">
+            <div class="option-input">
+                <label class="form-label">Option 1</label>
+                {{ form.option1 }}
+                {% if form.option1.errors %}
+                    <div class="text-danger">{{ form.option1.errors }}</div>
+                {% endif %}
+            </div>
+            <div class="option-input">
+                <label class="form-label">Option 2</label>
+                {{ form.option2 }}
+                {% if form.option2.errors %}
+                    <div class="text-danger">{{ form.option2.errors }}</div>
+                {% endif %}
+            </div>
+            <div class="option-input option3-input">
+                <label class="form-label">Option 3</label>
+                {{ form.option3 }}
+                {% if form.option3.errors %}
+                    <div class="text-danger">{{ form.option3.errors }}</div>
+                {% endif %}
+                <button type="button" class="remove-option btn btn-sm">✖</button>
+            </div>
+            <div class="option-input option4-input">
+                <label class="form-label">Option 4</label>
+                {{ form.option4 }}
+                {% if form.option4.errors %}
+                    <div class="text-danger">{{ form.option4.errors }}</div>
+                {% endif %}
+                <button type="button" class="remove-option btn btn-sm">✖</button>
+            </div>
+
+            <button type="button" class="add-option mt-2">Add Option</button>
+
+            <div class="mt-3">
+                <label class="form-label">Correct Answer</label>
+                <select class="form-select qcu-correct-answer" name="{{ form.correct_answer.html_name }}">
+                    <option value="">Select correct answer</option>
+                    {% for opt in form.available_options %}
+                        <option value="{{ opt }}" {% if form.correct_answer.value == opt %}selected{% endif %}>{{ opt }}</option>
+                    {% endfor %}
+                </select>
+                {% if form.correct_answer.errors %}
+                    <div class="text-danger">{{ form.correct_answer.errors }}</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+            </div>
+            <div class="text-center mt-3">
+                <button type="button" id="add-form" class="add-form-btn"> Add Another Exercise</button>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="text-center mt-4">
+            <button type="submit" class="save-btn">💾 Save Changes</button>
+        </div>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const formsetDiv = document.querySelector('#formset');
+    const addBtn = document.querySelector('.add-form-btn');
+
+    function updateQCUSelect(block) {
+        const select = block.querySelector('.qcu-correct-answer');
+        if (!select) return;
+
+        const hiddenInput = block.querySelector('input[name$="-correct_answer"]');
+        const options = block.querySelectorAll('.option-input input');
+        let currentValue = select.value;
+
+        const validOptionValues = [];
+
+        select.innerHTML = '<option value="">Select correct answer</option>';
+        options.forEach((opt, idx) => {
+            const trimmedValue = opt.value.trim();
+            if (trimmedValue) {
+                validOptionValues.push(trimmedValue);
+                const optionEl = document.createElement('option');
+                optionEl.value = trimmedValue;
+                optionEl.textContent = `Option ${idx + 1}: ${trimmedValue}`;
+                select.appendChild(optionEl);
+            }
+        });
+
+        if (validOptionValues.includes(currentValue)) {
+            select.value = currentValue;
+        } else {
+            select.value = "";
+        }
+
+        if (hiddenInput) {
+            hiddenInput.value = select.value;
+        }
+    }
+
+    function renumberExercises() {
+        const blocks = formsetDiv.querySelectorAll('.exercise-block:not([style*="display: none"])');
+        blocks.forEach((block, index) => {
+            block.querySelector('.exercise-type').textContent = `Exercise ${index + 1}`;
+        });
+    }
+
+    function renumberOptions(block) {
+        const options = Array.from(block.querySelectorAll('.exercise-content.qcu .option-input'))
+            .filter(opt => opt.style.display !== 'none');
+        options.forEach((opt, index) => {
+            const label = opt.querySelector('label');
+            const input = opt.querySelector('input');
+            if (label) label.textContent = `Option ${index + 1}`;
+            if (input) input.setAttribute('placeholder', `Option ${index + 1}`);
+        });
+    }
+
+    function toggleExerciseInputs(block, selectedType) {
+        block.querySelectorAll('.exercise-content').forEach(div => {
+            const is_active = div.classList.contains(selectedType);
+            div.style.display = is_active ? 'block' : 'none';
+            div.querySelectorAll('input, select').forEach(input => {
+                if (!input.name.includes('exercise_type')) {
+                    input.disabled = !is_active;
+                }
+            });
+        });
+    }
+
+    // Initialize existing blocks
+    formsetDiv.querySelectorAll('.exercise-block').forEach((block) => {
+        block.style.display = 'block';
+        const typeSelect = block.querySelector('select[name$="-exercise_type"]');
+        if (typeSelect && typeSelect.value) {
+            toggleExerciseInputs(block, typeSelect.value);
+        }
+        updateQCUSelect(block);
+
+        // Show existing options for QCU
+        const option3Input = block.querySelector('.option3-input input');
+        const option4Input = block.querySelector('.option4-input input');
+        if (option3Input && option3Input.value.trim()) {
+            block.querySelector('.option3-input').style.display = 'flex';
+        }
+        if (option4Input && option4Input.value.trim()) {
+            block.querySelector('.option4-input').style.display = 'flex';
+        }
+
+        const tfSelect = block.querySelector('.exercise-content.truefalse select');
+        if (tfSelect) {
+            const hiddenInput = block.querySelector('input[name$="-correct_answer"]');
+            if (hiddenInput && hiddenInput.value) tfSelect.value = hiddenInput.value;
+        }
+
+        const qcuSelect = block.querySelector('.exercise-content.qcu .qcu-correct-answer');
+        if (qcuSelect) {
+            const hiddenInput = block.querySelector('input[name$="-correct_answer"]');
+            if (hiddenInput && hiddenInput.value) qcuSelect.value = hiddenInput.value;
+        }
+    });
+
+    formsetDiv.addEventListener('change', function (e) {
+        const block = e.target.closest('.exercise-block');
+        if (!block) return;
+
+        if (e.target.closest('.exercise-content.truefalse select')) {
+            const hiddenInput = block.querySelector('input[name$="-correct_answer"]');
+            if (hiddenInput) hiddenInput.value = e.target.value;
+        }
+
+        if (e.target.closest('.exercise-content.qcu .qcu-correct-answer')) {
+            const hiddenInput = block.querySelector('input[name$="-correct_answer"]');
+            if (hiddenInput) hiddenInput.value = e.target.value;
+        }
+
+        if (e.target.name && e.target.name.includes('exercise_type')) {
+            toggleExerciseInputs(block, e.target.value);
+        }
+    });
+
+    formsetDiv.addEventListener('input', function (e) {
+        const block = e.target.closest('.exercise-block');
+        if (!block) return;
+
+        if (e.target.closest('.exercise-content.qcu .option-input input')) {
+            updateQCUSelect(block);
+        }
+    });
+
+    addBtn.addEventListener('click', function () {
+        const totalFormsInput = document.querySelector('#id_exercise-TOTAL_FORMS');
+        let totalForms = parseInt(totalFormsInput.value);
+
+        const firstBlock = formsetDiv.querySelector('.exercise-block');
+        if (!firstBlock) return;
+
+        const newBlock = firstBlock.cloneNode(true);
+        newBlock.querySelectorAll('input, select, textarea').forEach(el => {
+            if (el.name) el.name = el.name.replace(/exercise-\d+-/, `exercise-${totalForms}-`);
+            if (el.id) el.id = el.id.replace(/exercise-\d+-/, `exercise-${totalForms}-`);
+            if (!el.name.includes('TOTAL_FORMS') && !el.name.includes('INITIAL_FORMS') && !el.name.includes('MIN_NUM_FORMS') && !el.name.includes('MAX_NUM_FORMS')) {
+                if (el.type === 'checkbox' || el.type === 'radio') el.checked = false;
+                else el.value = '';
+            }
+        });
+
+        const typeSelect = newBlock.querySelector('select[name$="-exercise_type"]');
+        if(typeSelect) {
+            // Set default value to empty to force selection
+            typeSelect.value = '';
+            toggleExerciseInputs(newBlock, typeSelect.value);
+        }
+
+        newBlock.style.display = 'block';
+        newBlock.querySelector('.exercise-type').textContent = `Exercise ${totalForms + 1}`;
+        formsetDiv.appendChild(newBlock);
+
+        totalFormsInput.value = totalForms + 1;
+
+        renumberExercises();
+
+        const qcuOptions = newBlock.querySelectorAll('.exercise-content.qcu .option-input');
+        qcuOptions.forEach((opt, index) => {
+            if (index >= 2) opt.style.display = 'none';
+        });
+        renumberOptions(newBlock);
+    });
+
+    formsetDiv.addEventListener('click', function (e) {
+        const block = e.target.closest('.exercise-block');
+        if (e.target.classList.contains('remove-form')) {
+            const deleteInput = block.querySelector('input[name$="-DELETE"]');
+            if (deleteInput) deleteInput.checked = true;
+            block.style.display = 'none';
+            renumberExercises();
+        }
+
+        if (e.target.classList.contains('add-option')) {
+            const qcuOptions = block.querySelectorAll('.exercise-content.qcu .option-input');
+            let hidden = Array.from(qcuOptions).filter(opt => opt.style.display === 'none');
+            if (hidden.length > 0) {
+                hidden[0].style.display = 'flex';
+                renumberOptions(block);
+                updateQCUSelect(block);
+            } else {
+                alert("Max 4 options allowed.");
+            }
+        }
+
+        if (e.target.classList.contains('remove-option')) {
+            const parentOption = e.target.closest('.option-input');
+            const input = parentOption.querySelector('input');
+            if (input) input.value = '';
+            parentOption.style.display = 'none';
+            renumberOptions(block);
+            updateQCUSelect(block);
+        }
+    });
+});
+</script>
+
+{% endblock %}
