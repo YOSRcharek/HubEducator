@@ -1,0 +1,81 @@
+{% extends 'baseF.html' %}
+{% load static %}
+
+{% block title %}Certificate Results{% endblock %}
+
+{% block content %}
+<main class="main" id="top">
+    <section class="pb-11 pt-7 bg-600">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <h6 class="font-sans-serif text-primary fw-bold">Certificate Results</h6>
+                    <h1 class="mb-6">{{ certificate.title }} - All Results</h1>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="pb-0" style="margin-top:-17rem">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    {% for attempt in attempts %}
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <div class="text-center mb-4">
+                                    <h3 class="card-title">Attempt on {{ attempt.completed_at|date:"F j, Y, g:i a" }}</h3>
+                                    <div class="display-4 fw-bold {% if attempt.passed %}text-success{% else %}text-danger{% endif %}">
+                                        {{ attempt.score }}/{{ attempt.total_questions }}
+                                    </div>
+                                    <p class="mt-2">
+                                        {% if attempt.passed %}
+                                            <span class="badge bg-success">PASSED</span>
+                                            <br><br>
+                                            <a href="{% url 'certificate_result' attempt.id %}?view=certificate" 
+                                            class="btn btn-primary" 
+                                            target="_blank" 
+                                           >
+                                            Voir le certificat
+                                            </a>
+
+                                        {% else %}
+                                            <span class="badge bg-danger">FAILED</span>
+                                        {% endif %}
+                                    </p>
+                                    <p class="text-muted">Passing score: 70%</p>
+                                </div>
+
+                                <h5 class="mb-3">Review Your Answers</h5>
+                                {% for answer in attempt.answers.all %}
+                                    <div class="mb-4 p-3 border rounded {% if answer.is_correct %}bg-light{% else %}bg-danger bg-opacity-10{% endif %}">
+                                        <h6>Question {{ forloop.counter }}: {{ answer.exercise.question }}</h6>
+                                        <p><strong>Your Answer:</strong> {{ answer.answer|default:"No answer" }}</p>
+                                        {% if not answer.is_correct %}
+                                            <p><strong>Correct Answer:</strong> {{ answer.exercise.correct_answer }}</p>
+                                        {% endif %}
+                                        <p class="{% if answer.is_correct %}text-success{% else %}text-danger{% endif %}">
+                                            <i class="fas {% if answer.is_correct %}fa-check{% else %}fa-times{% endif %}"></i>
+                                            {% if answer.is_correct %}Correct{% else %}Incorrect{% endif %}
+                                        </p>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <p>No attempts found for this certificate.</p>
+                            </div>
+                        </div>
+                    {% endfor %}
+
+                    <div class="text-center mt-4">
+                        <a href="{% url 'certificates' %}" class="btn btn-primary">Back to Certificates</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+{% endblock %}

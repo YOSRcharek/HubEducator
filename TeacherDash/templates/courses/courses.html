@@ -277,6 +277,175 @@
 					</div>
 				</div>
 			</div>	 
+            <div class="modal fade" id="kt_modal_create_project" tabindex="-1" aria-hidden="true">
+                  <div class="modal-dialog modal-fullscreen p-9">
+                    <div class="modal-content modal-rounded">
+                          <div class="modal-header">
+                        <h2>Create Course</h2>
+                        <div class="btn btn-sm btn-icon btn-active-color-primary" data-bs-dismiss="modal">
+                            <i class="ki-duotone ki-cross fs-1">
+                            <span class="path1"></span>
+                            <span class="path2"></span>
+                            </i>
+                        </div>
+                    </div>
+
+            <div class="modal-body scroll-y m-5">
+                <div class="stepper stepper-links d-flex flex-column" id="kt_modal_create_project_stepper">
+                    <div class="container">
+                        <div class="stepper-nav justify-content-center py-2">
+                            <div class="stepper-item me-5 me-md-15 current" data-kt-stepper-element="nav">
+                                <h3 class="stepper-title">Course Info</h3>
+                            </div>
+                            <div class="stepper-item me-5 me-md-15" data-kt-stepper-element="nav">
+                                <h3 class="stepper-title">Chapters</h3>
+                            </div>
+                            <div class="stepper-item me-5 me-md-15" data-kt-stepper-element="nav">
+                                <h3 class="stepper-title">Pricing</h3>
+                            </div>
+                            <div class="stepper-item me-5 me-md-15" data-kt-stepper-element="nav">
+                                <h3 class="stepper-title">Media</h3>
+                            </div>
+                            <div class="stepper-item" data-kt-stepper-element="nav">
+                                <h3 class="stepper-title">Confirmation</h3>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form class="mx-auto w-100 mw-600px pt-15 pb-10" novalidate="novalidate" id="kt_modal_create_project_form" method="post">
+                      <div class="current" data-kt-stepper-element="content">
+                        <div class="w-100">
+                          <div class="pb-7 pb-lg-12">
+                            <h1 class="fw-bold text-dark">Course Information</h1>
+                            <div class="text-muted fw-semibold fs-4">Please provide the details of the course below.</div>
+                          </div>
+
+                          <!-- Course Title -->
+                          <div class="fv-row mb-8">
+                            <label class="form-label fs-6 fw-bold text-dark">Course Title</label>
+                            <input type="text" name="title" class="form-control form-control-lg form-control-solid" placeholder="Enter course title" required />
+                          </div>
+
+                       
+                          <!-- Description -->
+                          <div class="fv-row mb-8">
+                            <label class="form-label fs-6 fw-bold text-dark">Description</label>
+                            <textarea name="description" class="form-control form-control-lg form-control-solid" rows="4" placeholder="Write a short description of the course"></textarea>
+                          </div>
+
+                        
+
+                         <div class="fv-row mb-8">
+                                <label class="form-label fs-6 fw-bold">Category</label>
+                                <select name="category" class="form-select form-select-solid">
+                                    <option value="">Select a category</option>
+                                    <option value="science">Science</option>
+                                    <option value="math">Mathematics</option>
+                                    <option value="programming">Programming</option>
+                                    <option value="languages">Languages</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+
+                            <div class="fv-row mb-8">
+                                <label class="form-label fs-6 fw-bold">Level</label>
+                                <select name="level" class="form-select form-select-solid">
+                                    <option value="">Select level</option>
+                                    <option value="beginner">Beginner</option>
+                                    <option value="intermediate">Intermediate</option>
+                                    <option value="advanced">Advanced</option>
+                                </select>
+                            </div>
+
+
+                          <!-- Next Button -->
+                          <div class="d-flex justify-content-end">
+                            <button type="button" class="btn btn-lg btn-primary" data-kt-element="type-next">
+                              <span class="indicator-label">Next: Chapters</span>
+                              <span class="indicator-progress">
+                                Please wait...
+                                <span class="spinner-border spinner-border-sm align-middle ms-2"></span>
+                              </span>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div data-kt-stepper-element="content">
+                          <div class="w-100">
+                            <div class="pb-12"> 
+                               <h1 class="fw-bold text-dark">Chapters</h1>
+                            <div class="text-muted fw-semibold fs-4 mb-8">Add chapters for your course. You can add multiple chapters.</div>
+
+                            </div>
+
+                            <div id="chapters_container">
+                                <div class="fv-row mb-5 chapter-row">
+                                    <label class="form-label fs-6 fw-bold">Chapter Title</label>
+                                    <input type="text" name="chapters[]" class="form-control form-control-solid mb-3">
+                                    <label class="form-label fs-6 fw-bold">Chapter Description</label>
+                                    <textarea name="chapters_desc[]" class="form-control form-control-solid" rows="2"></textarea>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-light mb-8" id="add_chapter_btn">Add Another Chapter</button>
+
+                            <!-- Weekly Schedule -->
+                            <div class="fv-row mb-8">
+                              <label class="fs-6 fw-semibold mb-2">Weekly Schedule</label>
+                              <div class="d-flex flex-wrap">
+                                <label class="form-check me-4"><input type="checkbox" name="schedule[]" value="Monday" class="form-check-input" />Monday</label>
+                                <label class="form-check me-4"><input type="checkbox" name="schedule[]" value="Tuesday" class="form-check-input" />Tuesday</label>
+                                <label class="form-check me-4"><input type="checkbox" name="schedule[]" value="Wednesday" class="form-check-input" />Wednesday</label>
+                                <label class="form-check me-4"><input type="checkbox" name="schedule[]" value="Thursday" class="form-check-input" />Thursday</label>
+                                <label class="form-check me-4"><input type="checkbox" name="schedule[]" value="Friday" class="form-check-input" />Friday</label>
+                                <label class="form-check me-4"><input type="checkbox" name="schedule[]" value="Saturday" class="form-check-input" />Saturday</label>
+                                <label class="form-check me-4"><input type="checkbox" name="schedule[]" value="Sunday" class="form-check-input" />Sunday</label>
+                              </div>
+                            </div>
+
+
+                            <!-- Upload Course Resources -->
+                            <div class="fv-row mb-8">
+                              <label class="fs-6 fw-semibold mb-2">Upload Course Resources</label>
+                              <div class="dropzone" id="course_resources_dropzone">
+                                <div class="dz-message needsclick">
+                                  <i class="ki-duotone ki-file-up fs-3hx text-primary">
+                                    <span class="path1"></span>
+                                    <span class="path2"></span>
+                                  </i>
+                                  <div class="ms-4">
+                                    <h3 class="fs-3 fw-bold text-gray-900 mb-1">Drop files here or click to upload.</h3>
+                                    <span class="fw-semibold fs-4 text-muted">Upload syllabus, PDFs, or any course materials</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                          <!-- Schedule Step Buttons -->
+                            <div class="d-flex justify-content-end">
+                                <!-- Previous Button -->
+                                <button type="button" class="btn btn-lg btn-light me-3" data-kt-stepper-element="previous">
+                                    Previous: Course Info
+                                </button>
+
+                                <!-- Next Button -->
+                                <button type="button" class="btn btn-lg btn-primary" data-kt-stepper-element="next">
+                                    <span class="indicator-label">Next: Teacher Assignment</span>
+                                    <span class="indicator-progress">
+                                        Please wait...
+                                        <span class="spinner-border spinner-border-sm align-middle ms-2"></span>
+                                    </span>
+                                </button>
+                            </div>
+
+                        </div>
+                      </div>
+                
+            </div>
+           </div>
+       </div>
+
+        </form>
             
        </div>
 
@@ -285,6 +454,53 @@
 
    
 
+				</div>
+			</div>
+		</div>
+<script>
+document.getElementById('load-course-btn').addEventListener('click', function() {
+    fetch("{% url 'add_courses' %}")
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById('modal-course-content').innerHTML = html;
+        });
+});
+
+      document.addEventListener('DOMContentLoaded', function () {
+        const stepperItems = document.querySelectorAll('.stepper-item')
+        const stepperContents = document.querySelectorAll('[data-kt-stepper-element="content"]')
+      
+        stepperItems.forEach((item, index) => {
+          item.addEventListener('click', () => {
+            // Remove current class from all items
+            stepperItems.forEach((i) => i.classList.remove('current'))
+            // Hide all content sections
+            stepperContents.forEach((c) => c.classList.add('d-none'))
+      
+            // Activate clicked step
+            item.classList.add('current')
+            stepperContents[index].classList.remove('d-none')
+          })
+        })
+      })
+     var modal = document.getElementById('kt_modal_create_project');
+modal.addEventListener('shown.bs.modal', function () {
+    var stepperEl = document.getElementById('kt_modal_create_project_stepper');
+    if (stepperEl) {
+        var stepper = new KTStepper(stepperEl);
+
+        stepper.on('kt.stepper.next', function (stepper) {
+            console.log('Next clicked');
+        });
+
+        stepper.on('kt.stepper.previous', function (stepper) {
+            console.log('Previous clicked');
+        });
+    }
+});
+
+
+    </script>
 
      <script src="{% static 'dashboard/vendors/@popperjs/popper.min.js' %}"></script>
       <script src="{% static 'dashboard/vendors/base/vendor.bundle.base.js' %}"></script>
@@ -324,3 +540,88 @@
     </body>
 </html>
 
+
+<!---
+
+{% load static %}
+
+{% block title %}Courses{% endblock %}
+
+{% block content %}
+<div class="col-lg-12 grid-margin stretch-card">
+    <div class="card">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="card-title mb-0">Courses List</h4>
+                  <a href="{% url 'add_student' %}" class="btn btn-outline-success btn-icon-text">
+                    <i class="mdi mdi-book-open-variant btn-icon-prepend"></i>
+                    Add Courses
+                </a> 
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Course Name</th>
+                            <th>Description</th>
+                            <th>Students Count</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for course in page_obj %}
+                        <tr>
+                            <td>{{ course.name }}</td>
+                            <td>{{ course.description|truncatewords:10 }}</td>
+                            <td>{{ course.students.count }}</td>
+                            <td>
+                                <div class="input-group mb-2 mr-sm-2">
+                                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                        <i class="mdi mdi-dots-vertical"></i>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" href="{% url 'course_detail' course.id %}">View Details</a></li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center">No courses found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+        
+                <div class="d-flex justify-content-center mt-3">
+                    <nav>
+                        <ul class="pagination">
+                            {% if page_obj.has_previous %}
+                                <li class="page-item"><a class="page-link" href="?page=1">First</a></li>
+                                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a></li>
+                            {% endif %}
+
+                            {% for num in page_obj.paginator.page_range %}
+                                {% if page_obj.number == num %}
+                                    <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                    <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if page_obj.has_next %}
+                                <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a></li>
+                                <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last</a></li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+->

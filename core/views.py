@@ -1,5 +1,12 @@
 
 from django.contrib.auth.decorators import login_required
+<<<<<<< HEAD
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.contrib.auth import get_user_model
+from django.contrib.auth import logout
+from .forms import EmailForm, ProfileUpdateForm, PasswordForm
+=======
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import get_user_model
@@ -16,6 +23,7 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_CENTER, TA_RIGHT, TA_LEFT, TA_JUSTIFY
 from reportlab.pdfgen import canvas
 from datetime import datetime
+>>>>>>> main
 
 
 def unauthorized (request):
@@ -105,6 +113,8 @@ def profil(request):
         "show_deactivate_success": show_deactivate_success,
         "show_deactivate_error": show_deactivate_error,
     })
+<<<<<<< HEAD
+=======
 
 
 @login_required
@@ -428,3 +438,4 @@ def download_invoice(request, transaction_id):
     response.write(pdf)
     
     return response
+>>>>>>> main

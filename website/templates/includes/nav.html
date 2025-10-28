@@ -1,5 +1,10 @@
 {% load static %}
 
+<<<<<<< HEAD
+      <!-- ============================================-->
+      <!-- <section> begin ============================-->
+      <section class="bg-primary py-2 d-none d-sm-block">
+=======
 <style>
   .navbar.sticky-top {
     position: fixed !important;
@@ -37,6 +42,7 @@
       <!-- ============================================-->
       <!-- <section> begin ============================-->
       <section class="bg-primary py-2 d-none d-sm-block top-bar">
+>>>>>>> main
 
         <div class="container">
           <div class="row align-items-center">
@@ -74,6 +80,10 @@
               <li class="nav-item px-2"><a class="nav-link" aria-current="page" href="{% url 'pricing' %}">Pricing</a></li>
               <li class="nav-item px-2"><a class="nav-link" aria-current="page" href="{% url 'web-development' %}">Web Development</a></li>
               <li class="nav-item px-2"><a class="nav-link" aria-current="page" href="{% url 'user-research' %}">User Research</a></li>
+<<<<<<< HEAD
+              <li class="nav-item px-2"><a class="nav-link" aria-current="page" href="{% url 'certificates' %}">Certificate</a></li>
+=======
+>>>>>>> main
             </ul>
             {% if user.is_authenticated %}
               <div class="user-dropdown" style="position: relative; display: inline-block;">
@@ -84,6 +94,11 @@
                 </button>
 
                 <!-- Dropdown content -->
+<<<<<<< HEAD
+                <div class="dropdown-content" style="display: none; position: absolute; background-color: #fff; min-width: 120px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-radius: 5px; z-index: 1000;">
+                    <a href="{% url 'profil' %}" style="display: block; padding: 8px 12px; text-decoration: none; color: #333;">Profil</a>
+                    <a href="{% url 'my_certificates' %}" style="display: block; padding: 8px 12px; text-decoration: none; color: #333;">My Certificates</a>
+=======
                 <div class="dropdown-content" style="display: none; position: absolute; background-color: #fff; min-width: 160px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-radius: 5px; z-index: 1000;">
                     <a href="{% url 'profil' %}" style="display: block; padding: 8px 12px; text-decoration: none; color: #333;">Profil</a>
                     {% if user.role == 'student' %}
@@ -91,6 +106,7 @@
                     {% elif user.role == 'teacher' %}
                     <a href="{% url 'my_subscription_teacher' %}" style="display: block; padding: 8px 12px; text-decoration: none; color: #333;">My Subscription</a>
                     {% endif %}
+>>>>>>> main
                     <a href="{% url 'logout' %}" style="display: block; padding: 8px 12px; text-decoration: none; color: #333;">Logout</a>
                 </div>
               </div>
@@ -119,6 +135,16 @@
     const dropdownBtn = document.querySelector('.dropdown-btn');
     const dropdownContent = document.querySelector('.dropdown-content');
 
+<<<<<<< HEAD
+    dropdownBtn.addEventListener('click', function() {
+        dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
+    });
+
+    // Close dropdown if clicked outside
+    window.addEventListener('click', function(e) {
+        if (!dropdownBtn.contains(e.target)) {
+            dropdownContent.style.display = 'none';
+=======
     if (dropdownBtn && dropdownContent) {
         dropdownBtn.addEventListener('click', function() {
             dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
@@ -137,6 +163,7 @@
         const topBar = document.querySelector('.top-bar');
         if (topBar && window.getComputedStyle(topBar).display !== 'none') {
             document.body.classList.add('with-top-bar');
+>>>>>>> main
         }
     });
 </script>

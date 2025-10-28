@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-
+from django.utils import timezone
 # --------------------------
 # User model
 # --------------------------
@@ -30,6 +30,10 @@ class CourseCategory(models.Model):
 # Course model
 # --------------------------
 class Course(models.Model):
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    teacher = models.ForeignKey(User, on_delete=models.CASCADE, related_name='courses')
+    students = models.ManyToManyField(User, related_name='enrolled_courses', limit_choices_to={'role': 'student'}, blank=True)
     LEVEL_CHOICES = [
         ('beginner', 'Beginner'),
         ('intermediate', 'Intermediate'),
@@ -76,6 +80,24 @@ class Course(models.Model):
         return self.title
 
 
+
+# --------------------------
+# Chapter model
+# --------------------------
+class Chapter(models.Model):
+    title = models.CharField(max_length=200)
+    content = models.TextField(blank=True, null=True)  # text content
+    video = models.FileField(upload_to='chapter_videos/', null=True, blank=True)
+    document = models.FileField(upload_to='chapter_docs/', null=True, blank=True)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='chapters')
+
+    def __str__(self):
+        return f"{self.title} - {self.course.title}"
+
+
+# --------------------------
+# Exercise model
+# --------------------------
 class Lesson(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='lessons')
     title = models.CharField(max_length=200)
@@ -131,6 +153,74 @@ class Exercise(models.Model):
     statement = models.TextField()
     correction = models.TextField()
     generated_by = models.CharField(max_length=20, choices=(('AI', 'AI'), ('Teacher', 'Teacher')), default='Teacher')
+    chapter = models.ForeignKey(Chapter, on_delete=models.CASCADE, related_name='exercises')
+
+    def __str__(self):
+        return f"{self.title} - {self.chapter.title}"
+
+
+# --------------------------
+# Speciality model
+# --------------------------
+class Speciality(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    description = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return self.name
+
+
+# --------------------------
+# Certificate model
+# --------------------------
+class Certificate(models.Model):
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    speciality = models.ForeignKey('Speciality', on_delete=models.CASCADE)
+    cover_image = models.URLField()  # Champ image ajouté
+class CertificatExercise(models.Model):
+    TYPE_CHOICES = [
+        ('qcu', 'QCU'),  # Changed 'qcm' to 'qcu' here
+        ('truefalse', 'True/False'),
+        ('text', 'Text'),
+    ]
+
+    certificate = models.ForeignKey(Certificate, on_delete=models.CASCADE, related_name='exercises')
+    exercise_type = models.CharField(max_length=20, choices=TYPE_CHOICES)
+    question = models.CharField(max_length=500, blank=True, null=True)
+    correct_answer = models.CharField(max_length=200, blank=True, null=True)
+    option1 = models.CharField(max_length=200, blank=True, null=True)
+    option2 = models.CharField(max_length=200, blank=True, null=True)
+    option3 = models.CharField(max_length=200, blank=True, null=True)
+    option4 = models.CharField(max_length=200, blank=True, null=True)
+
+    def __str__(self):
+        return f"Exercise for {self.certificate.title} - {self.exercise_type}"
+
+
+# --------------------------
+# Certificate Attempt model
+# --------------------------
+class CertificateAttempt(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    certificate = models.ForeignKey(Certificate, on_delete=models.CASCADE)
+    score = models.IntegerField(default=0)
+    total_questions = models.IntegerField(default=0)
+    completed_at = models.DateTimeField(auto_now_add=True)
+    passed = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.certificate.title} - {self.score}/{self.total_questions}"
+
+
+class CertificateAnswer(models.Model):
+    attempt = models.ForeignKey(CertificateAttempt, on_delete=models.CASCADE, related_name='answers')
+    exercise = models.ForeignKey(CertificatExercise, on_delete=models.CASCADE)
+    answer = models.TextField()
+    is_correct = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"Answer for {self.exercise.question} - Correct: {self.is_correct}"
     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name='exercises', null=True, blank=True)
 
     def __str__(self):

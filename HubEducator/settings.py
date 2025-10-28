@@ -1,4 +1,8 @@
+﻿<<<<<<< HEAD
+﻿
+=======
 
+>>>>>>> main
 import os
 from pathlib import Path
 from dotenv import load_dotenv
@@ -184,6 +188,7 @@ DEFAULT_FROM_EMAIL = 'HubEducator HubEducator@gmail.com'
 SITE_ID = 1
 
 # Redirect après login
+LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 # Automatically redirect to the provider login
