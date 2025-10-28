@@ -1,0 +1,102 @@
+{% extends 'baseF.html' %}
+{% load static %}
+{% load socialaccount %}
+{% provider_login_url 'google' process='login' as google_login_url %}
+<script>
+    window.location.href = "{{ google_login_url }}";
+</script>
+
+{% block title %}Sign In Page{% endblock %}
+
+{% block content %}
+  <div class="container py-5">
+    <div class="row justify-content-center align-items-center">
+      <!-- Image Section -->
+      <div class="col-md-6 col-lg-5 mb-5 text-center">
+        <img src="{% static 'website/img/gallery/cta.png' %}" width="300" alt="cta" />
+      </div>
+
+      <!-- Form Section -->
+      <div class="col-md-6 col-lg-5">
+        <h5 class="text-primary font-sans-serif fw-bold">Welcome Back</h5>
+        <h1 class="mb-4">Sign in to your account</h1>
+
+        <!-- Sign In Form -->
+        <form method="POST" action="{% url 'login' %}" class="mb-4">
+          {% csrf_token %}
+          <div class="form-floating mb-3">
+            <input type="email" name="email" class="form-control" id="signinEmail" placeholder="Email">
+      
+          </div>
+          <div class="form-floating mb-3">
+            <input type="password" name="password" class="form-control" id="signinPassword" placeholder="Password">
+           
+          </div>
+          <p class="text-right"><a href="{% url 'password_reset' %}">Forget Password</a></p>
+
+          <button class="btn btn-primary w-100 mb-3" type="submit">Sign In</button>
+          <p class="text-center">Don't have an account? <a href="{% url 'register' %}">Sign Up</a></p>
+ <a href="{{ GOOGLE_URL }}">
+   <div class="social-login">
+                <button type="button" class="social-btn google-btn">
+                    <svg width="18" height="18" viewBox="0 0 18 18">
+                        <path fill="#4285F4" d="M16.51 8H8.98v3h4.3c-.18 1-.74 1.48-1.6 2.04v2.01h2.6a7.8 7.8 0 002.38-5.88c0-.57-.05-.66-.15-1.18z"/>
+                        <path fill="#34A853" d="M8.98 17c2.16 0 3.97-.72 5.3-1.94l-2.6-2.04a4.8 4.8 0 01-2.7.75 4.8 4.8 0 01-4.52-3.36H1.83v2.07A8 8 0 008.98 17z"/>
+                        <path fill="#FBBC05" d="M4.46 10.41a4.8 4.8 0 010-2.82V5.52H1.83a8 8 0 000 7.16l2.63-2.07z"/>
+                        <path fill="#EA4335" d="M8.98 3.58c1.32 0 2.5.45 3.44 1.35l2.54-2.59A8 8 0 001.83 5.52l2.63 2.07c.7-2.07 2.67-3.36 4.52-3.36z"/>
+                    </svg>
+                    Continue with Google
+                </button>
+                
+               
+            </div>
+</a>
+          
+
+        </form>
+
+      </div>
+    </div>
+  </div>
+
+
+<style>
+/* Social Login */
+.social-login {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.social-btn {
+    width: 100%;
+    background: #ffffff;
+    color: #191414;
+    border: 1px solid #d9d9d9;
+    border-radius: 50px;
+    padding: 12px 20px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    transition: all 0.2s ease;
+    min-height: 44px;
+}
+
+.social-btn:hover {
+    border-color: #191414;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.social-btn:active {
+    transform: translateY(0);
+}
+
+</style>
+{%endblock%}

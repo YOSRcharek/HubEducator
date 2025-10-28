@@ -1,0 +1,188 @@
+ {% extends 'baseF.html' %}
+ {% load static %}
+
+
+{% block content %}
+ <link rel="stylesheet" href="{% static 'website/css/mycourses.css' %}">
+  <main class="container">
+    <header class="header">
+        <h1>My Courses</h1>
+        <p>Fall Semester 2024 • University of Paris Sciences</p>
+    </header>
+
+    <!-- Statistiques -->
+    <section class="stats-bar">
+        <div class="stat-item">
+            <span class="stat-number">{{ total_courses }}</span>
+            <div class="stat-label">Cours Actifs</div>
+        </div>
+        <div class="stat-item">
+            <span class="stat-number">{{ total_courses|add:"2" }}</span>
+            <div class="stat-label">Crédits ECTS</div>
+        </div>
+        <div class="stat-item">
+            <span class="stat-number">{{ total_courses|divisibleby:10|yesno:"90%,80%" }}</span>
+            <div class="stat-label">Progression moyenne</div>
+        </div>
+    </section>
+
+    <!-- Liste des cours -->
+    <section class="courses-grid">
+        {% for course in page_obj %}
+        <article class="course-card">
+            <!-- Thumbnail + Status -->
+            <div class="course-thumbnail category-{{ forloop.counter }}">
+                {% if course.thumbnail %}
+                    <img src="{{ course.thumbnail.url }}" alt="{{ course.title }}" class="course-img">
+                {% else %}
+                    <div class="course-icon">
+                        {% if course.category.name == "Computer Science" %}💻{% endif %}
+                        {% if course.category.name == "Science" %}🧪{% endif %}
+                        {% if course.category.name == "Languages" %}🗣️{% endif %}
+                        {% if course.category.name == "Arts" %}🎨{% endif %}
+                        {% if course.category.name == "Business" %}📊{% endif %}
+                        {% if course.category.name == "AI" %}🤖{% endif %}
+                    </div>
+                {% endif %}
+
+                <!-- Badge -->
+                <div class="status-badge 
+                    {% if course.status == 'pending' %}status-pending
+                    {% elif course.status == 'inprogress' %}status-inprogress
+                    {% else %}status-completed{% endif %}">
+                    {% if course.status == 'pending' %}Pending
+                    {% elif course.status == 'inprogress' %}In Progress
+                    {% else %}Completed{% endif %}
+                </div>
+            </div>
+
+            <!-- Contenu -->
+            <div class="course-content">
+                <div class="course-meta">
+                    <span class="course-category">{{ course.category.name }}</span>
+                    <span class="course-level">
+                        Niveau : {{ course.get_level_display|default:"Beginner" }}
+                    </span>
+                </div>
+
+                <h3 class="course-title">{{ course.title }}</h3>
+                <p class="course-description">{{ course.description|truncatewords:15 }}</p>
+
+                <div class="course-info">
+                    <span class="course-teacher">👨‍🏫 {{ course.teacher.username }}</span>
+                    <span class="course-capacity">{{ course.capacity }} places</span>
+                </div>
+
+                <div class="course-dates">
+                    {% if course.start_date or course.end_date %}
+                        {% if course.start_date %}
+                        <div class="date-item">
+                            <span>📅 Début :</span>
+                            <span>{{ course.start_date|date:"d M Y" }}</span>
+                        </div>
+                        {% endif %}
+                        {% if course.end_date %}
+                        <div class="date-item">
+                            <span>🏁 Fin :</span>
+                            <span>{{ course.end_date|date:"d M Y" }}</span>
+                        </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="date-item no-date">
+                            <span>❌ Pas de date spécifique</span>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Progression -->
+                <div class="progress-section">
+                    <div class="progress-label">
+                        {% if course.status == 'pending' %}
+                            <span>10%</span>
+                        {% elif course.status == 'inprogress' %}
+                            <span>50%</span>
+                        {% else %}
+                            <span>100%</span>
+                        {% endif %}
+                    </div>
+                    <div class="progress-bar">
+                        {% if course.status == 'pending' %}
+                            <div class="progress-fill math" style="width: 10%;"></div>
+                        {% elif course.status == 'inprogress' %}
+                            <div class="progress-fill science" style="width: 50%;"></div>
+                        {% else %}
+                            <div class="progress-fill art" style="width: 100%;"></div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Boutons -->
+                <div class="course-action-single" style="margin-top: 10px;">
+                    <a href="{% url 'courseDetails' course.id %}" class="btn-view-course">
+                        Accéder au cours
+                    </a>
+                </div>
+            </div>
+        </article>
+        {% empty %}
+        <p class="text-center text-muted">Vous n’êtes inscrit à aucun cours pour le moment.</p>
+        {% endfor %}
+    </section>
+
+    <!-- Pagination -->
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}">⟨ Précédent</a>
+        {% endif %}
+        <span class="current">Page {{ page_obj.number }} sur {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">Suivant ⟩</a>
+        {% endif %}
+    </div>
+</main>
+
+    <script>
+        // Animation des barres de progression au chargement
+        document.addEventListener('DOMContentLoaded', function() {
+            const progressBars = document.querySelectorAll('.progress-fill');
+            
+            setTimeout(() => {
+                progressBars.forEach(bar => {
+                    const width = bar.style.width;
+                    bar.style.width = '0%';
+                    setTimeout(() => {
+                        bar.style.width = width;
+                    }, 100);
+                });
+            }, 500);
+        });
+
+        // Gestion des clics sur les boutons
+        document.querySelectorAll('.btn').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Animation de clic
+                this.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    this.style.transform = '';
+                }, 150);
+                
+                // Simulation d'action
+                const action = this.textContent.trim();
+                console.log(`Action: ${action}`);
+            });
+        });
+
+        // Animation hover pour les cartes
+        document.querySelectorAll('.course-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.zIndex = '10';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.zIndex = '1';
+            });
+        });
+    </script>
+{% endblock %}
