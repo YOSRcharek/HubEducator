@@ -1,0 +1,216 @@
+
+import os
+from pathlib import Path
+from dotenv import load_dotenv
+from decouple import config
+
+
+# Charger le fichier .env
+
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
+BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv()
+# Quick-start development settings - unsuitable for production
+# See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
+
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = 'django-insecure-f%eq!cm##$5fd$+d0%4y%ps%8$e9xu7t16xjz-250yn5(^%y6_'
+
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = True
+
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
+    "hubeducator-production.up.railway.app",  # add your Railway domain
+]
+
+
+
+# Application definition
+
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'django.contrib.humanize',
+    'django.contrib.sites',  # nécessaire pour allauth
+    'django_celery_beat',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',  # pour Google
+    'core', 
+    'website',
+    'dashboard',
+    'TeacherDash',
+    'widget_tweaks',
+]
+
+MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "whitenoise.middleware.WhiteNoiseMiddleware",
+    'allauth.account.middleware.AccountMiddleware',
+]
+
+ROOT_URLCONF = 'HubEducator.urls'
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+         'DIRS': [BASE_DIR / 'website' / 'templates'],  # <-- ton dossier templates
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
+
+WSGI_APPLICATION = 'HubEducator.wsgi.application'
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://hubeducator-production.up.railway.app"
+]
+# Database
+# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
+
+
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv("DB_NAME"),
+        'USER': os.getenv("DB_USER"),
+        'PASSWORD': os.getenv("DB_PASSWORD"),
+        'HOST': os.getenv("DB_HOST"),
+        'PORT': os.getenv("DB_PORT"),
+        'TEST': {
+            'MIRROR': 'default',  # Rend Django incapable de créer une base de test
+        },
+    }
+}
+# Password validation
+# https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
+
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
+]
+
+
+# Internationalization
+# https://docs.djangoproject.com/en/4.2/topics/i18n/
+
+LANGUAGE_CODE = 'en-us'
+
+USE_TZ = True
+TIME_ZONE = 'Africa/Tunis'
+
+USE_I18N = True
+
+
+
+
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/4.2/howto/static-files/
+
+#STATIC_URL = 'static/'
+#STATICFILES_DIRS = [
+#   os.path.join(BASE_DIR, 'static')
+#]
+# Default primary key field type
+# https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+AUTH_USER_MODEL = 'core.User'
+
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
+
+print("DB_NAME:", os.getenv("DB_NAME"))
+print("DB_USER:", os.getenv("DB_USER"))
+print("DB_HOST:", os.getenv("DB_HOST"))
+
+
+
+# Static files (CSS, JavaScript, Images)
+STATIC_URL = "/static/"
+
+# Local static files (development)
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),  # your dev CSS/JS/images
+]
+
+# Folder where collectstatic puts files for production
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")  # must be different from STATICFILES_DIRS
+
+# WhiteNoise for serving static files in production
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+# settings.py
+CELERY_BEAT_SCHEDULE = {
+    'publish-scheduled-courses-every-minute': {
+        'task': 'TeacherDash.tasks.publish_scheduled_courses',  # nom exact
+        'schedule': 60.0,  # toutes les 60 secondes
+    },
+}
+
+
+
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'  # or your SMTP server
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'classyy2023@gmail.com'
+EMAIL_HOST_PASSWORD = 'sqobpmxusgwjheys'
+DEFAULT_FROM_EMAIL = 'HubEducator HubEducator@gmail.com'
+
+SITE_ID = 1
+
+# Redirect après login
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
+# Automatically redirect to the provider login
+SOCIALACCOUNT_AUTO_SIGNUP = True
+
+
+# Nouvelle version recommandée :
+ACCOUNT_LOGIN_METHODS = {'email'}  # authentification par email uniquement
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
+ACCOUNT_EMAIL_VERIFICATION = "optional"
+SOCIALACCOUNT_AUTO_SIGNUP = True
+
+
+GOOGLE_CLIENT_ID = config('GOOGLE_CLIENT_ID')
+GOOGLE_CLIENT_SECRET = config('GOOGLE_CLIENT_SECRET')
+GOOGLE_REDIRECT_URI = config('GOOGLE_REDIRECT_URI')
+GOOGLE_URL = config('GOOGLE_URL')
