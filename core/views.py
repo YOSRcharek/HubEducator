@@ -265,10 +265,6 @@ def unsubscribe(request):
         # Deactivate the subscription
         active_subscription.is_active = False
         active_subscription.save()
-        
-        messages.success(request, 'You have successfully unsubscribed. Your subscription is now inactive.')
-    else:
-        messages.info(request, 'You do not have an active subscription.')
     
     # Redirect based on user type with a timestamp to force reload
     from django.http import HttpResponseRedirect
