@@ -1,10 +1,10 @@
-{% extends 'baseB.html' %}
+{% extends 'baseF.html' %}
 {% load static %}
 
 {% block title %}Payment History - HubEducator{% endblock %}
 
 {% block content %}
-<div class="content-wrapper" style="background: #f5f7fa;">
+<div style="background: #f5f7fa; min-height: 100vh; padding-top: 20px;">
     <div class="container-fluid py-4">
         <!-- Page Header -->
         <div class="d-flex justify-content-between align-items-center mb-4">
@@ -32,6 +32,7 @@
                                     <th class="text-white border-0">Amount</th>
                                     <th class="text-white border-0">Status</th>
                                     <th class="text-white border-0">Date</th>
+                                    <th class="text-white border-0">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -84,6 +85,15 @@
                                                 <span class="d-block">{{ transaction.created_at|date:"d M Y" }}</span>
                                                 <small class="text-muted">{{ transaction.created_at|date:"H:i" }}</small>
                                             </div>
+                                        </td>
+                                        <td>
+                                            {% if transaction.status == 'completed' %}
+                                            <a href="{% url 'download_invoice' transaction.id %}" class="btn btn-sm btn-outline-primary" style="border-radius: 8px;">
+                                                <i class="mdi mdi-file-pdf-box"></i> Invoice
+                                            </a>
+                                            {% else %}
+                                            <span class="text-muted">-</span>
+                                            {% endif %}
                                         </td>
                                     </tr>
                                 {% endfor %}

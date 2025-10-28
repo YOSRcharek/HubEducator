@@ -252,18 +252,47 @@ def initiate_payment(request, subscription_id):
     """Initiate payment for a subscription"""
     subscription = get_object_or_404(Subscription, id=subscription_id, is_active=True)
     
+    # Get currency and amount from query parameters
+    selected_currency = request.GET.get('currency', 'USD').upper()
+    selected_amount = request.GET.get('amount', str(subscription.price))
+    
+    # Map of unsupported currencies to supported ones with conversion rates
+    unsupported_currencies = {
+        'TND': {'stripe_currency': 'usd', 'rate': 3.1},  # TND to USD
+        'MAD': {'stripe_currency': 'usd', 'rate': 10.2}  # MAD to USD
+    }
+    
     try:
         import stripe
         stripe.api_key = settings.STRIPE_SECRET_KEY
         
+        # Check if currency is supported by Stripe
+        amount_float = float(selected_amount)
+        display_currency = selected_currency
+        display_amount = selected_amount
+        
+        if selected_currency in unsupported_currencies:
+            # Convert to supported currency for Stripe
+            conversion_info = unsupported_currencies[selected_currency]
+            stripe_currency = conversion_info['stripe_currency']
+            rate = conversion_info['rate']
+            amount_float = amount_float / rate  # Convert back to USD
+        else:
+            stripe_currency = selected_currency.lower()
+        
+        # Convert amount to cents/smallest currency unit
+        amount_in_cents = int(amount_float * 100)
+        
         # Create a PaymentIntent
         payment_intent = stripe.PaymentIntent.create(
-            amount=int(subscription.price * 100),  # Amount in cents
-            currency='usd',
+            amount=amount_in_cents,
+            currency=stripe_currency,
             metadata={
                 'subscription_id': subscription.id,
                 'user_id': request.user.id,
-                'user_email': request.user.email
+                'user_email': request.user.email,
+                'display_currency': display_currency,
+                'display_amount': display_amount
             },
             description=f'{subscription.name} subscription for {request.user.email}'
         )
@@ -272,11 +301,15 @@ def initiate_payment(request, subscription_id):
         request.session['subscription_id'] = subscription.id
         request.session['payment_intent_id'] = payment_intent.id
         request.session['client_secret'] = payment_intent.client_secret
+        request.session['payment_currency'] = display_currency
+        request.session['payment_amount'] = display_amount
         
         return render(request, 'payment/checkout.html', {
             'subscription': subscription,
             'client_secret': payment_intent.client_secret,
             'stripe_public_key': settings.STRIPE_PUBLIC_KEY,
+            'currency': display_currency,
+            'amount': display_amount,
         })
         
     except Exception as e:

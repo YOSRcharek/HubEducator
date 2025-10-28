@@ -84,8 +84,13 @@
                 </button>
 
                 <!-- Dropdown content -->
-                <div class="dropdown-content" style="display: none; position: absolute; background-color: #fff; min-width: 120px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-radius: 5px; z-index: 1000;">
+                <div class="dropdown-content" style="display: none; position: absolute; background-color: #fff; min-width: 160px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-radius: 5px; z-index: 1000;">
                     <a href="{% url 'profil' %}" style="display: block; padding: 8px 12px; text-decoration: none; color: #333;">Profil</a>
+                    {% if user.role == 'student' %}
+                    <a href="{% url 'my_subscription_student' %}" style="display: block; padding: 8px 12px; text-decoration: none; color: #333;">My Subscription</a>
+                    {% elif user.role == 'teacher' %}
+                    <a href="{% url 'my_subscription_teacher' %}" style="display: block; padding: 8px 12px; text-decoration: none; color: #333;">My Subscription</a>
+                    {% endif %}
                     <a href="{% url 'logout' %}" style="display: block; padding: 8px 12px; text-decoration: none; color: #333;">Logout</a>
                 </div>
               </div>

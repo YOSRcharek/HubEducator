@@ -1,10 +1,10 @@
-{% extends 'baseB.html' %}
+{% extends 'baseF.html' %}
 {% load static %}
 
 {% block title %}My Subscription - HubEducator{% endblock %}
 
 {% block content %}
-<div class="content-wrapper" style="background: #f5f7fa;">
+<div style="background: #f5f7fa; min-height: 100vh; padding-top: 20px;">
     <div class="container-fluid py-4">
         <!-- Page Header -->
         <div class="page-header-modern mb-5">
@@ -53,9 +53,9 @@
                         <!-- Action Buttons -->
                         <div class="row g-2 justify-content-center">
                             <div class="col-5">
-                                <button class="btn btn-outline-primary btn-block btn-sm" disabled>
+                                <a href="{% url 'change_subscription_student' %}" class="btn btn-outline-primary btn-block btn-sm">
                                     <i class="mdi mdi-pencil"></i> Change
-                                </button>
+                                </a>
                             </div>
                             <div class="col-5">
                                 <a href="{% url 'unsubscribe' %}" 
@@ -151,36 +151,29 @@
                         const nextBtn = document.getElementById('nextBtn');
                         const cards = document.querySelectorAll('.subscription-card-wrapper');
                         
-                        // Masquer les cartes au-delà de la 3ème
-                        if (cards.length > 3) {
-                            for (let i = 3; i < cards.length; i++) {
-                                cards[i].style.display = 'none';
-                            }
-                        }
-                        
                         let currentIndex = 0;
-                        const visibleCards = Math.min(cards.length, 3);
-                        const cardWidth = cards[0].offsetWidth + 16;
+                        const visibleCards = 3; // Toujours afficher 3 cartes
                         const maxIndex = Math.max(0, cards.length - visibleCards);
                         
                         function updateCarousel() {
-                            // Afficher seulement 3 cartes à la fois
-                            for (let i = 0; i < cards.length; i++) {
-                                if (i >= currentIndex && i < currentIndex + 3) {
-                                    cards[i].style.display = 'block';
-                                } else {
-                                    cards[i].style.display = 'none';
-                                }
-                            }
+                            // Toujours afficher toutes les cartes (pas de display: none)
+                            cards.forEach(card => {
+                                card.style.display = 'block';
+                            });
                             
+                            // Calculer la largeur d'une carte avec sa marge
+                            const cardWidth = cards[0].offsetWidth + 16; // 16px = mx-2 (8px de chaque côté)
+                            
+                            // Déplacer le track pour afficher 3 cartes à partir de currentIndex
                             const offset = -currentIndex * cardWidth;
                             track.style.transform = `translateX(${offset}px)`;
                             
+                            // Gérer l'état des boutons
                             prevBtn.disabled = currentIndex === 0;
                             nextBtn.disabled = currentIndex >= maxIndex;
                             
                             // Masquer les boutons si 3 cartes ou moins
-                            if (cards.length <= 3) {
+                            if (cards.length <= visibleCards) {
                                 prevBtn.style.display = 'none';
                                 nextBtn.style.display = 'none';
                             }
@@ -266,6 +259,7 @@
         {% endif %}
     </div>
 </div>
+
 
 <style>
 /* Page Header Modern Styles */
