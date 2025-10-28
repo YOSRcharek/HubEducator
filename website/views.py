@@ -1,9 +1,11 @@
+from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout, get_user_model
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db.models import Q, Count
+from openai import OpenAI
 
 from core.models import Certificate, Speciality, CertificatExercise, CertificateAttempt, CertificateAnswer
 from .forms import RegisterForm
@@ -19,7 +21,7 @@ from django.utils.crypto import get_random_string
 import requests
 
 User = get_user_model()  # Always use custom user
-
+client = OpenAI(api_key=settings.OPENAI_API_KEY)
 # ----------------------------- Public Pages -----------------------------
 def home(request):
     return render(request, 'home.html', {})
@@ -165,7 +167,7 @@ def custom_password_reset(request):
             <head><meta charset="UTF-8"><title>Password Reset</title></head>
             <body style="font-family:Arial,sans-serif; background:#f8f9fa; margin:0; padding:20px;">
                 <div style="max-width:600px; margin:auto; background:#fff; padding:30px; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.1); text-align:center;">
-                    <img src="https://hubeducator-production.up.railway.app/static/website/img/favicons/android-chrome-192x192.png" width="100" alt="HubEducator Logo" style="margin-bottom:20px;">
+                    <img src="https://1cd2gyfjyi.ucarecd.net/b548c405-4541-4de3-97af-f3acc9ef1fad/logon.png" width="100" alt="HubEducator Logo" style="margin-bottom:20px;">
                     <h1 style="font-size:24px; margin:20px 0;">Reset Your Password</h1>
                     <p style="font-size:16px;">Hi {user.username},</p>
                     <p style="font-size:16px;">Click the button below to reset your password:</p>
@@ -355,13 +357,19 @@ def certificates(request):
         'selected_speciality': speciality_id,
         'search_query': search_query,
     })
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+from django.core.mail import EmailMultiAlternatives
+from django.conf import settings
+from django.template.loader import render_to_string
+
 @login_required
 def take_certificate(request, cert_id):
     certificate = get_object_or_404(Certificate, pk=cert_id)
     exercises = CertificatExercise.objects.filter(certificate=certificate)
 
     if request.method == 'POST':
-        # Process the form submission
+        # Création de la tentative
         attempt = CertificateAttempt.objects.create(
             user=request.user,
             certificate=certificate,
@@ -372,14 +380,11 @@ def take_certificate(request, cert_id):
         for exercise in exercises:
             answer_key = f'answer_{exercise.id}'
             user_answer = request.POST.get(answer_key, '').strip()
-
             is_correct = False
-            if exercise.exercise_type == 'truefalse':
-                is_correct = user_answer.lower() == exercise.correct_answer.lower()
-            elif exercise.exercise_type == 'text':
+
+            if exercise.exercise_type in ['truefalse', 'text']:
                 is_correct = user_answer.lower() == exercise.correct_answer.lower()
             elif exercise.exercise_type == 'qcu':
-                # Since correct_answer now stores the option text, compare directly
                 is_correct = user_answer == exercise.correct_answer
 
             if is_correct:
@@ -393,51 +398,59 @@ def take_certificate(request, cert_id):
             )
 
         attempt.score = score
-        attempt.passed = score >= (exercises.count() * 0.7)  # 70% to pass
+        attempt.passed = score >= (exercises.count() * 0.7)
         attempt.save()
 
-        # Send email based on result
+        # Préparation de l'email
         user = request.user
         certificate_title = certificate.title
         score_percentage = int((score / exercises.count()) * 100)
 
         if attempt.passed:
-            subject = f"Félicitations ! Vous avez réussi le certificat {certificate_title}"
-            html_content = f"""
-            <!DOCTYPE html>
-            <html>
-            <head><meta charset="UTF-8"><title>Résultat du Certificat</title></head>
-            <body style="font-family:Arial,sans-serif; background:#f8f9fa; margin:0; padding:20px;">
-                <div style="max-width:600px; margin:auto; background:#fff; padding:30px; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.1); text-align:center;">
-                    <img src="https://hubeducator-production.up.railway.app/static/website/img/favicons/android-chrome-192x192.png" width="100" alt="HubEducator Logo" style="margin-bottom:20px;">
-                    <h1 style="font-size:24px; margin:20px 0; color:#28a745;">Félicitations {user.username} !</h1>
-                    <p style="font-size:16px;">Vous avez réussi le certificat <strong>{certificate_title}</strong> avec un score de {score_percentage}%.</p>
-                    <p style="font-size:16px;">Continuez à apprendre et à réussir !</p>
-                    <a href="{request.scheme}://{request.get_host()}/certificates/" style="display:inline-block; padding:12px 25px; color:#fff; background-color:#FFD700; border-radius:8px; text-decoration:none; font-weight:600;">Voir d'autres certificats</a>
-                </div>
-            </body>
-            </html>
-            """
-            text_content = f"Félicitations {user.username} !\n\nVous avez réussi le certificat {certificate_title} avec un score de {score_percentage}%.\n\nContinuez à apprendre et à réussir !"
+            # --- Envoi du certificat HTML ---
+            context = {
+                'name': user.username,
+                'speciality': getattr(certificate.speciality, 'name', 'Non spécifiée'),
+                'certificate_title': certificate.title,
+            }
+            html_content = render_to_string('certificateEmail.html', context)
+
+            subject = f"🎉 Félicitations {user.username} ! Vous avez réussi le certificat {certificate_title}"
+            text_content = (
+                f"Félicitations {user.username} !\n\n"
+                f"Vous avez réussi le certificat {certificate_title} avec un score de {score_percentage}%.\n"
+                "Consultez votre certificat dans cet e-mail."
+            )
+
         else:
-            subject = f"Motivation : Résultat du certificat {certificate_title}"
+            # --- Envoi du mail de motivation ---
+            subject = f"💪 Ne vous découragez pas {user.username} !"
             html_content = f"""
-            <!DOCTYPE html>
             <html>
-            <head><meta charset="UTF-8"><title>Résultat du Certificat</title></head>
             <body style="font-family:Arial,sans-serif; background:#f8f9fa; margin:0; padding:20px;">
-                <div style="max-width:600px; margin:auto; background:#fff; padding:30px; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.1); text-align:center;">
-                    <img src="https://hubeducator-production.up.railway.app/static/website/img/favicons/android-chrome-192x192.png" width="100" alt="HubEducator Logo" style="margin-bottom:20px;">
+                <div style="max-width:600px; margin:auto; background:#fff; padding:30px; border-radius:12px;
+                            box-shadow:0 4px 15px rgba(0,0,0,0.1); text-align:center;">
+                    <img src="https://1cd2gyfjyi.ucarecd.net/b548c405-4541-4de3-97af-f3acc9ef1fad/logon.png"
+                         width="100" alt="HubEducator Logo" style="margin-bottom:20px;">
                     <h1 style="font-size:24px; margin:20px 0; color:#dc3545;">Ne vous découragez pas {user.username} !</h1>
                     <p style="font-size:16px;">Vous avez obtenu un score de {score_percentage}% pour le certificat <strong>{certificate_title}</strong>.</p>
                     <p style="font-size:16px;">Chaque échec est une opportunité d'apprendre. Essayez à nouveau pour réussir !</p>
-                    <a href="{request.scheme}://{request.get_host()}/certificates/{cert_id}/" style="display:inline-block; padding:12px 25px; color:#fff; background-color:#FFD700; border-radius:8px; text-decoration:none; font-weight:600;">Retenter le certificat</a>
+                    <a href="{request.build_absolute_uri(f'/certificates/take/{cert_id}/')}"
+                       style="display:inline-block; padding:12px 25px; color:#fff; background-color:#FFD700;
+                              border-radius:8px; text-decoration:none; font-weight:600;">
+                       Retenter le certificat
+                    </a>
                 </div>
             </body>
             </html>
             """
-            text_content = f"Ne vous découragez pas {user.username} !\n\nVous avez obtenu un score de {score_percentage}% pour le certificat {certificate_title}.\n\nChaque échec est une opportunité d'apprendre. Essayez à nouveau pour réussir !"
+            text_content = (
+                f"Ne vous découragez pas {user.username} !\n\n"
+                f"Vous avez obtenu un score de {score_percentage}% pour le certificat {certificate_title}.\n"
+                "Chaque échec est une opportunité d'apprendre. Essayez à nouveau pour réussir !"
+            )
 
+        # Envoi du mail
         email_message = EmailMultiAlternatives(
             subject=subject,
             body=text_content,
@@ -460,6 +473,13 @@ def certificate_result(request, attempt_id):
     certificate = attempt.certificate
     attempts = CertificateAttempt.objects.filter(user=request.user, certificate=certificate).order_by('-completed_at')
 
+    if request.GET.get('view') == 'certificate':
+        context = {
+            'name': request.user.username,
+            'speciality': getattr(certificate.speciality, 'name', 'Non spécifiée'),
+            'certificate_title': certificate.title,
+        }
+        return render(request, 'certificateTemplate.html', context)
     return render(request, 'certificate_result.html', {
         'certificate': certificate,
         'attempts': attempts,
@@ -480,3 +500,38 @@ def certificate_detail(request, cert_id):
 
     return render(request, 'certificate_detail.html', context)
 
+
+@login_required
+def my_certificates(request):
+    # Get all passed attempts for the current user
+    passed_attempts = CertificateAttempt.objects.filter(
+        user=request.user,
+        passed=True
+    ).select_related('certificate').order_by('-completed_at')
+
+    context = {
+        'passed_attempts': passed_attempts,
+    }
+
+    return render(request, 'my_certificates.html', context)
+
+
+    if request.method == "POST":
+        user_input = request.POST.get("message")
+
+        # Initialisation du client OpenAI
+        client = OpenAI(api_key=settings.OPENAI_API_KEY)
+
+        # Appel à GPT
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "Tu es un assistant utile."},
+                {"role": "user", "content": user_input}
+            ]
+        )
+
+        reply = response.choices[0].message.content
+        return JsonResponse({"response": reply})
+
+    return render(request, "chat.html")

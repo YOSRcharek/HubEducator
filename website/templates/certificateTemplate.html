@@ -1,0 +1,203 @@
+<html>
+  <head>
+    <style type="text/css">
+      body,
+      html {
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        color: black;
+        display: table;
+        font-family: Georgia, serif;
+        font-size: 24px;
+        text-align: center;
+        background-color: #f8f9fa;
+      }
+
+      /* --- Bouton d'impression --- */
+      .print-button {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background-color: rgb(0, 9, 105);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        font-size: 16px;
+        font-weight: bold;
+        border-radius: 8px;
+        cursor: pointer;
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+        z-index: 999;
+      }
+
+      .print-button:hover {
+        background-color: rgb(15, 20, 140);
+      }
+
+      /* Cacher le bouton lors de l'impression */
+      @media print {
+        .print-button {
+          display: none;
+        }
+      }
+
+      .container {
+        border: 20px solid rgb(0, 9, 105);
+        width: 1010px;
+        height: 563px;
+        display: table-cell;
+        vertical-align: middle;
+        position: relative;
+        padding-bottom: 80px;
+        margin: 60px auto;
+        background-color: white;
+      }
+
+      /* --- Bande supérieure avec deux logos --- */
+      .header {
+        position: absolute;
+        top: 20px;
+        left: 50px;
+        right: 50px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .header .left-logo img {
+        width: 120px;
+        height: auto;
+      }
+
+      .header .right-logo img {
+        width: 100px;
+        height: auto;
+      }
+
+      /* --- Titre central HubEducator --- */
+      .title {
+        color: rgb(0, 9, 105);
+        font-size: 40px;
+        font-weight: bold;
+        margin-top: 90px;
+        letter-spacing: 2px;
+      }
+
+      .marquee {
+        color: tan;
+        font-size: 48px;
+        margin: 20px;
+      }
+
+      .certificate-title {
+        color: rgb(0, 9, 105);
+        font-size: 32px;
+        margin: 10px 0;
+      }
+
+      .assignment {
+        margin: 20px;
+      }
+
+      .person {
+        border-bottom: 2px solid black;
+        font-size: 32px;
+        font-style: italic;
+        margin: 20px auto 10px auto;
+        width: 400px;
+      }
+
+      /* --- Ligne de spécialité --- */
+      .speciality {
+        font-size: 20px;
+        color: rgb(60, 60, 60);
+        margin-bottom: 30px;
+      }
+
+      .reason {
+        margin: 20px;
+      }
+
+      /* --- Bas du certificat --- */
+      .footer {
+        position: absolute;
+        bottom: 30px;
+        left: 50px;
+        right: 50px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .director {
+        font-size: 20px;
+        font-weight: bold;
+        text-align: left;
+      }
+
+      .signature img {
+        width: 150px;
+        height: auto;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- Bouton Imprimer -->
+    <button class="print-button" onclick="window.print()">🖨️ Imprimer le certificat</button>
+
+    <div class="container">
+      <!-- Bande supérieure -->
+      <div class="header">
+        <div class="left-logo">
+          <img
+            src="https://1cd2gyfjyi.ucarecd.net/b548c405-4541-4de3-97af-f3acc9ef1fad/logon.png"
+            alt="HubEducator Logo"
+          />
+        </div>
+        <div class="right-logo">
+          <img
+            src="https://1cd2gyfjyi.ucarecd.net/8e526c16-d235-4509-b185-8935d9c7ed48/goldLogo.png"
+            alt="Gold Number 1"
+          />
+        </div>
+      </div>
+
+      <!-- Titre principal -->
+      <div class="title">HubEducator</div>
+
+      <div class="marquee">Certificate of Completion</div>
+
+      <div class="certificate-title">{{ certificate_title|default:"Certificate Title" }}</div>
+
+      <div class="assignment">This certificate is presented to</div>
+
+      <div class="person">{{ name|default:"Nom de l'utilisateur" }}</div>
+
+      <div class="speciality">
+        Speciality: {{ speciality|default:"Spécialité" }}
+      </div>
+
+      <div class="reason">
+        For deftly defying the laws of gravity<br />
+        and flying high
+      </div>
+
+      <div class="footer">
+        <div class="director">
+          Directeur<br />
+          Chaouch Abdessalem
+        </div>
+        <div class="signature">
+          <img
+            src="https://1cd2gyfjyi.ucarecd.net/e5e6b1d4-b6d2-4bdf-98f0-b3f19eae448e/signature.png"
+            alt="Signature"
+          />
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

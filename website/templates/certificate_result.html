@@ -31,11 +31,19 @@
                                     <p class="mt-2">
                                         {% if attempt.passed %}
                                             <span class="badge bg-success">PASSED</span>
+                                            <br><br>
+                                            <a href="{% url 'certificate_result' attempt.id %}?view=certificate" 
+                                            class="btn btn-primary" 
+                                            target="_blank" 
+                                           >
+                                            Voir le certificat
+                                            </a>
+
                                         {% else %}
                                             <span class="badge bg-danger">FAILED</span>
                                         {% endif %}
                                     </p>
-                                    <p class="text-muted">Passing score: 100%</p>
+                                    <p class="text-muted">Passing score: 70%</p>
                                 </div>
 
                                 <h5 class="mb-3">Review Your Answers</h5>

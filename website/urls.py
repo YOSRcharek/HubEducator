@@ -19,11 +19,13 @@ urlpatterns = [
     path('certificates/<int:cert_id>/', views.certificate_detail, name='certificate_detail'),
     path('certificates/take/<int:cert_id>/', views.take_certificate, name='take_certificate'),
     path('certificates/result/<int:attempt_id>/', views.certificate_result, name='certificate_result'),
+    path('my-certificates/', views.my_certificates, name='my_certificates'),
     path('course-details/', views.courseDetails, name='courseDetails'),
     path('user-research/', views.user_research, name='user-research'),
     path("verify-code/", views.verify_code_view, name="verify_code"),
     path('resend-code/', views.resend_code_view, name='resend_code'),
     path('auth/google/callback/', views.google_callback, name='google_callback'),
+    
 
 
     #***********************************************************#
