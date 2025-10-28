@@ -3,6 +3,6 @@
 # Ignorer tous les mp4 dans ce dossier
 media/lesson_resources/*.mp4
 static/website/video/*.mp4
-
+venv/
 # Ignorer les fichiers zip
 *.zip
