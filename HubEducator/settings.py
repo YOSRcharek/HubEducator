@@ -1,5 +1,4 @@
-
-import os
+﻿import os
 from pathlib import Path
 from dotenv import load_dotenv
 from decouple import config
@@ -197,6 +196,7 @@ DEFAULT_FROM_EMAIL = 'HubEducator HubEducator@gmail.com'
 SITE_ID = 1
 
 # Redirect après login
+LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 # Automatically redirect to the provider login
@@ -214,3 +214,8 @@ GOOGLE_CLIENT_ID = config('GOOGLE_CLIENT_ID')
 GOOGLE_CLIENT_SECRET = config('GOOGLE_CLIENT_SECRET')
 GOOGLE_REDIRECT_URI = config('GOOGLE_REDIRECT_URI')
 GOOGLE_URL = config('GOOGLE_URL')
+
+
+
+STRIPE_PUBLIC_KEY = 'pk_test_51SEeCW69Sb3Q4dCaaizkiHSAWIXjHz8MgUUjcMSOTDup5dkH0t9BmboltyACSdLUu6HTh7n65rCGQTwrTRNto06H00gT4itReA'
+STRIPE_SECRET_KEY = 'sk_test_51SEeCW69Sb3Q4dCawL4mbZLdSzp1yV3RnykFQUMgu2a99zlCS4QLfhL1o5MIJ5hDp4qwAxSJUlywoCS8D2oRjV9r00tw0dkCtD'

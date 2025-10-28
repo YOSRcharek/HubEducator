@@ -1,0 +1,525 @@
+/* ===================================
+   Custom Admin Styling - Modern Design
+   =================================== */
+
+/* General Admin Styling */
+#header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: white !important;
+    padding: 15px 20px !important;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1) !important;
+}
+
+#branding h1, #branding h1 a:link, #branding h1 a:visited {
+    color: white !important;
+    font-weight: 700 !important;
+    font-size: 1.8rem !important;
+}
+
+#user-tools {
+    color: white !important;
+}
+
+#user-tools a {
+    color: white !important;
+    font-weight: 500 !important;
+}
+
+#user-tools a:hover {
+    color: #f0f0f0 !important;
+}
+
+/* Breadcrumbs */
+.breadcrumbs {
+    background: #f8f9fa !important;
+    padding: 15px 20px !important;
+    border-radius: 0 !important;
+    border: none !important;
+    margin-bottom: 20px !important;
+}
+
+.breadcrumbs a {
+    color: #667eea !important;
+    font-weight: 500 !important;
+}
+
+.breadcrumbs a:hover {
+    color: #764ba2 !important;
+}
+
+/* Content Area */
+#content {
+    padding: 30px !important;
+}
+
+/* Module Styling (Cards) */
+.module {
+    border: none !important;
+    border-radius: 15px !important;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.08) !important;
+    overflow: hidden !important;
+    margin-bottom: 30px !important;
+    transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+}
+
+.module:hover {
+    transform: translateY(-3px) !important;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.12) !important;
+}
+
+.module h2, .module caption {
+    background: #f8f9fa !important;
+    color: #333 !important;
+    font-weight: 600 !important;
+    padding: 15px 20px !important;
+    border-bottom: 2px solid #667eea !important;
+    margin: 0 !important;
+}
+
+/* Table Styling */
+#result_list {
+    border: none !important;
+}
+
+#result_list thead th {
+    background: #f8f9fa !important;
+    border: none !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    font-size: 0.75rem !important;
+    letter-spacing: 0.5px !important;
+    color: #495057 !important;
+    padding: 15px !important;
+}
+
+#result_list tbody tr {
+    transition: background-color 0.2s ease !important;
+    border-bottom: 1px solid #f0f0f0 !important;
+}
+
+#result_list tbody tr:hover {
+    background-color: #f8f9fa !important;
+}
+
+#result_list tbody td {
+    padding: 15px !important;
+    border: none !important;
+}
+
+/* Action Buttons */
+.button, input[type=submit], input[type=button], .submit-row input, button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    border: none !important;
+    color: white !important;
+    padding: 10px 25px !important;
+    border-radius: 25px !important;
+    font-weight: 600 !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4) !important;
+    cursor: pointer !important;
+}
+
+.button:hover, input[type=submit]:hover, input[type=button]:hover, .submit-row input:hover, button:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6) !important;
+    color: white !important;
+}
+
+.button.default, input[type=submit].default, .submit-row input.default {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+}
+
+/* Delete Button */
+.deletelink, .deletelink-box a {
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%) !important;
+    color: white !important;
+}
+
+.deletelink:hover, .deletelink-box a:hover {
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%) !important;
+    opacity: 0.9 !important;
+}
+
+/* Add Another Button */
+.addlink {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) !important;
+    color: white !important;
+    padding: 8px 20px !important;
+    border-radius: 20px !important;
+    font-weight: 500 !important;
+    display: inline-block !important;
+    margin-top: 10px !important;
+}
+
+.addlink:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4) !important;
+}
+
+/* Change Link */
+.changelink {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: white !important;
+    padding: 8px 20px !important;
+    border-radius: 20px !important;
+    font-weight: 500 !important;
+}
+
+/* Form Fields */
+.form-row {
+    padding: 15px 0 !important;
+    border-bottom: 1px solid #f0f0f0 !important;
+}
+
+.form-row:last-child {
+    border-bottom: none !important;
+}
+
+input[type="text"], input[type="password"], input[type="email"], input[type="url"], 
+input[type="number"], input[type="date"], input[type="time"], textarea, select {
+    border: 1px solid #dee2e6 !important;
+    border-radius: 8px !important;
+    padding: 10px 15px !important;
+    transition: all 0.3s ease !important;
+}
+
+input[type="text"]:focus, input[type="password"]:focus, input[type="email"]:focus, 
+input[type="url"]:focus, input[type="number"]:focus, input[type="date"]:focus, 
+input[type="time"]:focus, textarea:focus, select:focus {
+    border-color: #667eea !important;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
+    outline: none !important;
+}
+
+/* Fieldsets */
+.aligned label {
+    font-weight: 600 !important;
+    color: #495057 !important;
+}
+
+fieldset.module {
+    background: white !important;
+    border: 1px solid #dee2e6 !important;
+    border-radius: 10px !important;
+    padding: 20px !important;
+    margin-bottom: 20px !important;
+}
+
+fieldset h2 {
+    background: transparent !important;
+    color: #667eea !important;
+    font-size: 1.2rem !important;
+    font-weight: 700 !important;
+    border-bottom: 2px solid #667eea !important;
+    padding-bottom: 10px !important;
+    margin-bottom: 15px !important;
+}
+
+/* Pagination */
+.paginator {
+    padding: 15px 0 !important;
+    text-align: center !important;
+}
+
+.paginator a, .paginator span {
+    padding: 8px 12px !important;
+    margin: 0 3px !important;
+    border-radius: 8px !important;
+    border: 1px solid #dee2e6 !important;
+    color: #667eea !important;
+    font-weight: 500 !important;
+    transition: all 0.3s ease !important;
+    display: inline-block !important;
+}
+
+.paginator a:hover {
+    background: #667eea !important;
+    color: white !important;
+    border-color: #667eea !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3) !important;
+}
+
+.paginator .this-page {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: white !important;
+    border-color: #667eea !important;
+}
+
+/* Dashboard Modules */
+#content-main .module {
+    margin-bottom: 25px !important;
+}
+
+.dashboard .module table {
+    width: 100% !important;
+}
+
+.dashboard .module table th {
+    background: #f8f9fa !important;
+    padding: 12px !important;
+    font-weight: 600 !important;
+}
+
+.dashboard .module table td {
+    padding: 12px !important;
+}
+
+/* Messages */
+.messagelist {
+    padding: 0 !important;
+    margin: 0 0 20px 0 !important;
+}
+
+.messagelist li {
+    padding: 15px 20px !important;
+    border-radius: 10px !important;
+    margin-bottom: 10px !important;
+    font-weight: 500 !important;
+}
+
+.messagelist .success {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) !important;
+    color: white !important;
+}
+
+.messagelist .warning {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important;
+    color: white !important;
+}
+
+.messagelist .error {
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%) !important;
+    color: white !important;
+}
+
+/* Filters */
+#changelist-filter {
+    background: white !important;
+    border: none !important;
+    border-radius: 15px !important;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.08) !important;
+    padding: 20px !important;
+}
+
+#changelist-filter h2 {
+    background: transparent !important;
+    color: #667eea !important;
+    font-weight: 700 !important;
+    border-bottom: 2px solid #667eea !important;
+    padding-bottom: 10px !important;
+    margin-bottom: 15px !important;
+}
+
+#changelist-filter h3 {
+    color: #495057 !important;
+    font-weight: 600 !important;
+    margin-top: 20px !important;
+}
+
+#changelist-filter li {
+    padding: 8px 0 !important;
+}
+
+#changelist-filter a {
+    color: #667eea !important;
+    transition: all 0.2s ease !important;
+}
+
+#changelist-filter a:hover {
+    color: #764ba2 !important;
+    padding-left: 5px !important;
+}
+
+#changelist-filter li.selected a {
+    color: #764ba2 !important;
+    font-weight: 600 !important;
+}
+
+/* Search Bar */
+#changelist-search {
+    margin-bottom: 20px !important;
+}
+
+#searchbar {
+    border: 1px solid #dee2e6 !important;
+    border-radius: 25px !important;
+    padding: 12px 20px !important;
+    width: 100% !important;
+    max-width: 400px !important;
+    transition: all 0.3s ease !important;
+}
+
+#searchbar:focus {
+    border-color: #667eea !important;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
+    outline: none !important;
+}
+
+/* Actions Dropdown */
+.actions {
+    background: #f8f9fa !important;
+    padding: 15px 20px !important;
+    border-radius: 10px !important;
+    margin-bottom: 20px !important;
+}
+
+.actions select {
+    border-radius: 8px !important;
+    padding: 8px 15px !important;
+}
+
+.actions button {
+    margin-left: 10px !important;
+}
+
+/* Inline Forms */
+.inline-group {
+    border: 1px solid #dee2e6 !important;
+    border-radius: 10px !important;
+    padding: 20px !important;
+    margin-bottom: 20px !important;
+}
+
+.inline-group h2 {
+    background: transparent !important;
+    color: #667eea !important;
+    font-weight: 700 !important;
+    border-bottom: 2px solid #667eea !important;
+    padding-bottom: 10px !important;
+    margin-bottom: 15px !important;
+}
+
+/* Calendar Widget */
+.calendarbox, .clockbox {
+    border: 1px solid #dee2e6 !important;
+    border-radius: 10px !important;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1) !important;
+}
+
+.calendar caption, .calendarbox h2 {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: white !important;
+}
+
+.calendar td a {
+    color: #667eea !important;
+}
+
+.calendar td a:hover {
+    background: #667eea !important;
+    color: white !important;
+}
+
+/* Help Text */
+.help {
+    color: #6c757d !important;
+    font-size: 0.9rem !important;
+    font-style: italic !important;
+}
+
+/* Error Messages */
+.errorlist {
+    background: #fee !important;
+    border: 1px solid #fcc !important;
+    border-radius: 8px !important;
+    padding: 10px 15px !important;
+    margin: 10px 0 !important;
+}
+
+.errorlist li {
+    color: #c00 !important;
+    font-weight: 500 !important;
+}
+
+/* Related Widget Wrapper */
+.related-widget-wrapper {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+}
+
+.related-widget-wrapper-link {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) !important;
+    color: white !important;
+    padding: 8px 15px !important;
+    border-radius: 8px !important;
+    text-decoration: none !important;
+    font-weight: 500 !important;
+    transition: all 0.3s ease !important;
+}
+
+.related-widget-wrapper-link:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 10px rgba(79, 172, 254, 0.4) !important;
+}
+
+/* Object Tools */
+.object-tools {
+    margin-bottom: 20px !important;
+}
+
+.object-tools li {
+    margin-left: 10px !important;
+}
+
+.object-tools a {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: white !important;
+    padding: 10px 25px !important;
+    border-radius: 25px !important;
+    font-weight: 600 !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4) !important;
+}
+
+.object-tools a:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6) !important;
+}
+
+/* Submit Row */
+.submit-row {
+    background: #f8f9fa !important;
+    padding: 20px !important;
+    border-radius: 10px !important;
+    margin-top: 30px !important;
+}
+
+/* Selector */
+.selector {
+    border: 1px solid #dee2e6 !important;
+    border-radius: 10px !important;
+    overflow: hidden !important;
+}
+
+.selector h2 {
+    background: #f8f9fa !important;
+    color: #495057 !important;
+    font-weight: 600 !important;
+    padding: 10px 15px !important;
+}
+
+.selector-available, .selector-chosen {
+    border: none !important;
+}
+
+.selector select {
+    border: none !important;
+    border-radius: 0 !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    #content {
+        padding: 15px !important;
+    }
+    
+    .module {
+        margin-bottom: 20px !important;
+    }
+    
+    #result_list {
+        font-size: 0.9rem !important;
+    }
+}
