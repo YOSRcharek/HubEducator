@@ -1,0 +1,51 @@
+{% extends 'baseF.html' %}
+{% block content %}
+<div class="container mt-5">
+  <h2 class="text-center mb-4">Study Groups</h2>
+
+  <div class="row">
+    {% for g in groupes %}
+      <div class="col-md-4 mb-3">
+        <div class="card shadow-sm p-3">
+          <h5>{{ g.nom }}</h5>
+          <p>{{ g.description|truncatewords:15 }}</p>
+          <p><small>Created by {{ g.createur.username }} on {{ g.date_creation|date:"d/m/Y" }}</small></p>
+
+          <!-- Join button -->
+          <button class="btn btn-success join-btn" data-id="{{ g.id }}" data-nom="{{ g.nom }}">
+            + Join
+          </button>
+
+          <!-- Link to group -->
+          <a href="{% url 'etude_detail' g.id %}" class="btn btn-primary mt-2">View Group</a>
+        </div>
+      </div>
+    {% empty %}
+      <p class="text-center">No study groups available at the moment.</p>
+    {% endfor %}
+  </div>
+</div>
+
+<script>
+  const joinButtons = document.querySelectorAll('.join-btn');
+
+  joinButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const groupeId = btn.dataset.id;
+      const groupeNom = btn.dataset.nom;
+
+      if (confirm(`Are you sure you want to join the group "${groupeNom}"?`)) {
+        fetch(`/etude/${groupeId}/rejoindre/`)
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              window.location.href = `/etude/${groupeId}/`;
+            } else {
+              alert("Unable to join the group.");
+            }
+          });
+      }
+    });
+  });
+</script>
+{% endblock %}

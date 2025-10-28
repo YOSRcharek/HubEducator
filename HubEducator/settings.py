@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'dashboard',
     'TeacherDash',
     'widget_tweaks',
+    'etude',
 ]
 
 MIDDLEWARE = [

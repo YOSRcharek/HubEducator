@@ -1,0 +1,149 @@
+{% extends 'baseF.html' %}
+{% block content %}
+<div class="container mt-5">
+  <div class="card shadow p-4">
+    <h2 class="text-center">{{ groupe.nom }}</h2>
+    <p class="text-muted text-center">
+      Created by {{ groupe.createur.username }} on {{ groupe.date_creation|date:"d/m/Y" }}
+    </p>
+    <hr>
+    <p>{{ groupe.description }}</p>
+
+    <h4 class="mt-4">Group members:</h4>
+    <ul>
+      {% for membre in groupe.membres.all %}
+        <li>{{ membre.username }}</li>
+      {% empty %}
+        <p>No members yet.</p>
+      {% endfor %}
+    </ul>
+
+    <div class="text-center mt-4">
+      <a href="#" class="btn btn-success">💬 Send a message</a>
+      <a href="#" class="btn btn-primary">📅 Schedule a live class</a>
+      <a href="{% url 'etude_list' %}" class="btn btn-secondary">⬅ Back</a>
+    </div>
+  </div>
+</div>
+
+<hr>
+<h4 class="mt-4 text-center">💬 Group Discussion</h4>
+
+<div class="chat-box mb-3" id="chat-box">
+  {% for msg in messages %}
+    <div class="message {% if msg.auteur == request.user %}user{% else %}other{% endif %}">
+      <strong>{{ msg.auteur.username }}</strong><br>
+      {{ msg.contenu }}
+      <small>{{ msg.date_envoi|date:"d/m/Y H:i" }}</small>
+    </div>
+  {% empty %}
+    <p>No messages yet.</p>
+  {% endfor %}
+</div>
+
+<form method="post" id="messageForm">
+  {% csrf_token %}
+  <div class="input-group">
+    <input type="text" name="contenu" id="messageInput" class="form-control" placeholder="Write a message..." required>
+    <button type="submit" class="btn btn-primary">Send</button>
+  </div>
+</form>
+
+<script>
+  const chatBox = document.querySelector('.chat-box');
+  const groupeId = "{{ groupe.id }}";
+  const form = document.getElementById('chat-form');
+  const messageInput = document.getElementById('message-input');
+
+  // Fonction pour récupérer les messages sans recharger
+  function loadMessages() {
+    fetch(`/etude/${groupeId}/messages/`)
+      .then(response => response.json())
+      .then(data => {
+        chatBox.innerHTML = '';
+        data.messages.forEach(msg => {
+          const msgDiv = document.createElement('div');
+          msgDiv.classList.add('mb-2');
+          msgDiv.innerHTML = `<strong>${msg.auteur}</strong> : ${msg.contenu} <small class="text-muted">(${msg.date})</small>`;
+          chatBox.appendChild(msgDiv);
+        });
+        chatBox.scrollTop = chatBox.scrollHeight;
+      });
+  }
+
+  //  Intercepter le formulaire pour envoyer le message sans rechargement
+  form.addEventListener('submit', function(event) {
+    event.preventDefault(); // Empêche le rechargement
+    const contenu = messageInput.value.trim();
+    if (!contenu) return;
+
+    fetch(window.location.href, {
+      method: "POST",
+      headers: {
+        "X-CSRFToken": document.querySelector('[name=csrfmiddlewaretoken]').value,
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: new URLSearchParams({ "contenu": contenu })
+    })
+    .then(() => {
+      messageInput.value = '';
+      loadMessages(); // recharge les messages immédiatement
+    });
+  });
+
+  // Rafraîchir les messages toutes les 3 secondes
+  setInterval(loadMessages, 3000);
+  loadMessages();
+</script>
+<style>
+  /* 🩵 Style du chat */
+.chat-box {
+    max-height: 350px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    padding: 15px;
+    border-radius: 15px;
+    background-color: #f9f9f9;
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* espace entre bulles */
+}
+
+.message {
+    padding: 10px 15px;
+    border-radius: 15px;
+    display: inline-block; /* ✅ s'adapte au texte */
+    max-width: 70%; /* ✅ limite largeur max */
+    word-wrap: break-word;
+    justify-content: center;
+    animation: fadeIn 0.4s ease-in-out;
+}
+
+.message.user {
+    background-color: #d1e7ff;
+    align-self: flex-end;
+    text-align: right;
+    border-bottom-right-radius: 5px;
+}
+
+.message.other {
+    background-color: #eaeaea;
+    align-self: flex-start;
+    text-align: left;
+    border-bottom-left-radius: 5px;
+}
+
+.message small {
+    display: block;
+    font-size: 0.75rem;
+    color: #777;
+    margin-top: 4px;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+</style>
+{% endblock %}

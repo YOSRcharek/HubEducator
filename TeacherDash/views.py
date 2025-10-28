@@ -5,6 +5,8 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 from .forms import AddUserForm, EditUserForm
 from core.models import User, Course,CourseCategory, Lesson, SubLesson, Resource
+from etude.models import GroupeEtude
+from etude.forms import GroupeEtudeForm
 
 # --------------------------
 # Teacher Dashboard
@@ -183,3 +185,70 @@ def add_courses(request):
     else:
         categories = CourseCategory.objects.all()
         return render(request, 'courses/addCourses.html', {'categories': categories})
+
+@login_required
+def teacher_groupes(request):
+    if request.user.role != 'teacher':
+        return redirect('unauthorized')
+
+    groupes = GroupeEtude.objects.filter(createur=request.user)
+    return render(request, 'etude/groupes.html', {'groupes': groupes})
+
+# --------------------------
+# Add etude group 
+# --------------------------
+@login_required
+def add_groupe(request):
+    if request.user.role != 'teacher':
+        return redirect('unauthorized')
+
+    if request.method == 'POST':
+        nom = request.POST.get('nom')
+        description = request.POST.get('description')
+
+        if nom:
+            GroupeEtude.objects.create(
+                nom=nom,
+                description=description,
+                createur=request.user
+            )
+            messages.success(request, "Study group created successfully!")
+            return redirect('teacher_groupes')  
+
+    return render(request, 'etude/addGroupe.html')
+    # --------------------------
+# Edit a group
+# --------------------------
+@login_required
+def edit_group(request, group_id):
+    if request.user.role != 'teacher':
+        return redirect('unauthorized')
+
+    groupe = get_object_or_404(GroupeEtude, id=group_id, createur=request.user)
+
+    if request.method == "POST":
+        form = GroupeEtudeForm(request.POST, instance=groupe)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Group updated successfully!")
+            return redirect('teacher_groups')  # redirect to alias name used in templates
+    else:
+        form = GroupeEtudeForm(instance=groupe)
+
+    # Render the actual template you have in TeacherDash/templates/etude/
+    return render(request, 'etude/editGroupe.html', {'form': form, 'groupe': groupe})
+
+
+@login_required
+def delete_group(request, group_id):
+    if request.user.role != 'teacher':
+        return redirect('unauthorized')
+
+    groupe = get_object_or_404(GroupeEtude, id=group_id, createur=request.user)
+
+    if request.method == "POST":
+        groupe.delete()
+        messages.success(request, "Group deleted successfully!")
+        return redirect('teacher_groups')
+
+    return render(request, 'etude/deleteGroupe.html', {'groupe': groupe})
