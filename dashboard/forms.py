@@ -76,16 +76,16 @@ class SpecialityForm(forms.ModelForm):
     class Meta:
         model = Speciality
         fields = ['name', 'description']
+    def __str__(self):
+        return self.name    
 class CertificateForm(forms.ModelForm):
     # cover_image is provided by uploadcare as a URL; make it optional on the form
     cover_image = forms.URLField(required=False, widget=forms.HiddenInput())
-    speciality = forms.CharField(
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Enter speciality name',
-            'list': 'specialities'
-        }),
-        required=True
+    speciality = forms.ModelChoiceField(
+        queryset=Speciality.objects.all(),
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        required=True,
+        empty_label="Select a speciality"
     )
 
     class Meta:
@@ -102,6 +102,10 @@ class CertificateForm(forms.ModelForm):
             }),
             'cover_image': forms.HiddenInput(),
         }
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Assure que le dropdown a bien le style Bootstrap
+        self.fields['speciality'].widget = forms.Select(attrs={'class': 'form-control'})        
     def clean_title(self):
         title = self.cleaned_data.get('title')
         if not title or len(title.strip()) < 3:
@@ -113,17 +117,6 @@ class CertificateForm(forms.ModelForm):
         if not desc or len(desc.strip()) < 10:
             raise forms.ValidationError("The description must contain at least 10 characters.")
         return desc
-
-    def clean_speciality(self):
-        speciality_name = self.cleaned_data.get('speciality')
-        if speciality_name:
-            speciality_name = speciality_name.strip()
-            speciality, created = Speciality.objects.get_or_create(
-                name=speciality_name,
-                defaults={'description': ''}
-            )
-            return speciality
-        return speciality_name
 
 class CertificatExerciseForm(forms.ModelForm):
     option3 = forms.CharField(

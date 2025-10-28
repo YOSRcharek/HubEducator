@@ -43,21 +43,7 @@
         {% endif %}
     </div>
 
-<<<<<<< HEAD
-    <select name="role" class="form-select mb-3">
-        <option value="student" {% if form.role.value == "student" %}selected{% endif %}>Student</option>
-        <option value="teacher" {% if form.role.value == "teacher" %}selected{% endif %}>Teacher</option>
-    </select>
-    {% if form.role.errors %}
-        <div class="text-danger">
-            {% for error in form.role.errors %}
-                {{ error }}
-            {% endfor %}
-        </div>
-    {% endif %}
-=======
     <input type="hidden" name="role" value="user">
->>>>>>> main
 
     <div class="form-floating mb-3">
         <input type="password" name="password1" class="form-control" id="signupPassword1" placeholder="Password">

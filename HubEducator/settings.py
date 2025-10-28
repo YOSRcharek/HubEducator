@@ -1,9 +1,4 @@
-﻿<<<<<<< HEAD
-﻿
-=======
-
->>>>>>> main
-import os
+﻿import os
 from pathlib import Path
 from dotenv import load_dotenv
 from decouple import config
