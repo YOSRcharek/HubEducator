@@ -173,6 +173,7 @@
                 <a href="{% url 'login' %}?next={% url 'courseDetails' course.id %}" class="btn-view-course" style="width: 100%; text-align: center; display: inline-block;">
                     Enroll to course
                 </a>
+
             {% endif %}
         </div>
 
@@ -213,97 +214,173 @@
         </nav>
     </div>
     <!-- 🔹 Popup de confirmation d'inscription -->
- <div id="enrollPopup" class="popup-overlay hidden">
-    <div class="popup-content">
-        <h3>Confirmer votre inscription</h3>
-        <p id="popup-message">Voulez-vous vraiment vous inscrire à ce cours ?</p>
+<div id="enrollPopup" class="popup-overlay hidden">
+  <div class="popup-content">
+      <h3>Confirm your enrollment</h3>
+      <p id="popup-message">Do you really want to enroll in this course?</p>
 
-        <div class="popup-buttons">
-            <button id="confirmEnrollBtn" class="btn-confirm">Oui, je confirme</button>
-            <button id="cancelEnrollBtn" class="btn-cancel">Annuler</button>
-        </div>
-    </div>
+      <div class="popup-buttons">
+          <button id="confirmEnrollBtn" class="btn-confirm">Yes, confirm</button>
+          <button id="cancelEnrollBtn" class="btn-cancel" onclick="closeEnrollPopup()">Cancel</button>
+      </div>
+  </div>
 </div>
+
 
 
 </main>
 
 <style>
-    
+
+/* --- STYLE POPUP INSCRIPTION --- */
 .popup-overlay {
     position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.6);
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.6); /* fond semi-transparent gris */
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 999;
+    z-index: 9999; /* bien au-dessus du reste */
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.3s ease;
+}
+
+/* Quand la popup est cachée */
+.popup-overlay.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
 }
 
 .popup-content {
     background: #fff;
-    padding: 25px;
+    padding: 30px 40px;
     border-radius: 12px;
     text-align: center;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-    width: 350px;
-    animation: popupShow 0.25s ease-in-out;
+    width: 400px;
+    max-width: 90%;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    transform: translateY(0);
+    animation: popup-appear 0.3s ease;
 }
 
-@keyframes popupShow {
-    from { transform: scale(0.8); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
+
+.popup-content h3 {
+    font-size: 1.5rem;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.popup-content p {
+    color: #555;
+    font-size: 1rem;
+    margin-bottom: 20px;
 }
 
 .popup-buttons {
-    margin-top: 15px;
     display: flex;
     justify-content: space-around;
 }
 
 .btn-confirm {
-    background-color: #007bff;
+    background-color: #4CAF50;
     color: white;
-    padding: 8px 18px;
     border: none;
-    border-radius: 6px;
+    padding: 10px 20px;
+    border-radius: 8px;
     cursor: pointer;
+    transition: 0.2s;
 }
 
 .btn-cancel {
-    background-color: #ccc;
-    color: #333;
-    padding: 8px 18px;
+    background-color: #f44336;
+    color: white;
     border: none;
-    border-radius: 6px;
+    padding: 10px 20px;
+    border-radius: 8px;
     cursor: pointer;
+    transition: 0.2s;
 }
 
-.hidden {
-    display: none;
+.btn-confirm:hover {
+    background-color: #45a049;
 }
 
-    .btn-enroll-course {
-        width: 100%;
-        padding: 0.75rem;
-        background: #FDC800;
-        color: var(--bs-secondary);
-        border: none;
-        border-radius: 12px;
-        font-weight: 600;
-        font-size: 0.9rem;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
+.btn-cancel:hover {
+    background-color: #e53935;
+}
 
-    .btn-enroll-course:hover {
-        background: #c2a437;
-        transform: translateY(-2px);
-        color: var(--bs-secondary);
+/* Animation d’apparition */
+@keyframes popup-appear {
+    from {
+        transform: scale(0.9);
+        opacity: 0;
     }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
 </style>
 
+
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
     <script>
+        function openModal(courseId) {
+    document.getElementById(`modal${courseId}`).style.display = "block";
+    flatpickr(`#publishDate${courseId}`, {
+        enableTime: true,
+        dateFormat: "Y-m-d H:i",
+        minDate: "today"
+    });
+}
+
+function closeModal(courseId) {
+    document.getElementById(`modal${courseId}`).style.display = "none";
+}
+
+// Fonction pour envoyer la date au backend
+function savePublishDate(courseId) {
+    const date = document.getElementById(`publishDate${courseId}`).value;
+    if (!date) {
+        alert("Veuillez choisir une date !");
+        return;
+    }
+
+    fetch(`/courses/${courseId}/schedule/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({ publish_date: date })
+    })
+    .then(response => {
+        if(response.ok) {
+            alert("Cours planifié avec succès !");
+            closeModal(courseId);
+            location.reload();
+        } else {
+            alert("Erreur lors de la planification.");
+        }
+    });
+}
+
+// Fermer la popup si clic en dehors
+window.onclick = function(event) {
+    {% for course in courses %}
+    const modal = document.getElementById('modal{{ course.id }}');
+    if(event.target == modal) {
+        modal.style.display = "none";
+    }
+    {% endfor %}
+}
+
         // Fonctionnalité de recherche et filtrage
         document.addEventListener('DOMContentLoaded', function() {
             const searchInput = document.getElementById('searchInput');

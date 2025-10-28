@@ -64,6 +64,8 @@ class Course(models.Model):
         blank=True
     )
     visible = models.BooleanField(default=False)  # Nouveau champ
+    publish_date = models.DateTimeField(null=True, blank=True)
+    max_lessons = models.PositiveIntegerField(default=10)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -76,6 +78,7 @@ class Lesson(models.Model):
     description = models.TextField(blank=True, null=True)
     order = models.PositiveIntegerField(default=0)
     visible = models.BooleanField(default=False)  # Nouveau champ
+    max_sublessons = models.PositiveIntegerField(default=5) 
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -99,19 +102,38 @@ class Resource(models.Model):
         ('pdf', 'PDF'),
         ('image', 'Image'),
         ('audio', 'Audio'),
+        ('external', 'External Link'),
     )
 
     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name='resources', null=True, blank=True)
     sub_lesson = models.ForeignKey(SubLesson, on_delete=models.CASCADE, related_name='resources', null=True, blank=True)
 
     title = models.CharField(max_length=200)
-    resource_type = models.CharField(max_length=20, choices=RESOURCE_TYPES)
-    file = models.FileField(upload_to='lesson_resources/')
     description = models.TextField(blank=True, null=True)
-    order = models.PositiveIntegerField(default=0)  # Pour définir l’ordre des fichiers dans la même section
+    resource_type = models.CharField(max_length=20, choices=RESOURCE_TYPES)
+
+    # pour les fichiers internes
+    file = models.FileField(upload_to='lesson_resources/', null=True, blank=True)
+
+    # pour les ressources externes (YouTube, Google Docs, etc.)
+    external_url = models.URLField(blank=True, null=True)
+
+    order = models.PositiveIntegerField(default=0)
 
     def __str__(self):
         return f"{self.title} ({self.resource_type})"
+
+    def get_embed_url(self):
+        """Retourne une version intégrable selon le type de lien."""
+        if self.resource_type == 'external' and self.external_url:
+            url = self.external_url
+            if 'youtube.com/watch?v=' in url:
+                video_id = url.split('watch?v=')[-1]
+                return f"https://www.youtube.com/embed/{video_id}"
+            elif 'docs.google.com' in url:
+                return url.replace('/edit', '/preview')
+        return self.external_url
+
 
 class Review(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='reviews')

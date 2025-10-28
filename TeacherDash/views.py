@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from django.contrib import messages
 from django.core.paginator import Paginator
+from urllib3 import request
 from .forms import AddUserForm, EditUserForm
 from core.models import User, Course,CourseCategory, Lesson, SubLesson, Resource,Review
 from django.http import JsonResponse
@@ -10,6 +11,7 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 from django.utils import timezone
 from django.db.models import Avg
+
 # --------------------------
 # Teacher Dashboard
 # --------------------------
@@ -129,6 +131,9 @@ def courses(request):
         elif not course.lessons.exists() and course.status != 'pending':
             course.status = 'pending'
             course.save()
+        elif course.max_lessons and course.lessons.count() >= course.max_lessons:
+            course.status = 'completed'
+            course.save()
 
     # Filtre par status
     status_filter = request.GET.get('status', '')  # vide = tous
@@ -162,22 +167,35 @@ def add_courses(request):
         if not title:
             errors.append("Course title is required.")
 
+        # Capacity
         capacity = request.POST.get('capacity')
         try:
             capacity = int(capacity)
             if capacity <= 0:
                 errors.append("Capacity must be a positive number.")
         except:
-            capacity = 30  # valeur par défaut
+            capacity = 30
 
+        # Category
         category_name = request.POST.get('category')
         category_obj = CourseCategory.objects.filter(name=category_name).first() if category_name else None
         if not category_obj:
             errors.append("Please select a valid category.")
 
-        lesson_titles = request.POST.getlist('lesson_title[]')
-        if not lesson_titles or all(not t.strip() for t in lesson_titles):
-            errors.append("At least one lesson is required.")
+        # Dates
+        start_date = request.POST.get('start_date')
+        end_date = request.POST.get('end_date')
+        if not start_date:
+            errors.append("Start date is required.")
+        if not end_date:
+            errors.append("End date is required.")
+        if start_date and end_date and start_date > end_date:
+            errors.append("End date must be after start date.")
+
+        # Thumbnail
+        thumbnail_file = request.FILES.get('thumbnail')
+        if not thumbnail_file:
+            errors.append("Course thumbnail is required.")
 
         # si erreurs -> réafficher form avec messages
         if errors:
@@ -187,40 +205,92 @@ def add_courses(request):
 
         # ✅ Pas d'erreur, créer le cours
         description = request.POST.get('description', '').strip()
+        max_lessons = request.POST.get('max_lessons')
         course = Course.objects.create(
             title=title,
             description=description,
             capacity=capacity,
             category=category_obj,
             teacher=request.user,
-            status='pending'
+            status='pending',
+            start_date=start_date,
+            end_date=end_date,
+            max_lessons=int(max_lessons)
         )
 
-        thumbnail_file = request.FILES.get('thumbnail')
-        if thumbnail_file:
-            course.thumbnail.save(thumbnail_file.name, thumbnail_file)
 
-        lessons_dict = {}
+        course.thumbnail.save(thumbnail_file.name, thumbnail_file)
+
+        # Lessons (optionnel)
+        max_sublessons_list = request.POST.getlist('max_sublessons[]')  # <-- récupère tous les max sublessons      
+        lesson_titles = request.POST.getlist('lesson_title[]')
         lesson_descriptions = request.POST.getlist('lesson_description[]')
+        lessons_dict = {}
+
         for idx, title_lesson in enumerate(lesson_titles, start=1):
+            if not title_lesson.strip():
+                continue  # skip empty lesson titles
             desc = lesson_descriptions[idx-1] if idx-1 < len(lesson_descriptions) else ''
-            lesson_obj = Lesson.objects.create(course=course, title=title_lesson, description=desc, order=idx)
+
+            try:
+                max_sub = int(max_sublessons_list[idx-1]) if idx-1 < len(max_sublessons_list) and max_sublessons_list[idx-1] else None
+            except:
+                max_sub = None
+
+            lesson_obj = Lesson.objects.create(
+                course=course,
+                title=title_lesson,
+                description=desc,
+                order=idx,
+                max_sublessons=max_sub  # <-- ici
+            )
             lessons_dict[idx] = lesson_obj
 
+            # Fichiers uploadés
             for file in request.FILES.getlist(f'lesson_resources_{idx}[]'):
                 Resource.objects.create(lesson=lesson_obj, sub_lesson=None, title=file.name, resource_type='pdf', file=file)
 
-        # sublessons
+            # Ressources externes
+            external_urls = request.POST.getlist('external_url[]')
+            resource_types = request.POST.getlist('resource_type[]')
+            for url, rtype in zip(external_urls, resource_types):
+                if url.strip():
+                    Resource.objects.create(
+                        lesson=lesson_obj,
+                        sub_lesson=None,
+                        title=url.split("/")[-1][:30],
+                        resource_type=rtype,
+                        external_url=url
+                    )
+
+
+        # SubLessons (optionnel)
         sublesson_titles = request.POST.getlist('sublesson_title[]')
         sublesson_contents = request.POST.getlist('sublesson_content[]')
         lesson_objs = list(lessons_dict.values())
         for idx, sub_title in enumerate(sublesson_titles, start=1):
+            if not sub_title.strip():
+                continue
             content = sublesson_contents[idx-1] if idx-1 < len(sublesson_contents) else ''
-            attach_lesson = lesson_objs[(idx-1) % len(lesson_objs)]
+            attach_lesson = lesson_objs[(idx-1) % len(lesson_objs)] if lesson_objs else None
             sublesson_obj = SubLesson.objects.create(lesson=attach_lesson, title=sub_title, content=content)
 
+            # Fichiers uploadés
             for file in request.FILES.getlist(f'sublesson_resources_{idx}[]'):
                 Resource.objects.create(lesson=None, sub_lesson=sublesson_obj, title=file.name, resource_type='pdf', file=file)
+
+            # Ressources externes
+            external_urls = request.POST.getlist('external_url[]')
+            resource_types = request.POST.getlist('resource_type[]')
+            for url, rtype in zip(external_urls, resource_types):
+                if url.strip():
+                    Resource.objects.create(
+                        lesson=None,
+                        sub_lesson=sublesson_obj,
+                        title=url.split("/")[-1][:30],
+                        external_url=url,     
+                        resource_type='external'  
+                    )
 
         messages.success(request, "Course created successfully!")
         return redirect('courses')
@@ -237,32 +307,38 @@ def course_edit(request, course_id):
         course.title = request.POST.get('title', '').strip()
         course.description = request.POST.get('description', '').strip()
 
-        # ✅ Update capacity proprement
         capacity = request.POST.get('capacity')
         if capacity and capacity.isdigit():
             course.capacity = int(capacity)
 
-        # ✅ Si tu as un champ "level" dans le formulaire
         course.level = request.POST.get('level') or course.level
-
-        # ✅ Si tu as ajouté start_date et end_date
         course.start_date = request.POST.get('start_date') or course.start_date
         course.end_date = request.POST.get('end_date') or course.end_date
 
-        # ✅ Update category
         category_name = request.POST.get('category')
         category_obj = CourseCategory.objects.filter(name=category_name).first()
         if category_obj:
             course.category = category_obj
 
-        # ✅ Update thumbnail s’il est modifié
         thumbnail_file = request.FILES.get('thumbnail')
         if thumbnail_file:
             course.thumbnail.save(thumbnail_file.name, thumbnail_file)
 
-        # ✅ Sauvegarde finale
-        course.save()
+        # ✅ Max lessons
+        max_lessons_input = request.POST.get('max_lessons')
+        lessons_count = course.lessons.count()  # Utilise le related_name="lessons"
+        if not max_lessons_input or not max_lessons_input.isdigit() or int(max_lessons_input) < lessons_count:
+            messages.error(
+                request,
+                f"Max lessons must be a number greater than or equal to current number of lessons ({lessons_count})."
+            )
+            return render(request, 'courses/course_edit.html', {
+                'course': course,
+                'categories': categories,
+            })
+        course.max_lessons = int(max_lessons_input)
 
+        course.save()
         messages.success(request, "Course updated successfully!")
         return redirect('courses')
 
@@ -274,11 +350,34 @@ def course_edit(request, course_id):
 @login_required
 def delete_course(request, course_id):
     course = get_object_or_404(Course, id=course_id)
-    if request.method == 'POST':
-        course.delete()
-        messages.success(request, "Course deleted successfully.")
-        return redirect('courses')
-    return render(request, 'courses/confirm_delete.html', {'course': course})
+    course.delete()
+    messages.success(request, "Course deleted successfully.")
+    return redirect('courses')  # Redirige vers la page liste des cours
+
+@csrf_exempt
+def schedule_course(request, course_id):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            date_str = data.get("publish_date")
+            if not date_str:
+                return JsonResponse({"error": "Date manquante"}, status=400)
+
+            # Conversion string -> datetime
+            publish_date = timezone.datetime.strptime(date_str, "%Y-%m-%d %H:%M")
+            publish_date = timezone.make_aware(publish_date)
+
+            course = Course.objects.get(id=course_id)
+            course.publish_date = publish_date
+            course.visible = False  # sera publié automatiquement plus tard
+            course.save(update_fields=['publish_date', 'visible'])
+
+            return JsonResponse({"success": True})
+        except Course.DoesNotExist:
+            return JsonResponse({"error": "Course not found"}, status=404)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+
 
 @login_required
 def course_detail(request, course_id):
@@ -370,17 +469,52 @@ def add_lesson(request):
         course = get_object_or_404(Course, id=course_id, teacher=request.user)
         title = request.POST.get('title')
         description = request.POST.get('description', '')
-        lesson = Lesson.objects.create(course=course, title=title, description=description, order=Lesson.objects.filter(course=course).count() + 1)
+        max_sublessons = request.POST.get('max_sublessons')
 
+        lesson = Lesson.objects.create(
+            course=course,
+            title=title,
+            description=description,
+            order=Lesson.objects.filter(course=course).count() + 1,
+            max_sublessons=int(max_sublessons) if max_sublessons and max_sublessons.isdigit() else None
+        )
+
+        # fichiers uploadés
         for file in request.FILES.getlist('resources'):
+            ext = file.name.split('.')[-1].lower()
+            if ext in ['jpg', 'jpeg', 'png', 'gif', 'bmp']:
+                r_type = 'image'
+            elif ext == 'pdf':
+                r_type = 'pdf'
+            elif ext in ['mp4', 'mov', 'avi']:
+                r_type = 'video'
+            elif ext in ['mp3', 'wav']:
+                r_type = 'audio'
+            else:
+                r_type = 'other'
+
             Resource.objects.create(
                 lesson=lesson,
                 title=file.name,
-                resource_type='pdf',  # tu peux détecter selon extension
+                resource_type=r_type,
                 file=file
             )
+
+        # URLs externes
+        external_urls = request.POST.getlist('external_url[]')
+        for url in external_urls:
+            if url.strip():
+                Resource.objects.create(
+                    lesson=lesson,
+                    title=url.split('/')[-1],
+                    external_url=url,
+                    resource_type='external'
+                )
+
         return JsonResponse({'success': True})
+
     return JsonResponse({'error': 'Invalid request'}, status=400)
+
 
 @login_required
 def add_sublesson(request):
@@ -389,20 +523,48 @@ def add_sublesson(request):
         lesson = get_object_or_404(Lesson, id=lesson_id)
         title = request.POST.get('title')
         content = request.POST.get('content', '')
+
         sublesson = SubLesson.objects.create(
             lesson=lesson,
             title=title,
             content=content,
             order=SubLesson.objects.filter(lesson=lesson).count() + 1
         )
+
+        # fichiers uploadés
         for file in request.FILES.getlist('resources'):
+            ext = file.name.split('.')[-1].lower()
+            if ext in ['jpg', 'jpeg', 'png', 'gif', 'bmp']:
+                r_type = 'image'
+            elif ext == 'pdf':
+                r_type = 'pdf'
+            elif ext in ['mp4', 'mov', 'avi']:
+                r_type = 'video'
+            elif ext in ['mp3', 'wav']:
+                r_type = 'audio'
+            else:
+                r_type = 'other'
+
             Resource.objects.create(
                 sub_lesson=sublesson,
                 title=file.name,
-                resource_type='pdf',
+                resource_type=r_type,
                 file=file
             )
+
+        # ✅ URLs externes
+        external_urls = request.POST.getlist('external_url[]')
+        for url in external_urls:
+            if url.strip():
+                Resource.objects.create(
+                    sub_lesson=sublesson,
+                    title=url.split('/')[-1],
+                    external_url=url,
+                    resource_type='external'
+                )
+
         return JsonResponse({'success': True})
+    
     return JsonResponse({'error': 'Invalid request'}, status=400)
 
 # Delete Lesson
@@ -433,6 +595,10 @@ def update_lesson(request):
         # Mise à jour basique
         lesson.title = request.POST.get('title')
         lesson.description = request.POST.get('description')
+        
+        max_sublessons = request.POST.get('max_sublessons')
+        lesson.max_sublessons = int(max_sublessons) if max_sublessons and max_sublessons.isdigit() else None
+
         lesson.save()
 
         # Suppression des ressources cochées
@@ -440,17 +606,50 @@ def update_lesson(request):
         if resources_to_delete:
             Resource.objects.filter(id__in=resources_to_delete).delete()
 
-        # Ajout des nouvelles
+        # Ajout des URLs externes
+        external_urls = request.POST.getlist('external_url[]')
+        for url in external_urls:
+            if url.strip():
+                Resource.objects.create(
+                    lesson=lesson,
+                    title=url.split('/')[-1],
+                    external_url=url,
+                    resource_type='external'
+                )
+
+        # Ajout des nouvelles ressources uploadées
         for file in request.FILES.getlist('resources'):
+            ext = file.name.split('.')[-1].lower()
+            if ext in ['jpg', 'jpeg', 'png', 'gif', 'bmp']:
+                r_type = 'image'
+            elif ext == 'pdf':
+                r_type = 'pdf'
+            elif ext in ['mp4', 'mov', 'avi']:
+                r_type = 'video'
+            elif ext in ['mp3', 'wav']:
+                r_type = 'audio'
+            else:
+                r_type = 'other'
+
             Resource.objects.create(
-                lesson=lesson, 
-                title=file.name, 
-                resource_type='pdf', 
+                lesson=lesson,
+                title=file.name,
+                resource_type=r_type,
                 file=file
             )
 
-        return JsonResponse({'success': True})
+        return JsonResponse({
+            'success': True,
+            'lesson': {
+                'id': lesson.id,
+                'title': lesson.title,
+                'description': lesson.description,
+                'max_sublessons': lesson.max_sublessons
+            }
+        })
+ 
     return JsonResponse({'success': False}, status=400)
+
 
 @login_required
 def update_sublesson(request):
@@ -462,11 +661,42 @@ def update_sublesson(request):
         sub.content = request.POST.get('content')
         sub.save()
 
+        # Ajout des URLs externes
+        external_urls = request.POST.getlist('external_url[]')
+        for url in external_urls:
+            if url.strip():
+                Resource.objects.create(
+                    sub_lesson=sub,  # ✅ correct
+                    title=url.split('/')[-1],
+                    external_url=url,
+                    resource_type='external'
+                )
+
+        # Ajout des nouvelles ressources uploadées
         for file in request.FILES.getlist('resources'):
-            Resource.objects.create(sub_lesson=sub, title=file.name, resource_type='pdf', file=file)
+            ext = file.name.split('.')[-1].lower()
+            if ext in ['jpg', 'jpeg', 'png', 'gif', 'bmp']:
+                r_type = 'image'
+            elif ext == 'pdf':
+                r_type = 'pdf'
+            elif ext in ['mp4', 'mov', 'avi']:
+                r_type = 'video'
+            elif ext in ['mp3', 'wav']:
+                r_type = 'audio'
+            else:
+                r_type = 'other'
+
+            Resource.objects.create(
+                sub_lesson=sub,  # ou lesson=lesson si c’est pour add_lesson
+                title=file.name,
+                resource_type=r_type,
+                file=file
+            )
+
 
         return JsonResponse({'success': True})
     return JsonResponse({'success': False}, status=400)
+
 
 def get_lesson_resources(request, lesson_id):
     lesson = get_object_or_404(Lesson, id=lesson_id, course__teacher=request.user)

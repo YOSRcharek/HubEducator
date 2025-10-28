@@ -23,6 +23,9 @@ from django.http import JsonResponse
 from django.db.models import Avg
 from django.http import HttpResponseForbidden
 import requests
+from django.views.decorators.csrf import csrf_exempt
+import json
+from django.utils import timezone
 
 User = get_user_model()  # Always use custom user
 
@@ -137,6 +140,7 @@ def courseDetails(request, course_id):
         'star_range': range(1, 6),
     })
 
+
 @login_required
 def enroll_course(request, course_id):
     course = get_object_or_404(Course, id=course_id, visible=True)
@@ -151,6 +155,73 @@ def enroll_course(request, course_id):
     messages.success(request, "You have successfully enrolled in the course!")
 
     return redirect('courseDetails', course_id=course.id)
+
+
+@login_required
+def lesson_details(request, course_id, lesson_id):
+    # Récupérer le cours et vérifier qu'il est visible
+    course = get_object_or_404(Course, id=course_id, visible=True)
+
+    # Vérifier que l'utilisateur est inscrit au cours
+    if request.user not in course.students.all():
+        return HttpResponseForbidden("🚫 You are not authorized to access this lesson.")
+
+    # Récupérer la leçon
+    lesson = get_object_or_404(Lesson, id=lesson_id, course=course, visible=True)
+
+    # Récupérer les sous-leçons et leurs ressources
+    sub_lessons = lesson.sub_lessons.prefetch_related('resources').order_by('order').all()
+    for sub in sub_lessons:
+        sub.resource_list = sub.resources.all().order_by('order')
+        sub.resources_json = json.dumps(
+            list(sub.resource_list.values('id', 'title', 'file', 'resource_type', 'external_url')),
+            cls=DjangoJSONEncoder
+        )
+
+    # Récupérer les ressources de la leçon principale
+    lesson.resource_list = lesson.resources.filter(sub_lesson__isnull=True).order_by('order')
+    lesson.resources_json = json.dumps(
+        list(lesson.resource_list.values('id', 'title', 'file', 'resource_type', 'external_url')),
+        cls=DjangoJSONEncoder
+    )
+
+    # Progression (exemple : remplacer avec ton vrai calcul si tu as un modèle Completion)
+    completed_count = 0
+    total_count = sub_lessons.count()
+    progress_percent = int((completed_count / total_count) * 100) if total_count else 0
+
+    # Calcul de la durée du cours
+    if course.start_date and course.end_date:
+        total_days = (course.end_date - course.start_date).days
+        duration_weeks = total_days // 7
+        duration_days = total_days % 7
+    else:
+        duration_weeks = duration_days = None
+
+    # Reviews du cours
+    reviews = course.reviews.all().order_by('-created_at')
+    avg_rating = course.reviews.aggregate(avg=Avg('rating'))['avg'] or 0
+    avg_full_stars = int(avg_rating)
+    avg_empty_stars = 5 - avg_full_stars
+
+    context = {
+        'course': course,
+        'lesson': lesson,
+        'sub_lessons': sub_lessons,
+        'completed_count': completed_count,
+        'total_count': total_count,
+        'progress_percent': progress_percent,
+        'teacher': course.teacher,
+        'duration_weeks': duration_weeks,
+        'duration_days': duration_days,
+        'reviews': reviews,
+        'avg_rating': avg_rating,
+        'avg_full_stars': avg_full_stars,
+        'avg_empty_stars': avg_empty_stars,
+        'star_range': range(1, 6),
+    }
+
+    return render(request, 'cours/lessonDetails.html', context)
 
 # ----------------------------- Authentication -----------------------------
 
@@ -182,9 +253,10 @@ def login_view(request):
                 messages.error(request, "Email ou mot de passe invalide.")
         except User.DoesNotExist:
             messages.error(request, "Aucun compte avec cet email.")
-
+    
     # 🔹 En cas de GET ou d’échec, on rend la page de login
     return render(request, "login.html", {
+        'GOOGLE_URL': settings.GOOGLE_URL,
         'GOOGLE_CLIENT_ID': settings.GOOGLE_CLIENT_ID,
         'GOOGLE_REDIRECT_URI': settings.GOOGLE_REDIRECT_URI,
     })
@@ -318,6 +390,7 @@ def custom_password_reset(request):
     return render(request, 'ResetPassword/password_reset.html', {'form': form})
 
 
+
 def google_callback(request):
     code = request.GET.get('code')
     if not code:
@@ -356,6 +429,7 @@ def google_callback(request):
     # Connecter l'utilisateur
     login(request, user)
     return redirect('/')
+
 
 @login_required
 def submit_review(request, course_id):
@@ -437,3 +511,22 @@ def edit_review(request, review_id):
         })
 
     return JsonResponse({'error': 'Invalid request'}, status=400)
+
+
+@csrf_exempt
+def schedule_course(request, course_id):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        date_str = data.get("publish_date")
+        if not date_str:
+            return JsonResponse({"error": "Date manquante"}, status=400)
+
+        # Conversion string -> datetime
+        publish_date = timezone.datetime.strptime(date_str, "%Y-%m-%d %H:%M")
+        publish_date = timezone.make_aware(publish_date)  # rend timezone-aware si USE_TZ=True
+
+        course = Course.objects.get(id=course_id)
+        course.publish_date = publish_date
+        course.visible = False  # assure que ce sera publié plus tard
+        course.save()
+        return JsonResponse({"success": True})

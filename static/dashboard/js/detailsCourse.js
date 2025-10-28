@@ -77,66 +77,45 @@ function openAddSubLessonModal(lessonId) {
   openModal('addSubLessonModal');
 }
 
-// ✅ Gérer l’envoi du formulaire Add Lesson
-document.getElementById('addLessonForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const formData = new FormData(e.target);
-  const res = await fetch("{% url 'add_lesson' %}", {
-    method: 'POST',
-    body: formData
-  });
-  if (res.ok) {
-    alert('Lesson added successfully!');
-    location.reload();
-  } else {
-    alert('Error adding lesson.');
-  }
-});
-
-// ✅ Gérer l’envoi du formulaire Add SubLesson
-document.getElementById('addSubLessonForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const formData = new FormData(e.target);
-  const res = await fetch("{% url 'add_sublesson' %}", {
-    method: 'POST',
-    body: formData
-  });
-  if (res.ok) {
-    alert('Sublesson added successfully!');
-    location.reload();
-  } else {
-    alert('Error adding sublesson.');
-  }
-});
-function openUpdateLessonModal(id, title, description, resources) {
+function openUpdateLessonModal(id, title, description, max_sublessons, resourcesJson) {
     document.getElementById('updateLessonId').value = id;
     document.getElementById('updateLessonTitle').value = title;
     document.getElementById('updateLessonDescription').value = description;
 
+    // Remplir max_sublessons
+    document.getElementById('updateLessonMaxSubLessons').value = max_sublessons || '';
+
+    // Parse resources JSON
+    let resources = [];
+    try {
+        resources = JSON.parse(resourcesJson);
+    } catch (e) {
+        console.error('Invalid resources JSON', e);
+    }
+
     let container = document.getElementById('updateLessonExistingResources');
     container.innerHTML = '';
-
     if (resources.length > 0) {
-      resources.forEach(res => {
-    container.innerHTML += `
-        <div class="resource-item">
-            <span>${res.title}</span>
-            <button type="button" 
-                    class="btn btn-edit" 
-                    style="background-color: red; color: white;" 
-                    onclick="removeResource(${res.id}, this)">
-                Remove
-            </button>
-        </div>
-    `;
-});
-
+        resources.forEach(res => {
+            container.innerHTML += `
+                <div class="resource-item">
+                    <span>${res.title}</span>
+                    <button type="button" 
+                            class="btn btn-edit" 
+                            style="background-color: red; color: white;" 
+                            onclick="removeResource(${res.id}, this)">
+                        Remove
+                    </button>
+                </div>
+            `;
+        });
     } else {
         container.innerHTML = '<p>No existing resources.</p>';
     }
 
     document.getElementById('updateLessonModal').classList.remove('hidden');
 }
+
 
 function removeResource(resourceId, button) {
     let input = document.createElement('input');
@@ -191,7 +170,6 @@ function removeSubResource(resourceId, button) {
 }
 
 
-
 function closeModal(modalId) {
     document.getElementById(modalId).classList.add('hidden');
 }
@@ -227,13 +205,22 @@ document.getElementById('updateLessonForm').addEventListener('submit', function(
     })
     .then(res => res.json())
     .then(data => {
-        if(data.success){
-            alert("Lesson updated successfully!");
-            location.reload();
-        } else {
-            alert("Error updating lesson!");
-        }
-    });
+    if(data.success){
+        const lesson = data.lesson;
+
+        // Mettre à jour les champs dans le modal
+        document.getElementById('updateLessonTitle').value = lesson.title;
+        document.getElementById('updateLessonDescription').value = lesson.description;
+        document.getElementById('updateLessonMaxSubLessons').value = lesson.max_sublessons;
+
+        alert("Lesson updated successfully!");
+        // Optionnel : fermer le modal
+        closeModal('updateLessonModal');
+    } else {
+        alert("Error updating lesson!");
+    }
+});
+
 });
 document.getElementById('updateSubLessonForm').addEventListener('submit', function(e){
     e.preventDefault();
@@ -260,14 +247,7 @@ document.getElementById('updateSubLessonForm').addEventListener('submit', functi
 
 
 
-function removeSubResource(resourceId, button) {
-    let input = document.createElement('input');
-    input.type = 'hidden';
-    input.name = 'delete_resources[]';
-    input.value = resourceId;
-    document.getElementById('updateSubLessonForm').appendChild(input);
-    button.parentElement.remove();
-}
+
 
 // Delete confirmation
 function confirmDeleteLesson(id) {

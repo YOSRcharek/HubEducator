@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.humanize',
     'django.contrib.sites',  # nécessaire pour allauth
+    'django_celery_beat',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
@@ -126,11 +127,12 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+USE_TZ = True
+TIME_ZONE = 'Africa/Tunis'
 
 USE_I18N = True
 
-USE_TZ = True
+
 
 
 # Static files (CSS, JavaScript, Images)
@@ -170,7 +172,18 @@ STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")  # must be different from ST
 # WhiteNoise for serving static files in production
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
+# settings.py
+CELERY_BEAT_SCHEDULE = {
+    'publish-scheduled-courses-every-minute': {
+        'task': 'TeacherDash.tasks.publish_scheduled_courses',  # nom exact
+        'schedule': 60.0,  # toutes les 60 secondes
+    },
+}
 
+
+
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -200,3 +213,4 @@ SOCIALACCOUNT_AUTO_SIGNUP = True
 GOOGLE_CLIENT_ID = config('GOOGLE_CLIENT_ID')
 GOOGLE_CLIENT_SECRET = config('GOOGLE_CLIENT_SECRET')
 GOOGLE_REDIRECT_URI = config('GOOGLE_REDIRECT_URI')
+GOOGLE_URL = config('GOOGLE_URL')

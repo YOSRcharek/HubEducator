@@ -305,6 +305,12 @@
                     <i class="bi bi-people-fill"></i>
                     <span>Capacity: <strong>{{ course.students.count|default:'0' }}/{{ course.capacity }}</strong> students</span>
                   </div>
+                  <div class="meta-item">
+                    <i class="bi bi-journal-bookmark"></i> <!-- icône bootstrap pour lessons -->
+                    <span>
+                        Lessons: <strong>{{ course.lessons.count|default:'0' }}/{{ course.max_lessons }}</strong>
+                    </span>
+                </div>
 
                   {% if course.start_date or course.end_date %}
                     <div class="meta-item">
@@ -389,14 +395,14 @@
                         </div>
                         <div class="lesson-actions">
                          
-
-                         <button class="btn btn-edit"
+                        <button class="btn btn-edit"
                             data-url="{% url 'update_lesson' %}"
                             onclick="openUpdateLessonModal(
                                 {{ lesson.id }},
                                 '{{ lesson.title|escapejs }}',
                                 '{{ lesson.description|escapejs }}',
-                                {% if lesson.resources_json %}JSON.parse('{{ lesson.resources_json|escapejs }}'){% else %}[]{% endif %}
+                                {{ lesson.max_sublessons|default:0 }},
+                                '{{ lesson.resources_json|default:'[]'|escapejs }}'
                             )">
                             <svg width="12" height="12" viewbox="0 0 24 24" fill="currentColor">
                               <path d="M20.71 7.04C21.1 6.65 21.1 6 20.71 5.63L18.37 3.29C18 2.9 17.35 2.9 16.96 3.29L15.12 5.12L18.87 8.87M3 17.25V21H6.75L17.81 9.93L14.06 6.18L3 17.25Z" />
@@ -429,24 +435,65 @@
 
                         </div>
                       </div>
-                      <div class="resources">
+                     <div class="resources">
                         {% if lesson.resource_list %}
                           {% for resource in lesson.resource_list|slice:':4' %}
-                           <span class="resource-tag resource-{{ resource.resource_type|resource_class }}" 
-                                onclick="openResource('{{ resource.file.url }}', '{{ resource.resource_type }}')">
-                            {{ resource.title }}
-                          </span>
-
+                            {% if resource.resource_type == "external" %}
+                              <span class="resource-tag resource-{{ resource.resource_type|resource_class }}" 
+                                    onclick="openResource('{{ resource.external_url }}', '{{ resource.resource_type }}')"
+                                    style="
+                                      {% if resource.resource_type == 'video' %} background-color: #099410ff; color: white; {% endif %}
+                                      {% if resource.resource_type == 'pdf' %} background-color: #9da706ff; color: white; {% endif %}
+                                      {% if resource.resource_type == 'image' %} background-color: #a2101fff; color: white; {% endif %}
+                                      {% if resource.resource_type == 'audio' %} background-color: #0077ccff; color: white; {% endif %}
+                                      {% if resource.resource_type == 'external' %} background-color: #ff6f00ff; color: white; {% endif %}
+                                    ">
+                                {{ resource.title }}
+                              </span>
+                            {% else %}
+                              <span class="resource-tag resource-{{ resource.resource_type|resource_class }}" 
+                                    onclick="openResource('{{ resource.file.url }}', '{{ resource.resource_type }}')"
+                                    style="
+                                      {% if resource.resource_type == 'video' %} background-color: #099410ff; color: white; {% endif %}
+                                      {% if resource.resource_type == 'pdf' %} background-color: #9da706ff; color: white; {% endif %}
+                                      {% if resource.resource_type == 'image' %} background-color: #a2101fff; color: white; {% endif %}
+                                      {% if resource.resource_type == 'audio' %} background-color: #0077ccff; color: white; {% endif %}
+                                      {% if resource.resource_type == 'external' %} background-color: #ff6f00ff; color: white; {% endif %}
+                                    ">
+                                {{ resource.title }}
+                              </span>
+                            {% endif %}
                           {% endfor %}
+
                           {% if lesson.resource_list|length > 4 %}
                             <button class="see-more-btn" onclick="toggleResources(this)">See more</button>
                             <div class="extra-resources hidden">
                               {% for resource in lesson.resource_list|slice:'4:' %}
-                               <span class="resource-tag resource-{{ resource.resource_type|resource_class }}" 
-                                  onclick="openResource('{{ resource.file.url }}', '{{ resource.resource_type }}')">
-                              {{ resource.title }}
-                            </span>
-
+                                {% if resource.resource_type == "external" %}
+                                  <span class="resource-tag resource-{{ resource.resource_type|resource_class }}" 
+                                        onclick="openResource('{{ resource.external_url }}', '{{ resource.resource_type }}')"
+                                        style="
+                                          {% if resource.resource_type == 'video' %} background-color: #099410ff; color: white; {% endif %}
+                                          {% if resource.resource_type == 'pdf' %} background-color: #9da706ff; color: white; {% endif %}
+                                          {% if resource.resource_type == 'file' %} background-color: #a2101fff; color: white; {% endif %}
+                                          {% if resource.resource_type == 'audio' %} background-color: #0077ccff; color: white; {% endif %}
+                                          {% if resource.resource_type == 'external' %} background-color: #ff6f00ff; color: white; {% endif %}
+                                        ">
+                                    {{ resource.title }}
+                                  </span>
+                                {% else %}
+                                  <span class="resource-tag resource-{{ resource.resource_type|resource_class }}" 
+                                        onclick="openResource('{{ resource.file.url }}', '{{ resource.resource_type }}')"
+                                        style="
+                                          {% if resource.resource_type == 'video' %} background-color: #099410ff; color: white; {% endif %}
+                                          {% if resource.resource_type == 'pdf' %} background-color: #9da706ff; color: white; {% endif %}
+                                          {% if resource.resource_type == 'file' %} background-color: #a2101fff; color: white; {% endif %}
+                                          {% if resource.resource_type == 'audio' %} background-color: #0077ccff; color: white; {% endif %}
+                                          {% if resource.resource_type == 'external' %} background-color: #ff6f00ff; color: white; {% endif %}
+                                        ">
+                                    {{ resource.title }}
+                                  </span>
+                                {% endif %}
                               {% endfor %}
                             </div>
                           {% endif %}
@@ -454,6 +501,7 @@
                           <span class="resource-tag">No resource</span>
                         {% endif %}
                       </div>
+
 
                       <div class="sub-lessons">
                         {% for sub in lesson.sublessons %}
@@ -504,21 +552,62 @@
                             <div class="resources">
                               {% if sub.resource_list %}
                                 {% for resource in sub.resource_list|slice:':4' %}
-                                 <span class="resource-tag resource-{{ resource.resource_type|resource_class }}" 
-                                  onclick="openResource('{{ resource.file.url }}', '{{ resource.resource_type }}')">
-                                   {{ resource.title }}
-                                  </span>
-
+                                  {% if resource.resource_type == "external" %}
+                                    <span class="resource-tag resource-{{ resource.resource_type|resource_class }}" 
+                                          onclick="openResource('{{ resource.external_url }}', '{{ resource.resource_type }}')"
+                                          style="
+                                            {% if resource.resource_type == 'video' %} background-color: #099410ff; color: white; {% endif %}
+                                            {% if resource.resource_type == 'pdf' %} background-color: #9da706ff; color: white; {% endif %}
+                                            {% if resource.resource_type == 'image' %} background-color: #a2101fff; color: white; {% endif %}
+                                            {% if resource.resource_type == 'audio' %} background-color: #0077ccff; color: white; {% endif %}
+                                            {% if resource.resource_type == 'external' %} background-color: #ff6f00ff; color: white; {% endif %}
+                                          ">
+                                      {{ resource.title }}
+                                    </span>
+                                  {% else %}
+                                    <span class="resource-tag resource-{{ resource.resource_type|resource_class }}" 
+                                          onclick="openResource('{{ resource.file.url }}', '{{ resource.resource_type }}')"
+                                          style="
+                                            {% if resource.resource_type == 'video' %} background-color: #099410ff; color: white; {% endif %}
+                                            {% if resource.resource_type == 'pdf' %} background-color: #9da706ff; color: white; {% endif %}
+                                            {% if resource.resource_type == 'image' %} background-color: #a2101fff; color: white; {% endif %}
+                                            {% if resource.resource_type == 'audio' %} background-color: #0077ccff; color: white; {% endif %}
+                                            {% if resource.resource_type == 'external' %} background-color: #ff6f00ff; color: white; {% endif %}
+                                          ">
+                                      {{ resource.title }}
+                                    </span>
+                                  {% endif %}
                                 {% endfor %}
+
                                 {% if sub.resource_list|length > 4 %}
                                   <button class="see-more-btn" onclick="toggleResources(this)">See more</button>
                                   <div class="extra-resources hidden">
                                     {% for resource in sub.resource_list|slice:'4:' %}
-                                     <span class="resource-tag resource-{{ resource.resource_type|resource_class }}" 
-                                          onclick="openResource('{{ resource.file.url }}', '{{ resource.resource_type }}')">
-                                      {{ resource.title }}
-                                    </span>
-
+                                      {% if resource.resource_type == "external" %}
+                                        <span class="resource-tag resource-{{ resource.resource_type|resource_class }}" 
+                                              onclick="openResource('{{ resource.external_url }}', '{{ resource.resource_type }}')"
+                                              style="
+                                                {% if resource.resource_type == 'video' %} background-color: #099410ff; color: white; {% endif %}
+                                                {% if resource.resource_type == 'pdf' %} background-color: #9da706ff; color: white; {% endif %}
+                                                {% if resource.resource_type == 'file' %} background-color: #a2101fff; color: white; {% endif %}
+                                                {% if resource.resource_type == 'audio' %} background-color: #0077ccff; color: white; {% endif %}
+                                                {% if resource.resource_type == 'external' %} background-color: #ff6f00ff; color: white; {% endif %}
+                                              ">
+                                          {{ resource.title }}
+                                        </span>
+                                      {% else %}
+                                        <span class="resource-tag resource-{{ resource.resource_type|resource_class }}" 
+                                              onclick="openResource('{{ resource.file.url }}', '{{ resource.resource_type }}')"
+                                              style="
+                                                {% if resource.resource_type == 'video' %} background-color: #099410ff; color: white; {% endif %}
+                                                {% if resource.resource_type == 'pdf' %} background-color: #9da706ff; color: white; {% endif %}
+                                                {% if resource.resource_type == 'file' %} background-color: #a2101fff; color: white; {% endif %}
+                                                {% if resource.resource_type == 'audio' %} background-color: #0077ccff; color: white; {% endif %}
+                                                {% if resource.resource_type == 'external' %} background-color: #ff6f00ff; color: white; {% endif %}
+                                              ">
+                                          {{ resource.title }}
+                                        </span>
+                                      {% endif %}
                                     {% endfor %}
                                   </div>
                                 {% endif %}
@@ -526,6 +615,7 @@
                                 <span class="resource-tag">No resource</span>
                               {% endif %}
                             </div>
+
                           </div>
                         {% endfor %}
 
@@ -795,6 +885,9 @@
 
       <label>Description</label>
       <textarea name="description" class="form-control" required></textarea>
+       
+      <label>Max SubLessons (optional)</label>
+      <input type="number" name="max_sublessons" class="form-control" min="1" placeholder="Ex: 10">
 
       <label>Upload Resources</label>
       <div class="dropzone" onclick="document.getElementById('lessonResources').click()">
@@ -807,8 +900,11 @@
         </div>
       </div>
       <input type="file" id="lessonResources" name="resources" multiple class="d-none" onchange="previewFiles(this, 'lessonPreview')">
-      <div id="lessonPreview" class="lessonPreview"></div>
+      <label>External Resource URL (optional)</label>
+      <input type="url" name="external_url[]" class="form-control" placeholder="https://example.com">
 
+      <div id="lessonPreview" class="lessonPreview"></div>
+      
       <div class="modal-actions">
         <button type="submit" class="btn btn-primary">Save</button>
         <button type="button" class="btn btn-secondary" onclick="closeModal('addLessonModal')">Cancel</button>
@@ -841,6 +937,9 @@
         </div>
       </div>
       <input type="file" id="subLessonResources" name="resources" multiple class="d-none" onchange="previewFiles(this, 'sublessonPreview')">
+      <label>External Resource URL (optional)</label>
+      <input type="url" name="external_url[]" class="form-control" placeholder="https://example.com">
+
       <div id="sublessonPreview" class="sublessonPreview"></div>
 
       <div class="modal-actions">
@@ -863,10 +962,14 @@
 
       <label>Description</label>
       <textarea name="description" id="updateLessonDescription" class="form-control" required></textarea>
+       
+      <label>Max SubLessons (optional)</label>
+      <input type="number" name="max_sublessons" id="updateLessonMaxSubLessons" class="form-control" min="1" placeholder="Ex: 10"
+       value="{{ lesson.max_sublessons|default:'' }}">
 
       <label>Existing Resources</label>
       <div id="updateLessonExistingResources" class="existing-resources"></div>
-
+   
       <label>Upload Resources</label>
       <div class="dropzone" onclick="document.getElementById('updateLessonResources').click()">
         <div class="dz-message">
@@ -874,6 +977,9 @@
         </div>
       </div>
       <input type="file" id="updateLessonResources" name="resources" multiple class="d-none">
+      <label>Add External Resource URL</label>
+      <input type="url" name="external_url[]" class="form-control" placeholder="https://example.com">
+
       <div id="updateLessonPreview" class="lessonPreview"></div>
 
       <div class="modal-actions">
@@ -906,6 +1012,9 @@
         </div>
       </div>
       <input type="file" id="updateSubLessonResources" name="resources" multiple class="d-none">
+      <label>Add External Resource URL</label>
+      <input type="url" name="external_url[]" class="form-control" placeholder="https://example.com">
+
       <div id="updateSubLessonPreview" class="sublessonPreview"></div>
 
       <div class="modal-actions">
@@ -1077,9 +1186,51 @@ document.getElementById('assignStudentsBtn').addEventListener('click', function(
     })
     .catch(err => console.error("Assign students failed:", err));
 });
+function addExternalUrl() {
+    const container = document.getElementById('externalUrlsContainer');
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.name = 'external_url[]';
+    input.className = 'form-control mb-2';
+    input.placeholder = 'Enter URL';
+    container.appendChild(input);
+}
+ const addLessonUrl = "{% url 'add_lesson' %}";
+  const addSublessonUrl = "{% url 'add_sublesson' %}";
+  // Ajouter Lesson
+document.getElementById('addLessonForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const formData = new FormData(e.target);
+  const res = await fetch(addLessonUrl, {
+    method: 'POST',
+    body: formData
+  });
+  if (res.ok) {
+    alert('Lesson added successfully!');
+    location.reload();
+  } else {
+    alert('Error adding lesson.');
+  }
+});
+
+// Ajouter SubLesson
+document.getElementById('addSubLessonForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const formData = new FormData(e.target);
+  const res = await fetch(addSublessonUrl, {
+    method: 'POST',
+    body: formData
+  });
+  if (res.ok) {
+    alert('Sublesson added successfully!');
+    location.reload();
+  } else {
+    alert('Error adding sublesson.');
+  }
+});
+
 </script>
 
-<script src="{% static 'js/detailsCourse.js' %}"></script>
 
     <script src="{% static 'dashboard/js/detailsCourse.js' %}"></script>
 

@@ -859,3 +859,24 @@
                 gap: 1rem;
             }
         }
+
+
+
+        .resources {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* 2 colonnes égales */
+  align-items: center; /* Alignement vertical */
+}
+
+.left {
+  text-align: left;
+}
+
+.right {
+  text-align: right;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 5px;
+}
+

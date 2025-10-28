@@ -33,15 +33,7 @@
                     </div> 
                 </div>
                 <div class="bg-white">
-                    {% if messages %}
-                    <div class="mb-4">
-                        {% for message in messages %}
-                            <div class="alert {% if message.tags == 'error' %}alert-danger{% else %}alert-success{% endif %}">
-                                {{ message }}
-                            </div>
-                        {% endfor %}
-                    </div>
-                    {% endif %}
+                   
 
 <form id="course-form" action="" method="post" enctype="multipart/form-data" class="container p-4">
     {% csrf_token %}
@@ -96,21 +88,21 @@
                         </select>
                         <div class="invalid-feedback"></div>
                     </div>
-                    <div class="fv-row mb-8 row">
-                        <div class="col-md-6">
-                            <label class="form-label fs-6 fw-bold text-dark">Start Date</label>
-                            <input type="date" name="start_date" class="form-control form-control-lg form-control-solid"
-                                value="{{ course.start_date|date:'Y-m-d' }}" />
-                            <div class="invalid-feedback"></div>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="form-label fs-6 fw-bold text-dark">End Date</label>
-                            <input type="date" name="end_date" class="form-control form-control-lg form-control-solid"
-                                value="{{ course.end_date|date:'Y-m-d' }}" />
-                            <div class="invalid-feedback"></div>
-                        </div>
+                   <div class="fv-row mb-8 row">
+                    <div class="col-md-6">
+                        <label class="form-label fs-6 fw-bold text-dark">Start Date</label>
+                        <input type="date" name="start_date" class="form-control form-control-lg form-control-solid"
+                            value="{{ course.start_date|date:'Y-m-d' }}" />
+                        <div class="invalid-feedback"></div>
                     </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fs-6 fw-bold text-dark">End Date</label>
+                        <input type="date" name="end_date" class="form-control form-control-lg form-control-solid"
+                            value="{{ course.end_date|date:'Y-m-d' }}" />
+                        <div class="invalid-feedback"></div>
+                    </div>
+                </div>
 
                 </div>
 
@@ -133,6 +125,18 @@
                         {% endif %}
                     </div>
                 </div>
+                <div class="fv-row mb-8 row">
+                <div class="col-md-6">
+                    <label class="form-label fs-6 fw-bold text-dark">Max Lessons</label>
+                     <input type="number" name="max_lessons" class="form-control form-control-lg form-control-solid" 
+                            value="{{ course.max_lessons }}" required min="1" 
+                            data-current="{{ course.lessons.count }}" />
+                     <div class="invalid-feedback">Max lessons is required and must be > 0</div>
+
+                </div>
+                
+            </div>
+
 
                 <div class="d-flex justify-content-end">
                     <button type="submit" class="btn btn-lg btn-primary">Update Course</button>
@@ -148,25 +152,87 @@
 
 <script>
 (function(){
+    const form = document.getElementById("course-form");
+    const dropThumbnail = document.getElementById("dropzoneThumbnail");
+    const thumbInput = document.getElementById("thumbnailInput");
+    const previewArea = document.getElementById("preview-area");
+    const maxLessons = form.querySelector('input[name="max_lessons"]');
+    const currentLessonsCount = parseInt(maxLessons.dataset.current) || 0;
 
-// Thumbnail preview
-const dropThumbnail = document.getElementById("dropzoneThumbnail");
-const thumbInput = document.getElementById("thumbnailInput");
-dropThumbnail.addEventListener("click",()=>thumbInput.click());
-thumbInput.addEventListener("change",e=>{
-    const file=e.target.files[0];
-    if(file){
-        const previewImg=document.createElement("img");
-        previewImg.src=URL.createObjectURL(file);
-        previewImg.classList.add("img-fluid","rounded","shadow","mt-2");
-        previewImg.style.maxWidth="200px";
-        document.getElementById("preview-area").innerHTML="";
-        document.getElementById("preview-area").appendChild(previewImg);
-    }
-});
+    
+    // Thumbnail preview
+    dropThumbnail.addEventListener("click", ()=> thumbInput.click());
+    thumbInput.addEventListener("change", e=>{
+        const file = e.target.files[0];
+        if(file){
+            const previewImg = document.createElement("img");
+            previewImg.src = URL.createObjectURL(file);
+            previewImg.classList.add("img-fluid","rounded","shadow","mt-2");
+            previewImg.style.maxWidth="200px";
+            previewArea.innerHTML="";
+            previewArea.appendChild(previewImg);
+        }
+    });
 
-showStep(0);
+    // Validation au submit
+    form.addEventListener("submit", e=>{
+        let valid = true;
+
+        // Reset erreurs
+        form.querySelectorAll('.invalid-feedback').forEach(div=>div.textContent='');
+        form.querySelectorAll('input').forEach(input=>input.classList.remove('is-invalid'));
+
+        const title = form.querySelector('input[name="title"]');
+        if(!title.value.trim()){
+            title.classList.add('is-invalid');
+            title.nextElementSibling.textContent='Title required';
+            valid=false;
+        }
+
+        const startDate = form.querySelector('input[name="start_date"]');
+        const endDate = form.querySelector('input[name="end_date"]');
+        if(!startDate.value){
+            startDate.classList.add('is-invalid');
+            startDate.nextElementSibling.textContent='Start Date required';
+            valid=false;
+        }
+        if(!endDate.value){
+            endDate.classList.add('is-invalid');
+            endDate.nextElementSibling.textContent='End Date required';
+            valid=false;
+        }
+
+        if(startDate.value && endDate.value){
+            if(new Date(endDate.value) < new Date(startDate.value)){
+                endDate.classList.add('is-invalid');
+                endDate.nextElementSibling.textContent='End Date must be after Start Date';
+                valid=false;
+            }
+        }
+     
+        if(!maxLessons.value || maxLessons.value <= 0){
+            maxLessons.classList.add('is-invalid');
+            maxLessons.nextElementSibling.textContent='Max lessons is required and must be > 0';
+            valid=false;
+        } else if(parseInt(maxLessons.value) < currentLessonsCount){
+            maxLessons.classList.add('is-invalid');
+            maxLessons.nextElementSibling.textContent=`Max lessons cannot be less than current number of lessons (${currentLessonsCount})`;
+            valid=false;
+        }
+
+        // Thumbnail required si pas déjà existant
+        {% if not course.thumbnail %}
+        if(!thumbInput.files.length){
+            dropThumbnail.classList.add('is-invalid');
+            dropThumbnail.nextElementSibling.textContent='Thumbnail required';
+            valid=false;
+        }
+        {% endif %}
+
+        if(!valid) e.preventDefault();
+    });
 })();
+
 </script>
 
 

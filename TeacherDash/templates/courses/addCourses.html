@@ -103,6 +103,15 @@
 
                 </div>
 
+                
+                <div class="fv-row mb-8 row">
+                    <div class="col-md-6">
+                        <label class="form-label fs-6 fw-bold text-dark">Max Lessons</label>
+                        <input type="number" name="max_lessons" class="form-control form-control-lg form-control-solid" placeholder="Ex: 5" required min="1"/>
+                        <div class="invalid-feedback">Please enter max lessons</div>
+                    </div>
+                  
+                </div>
                 <div class="fv-row mb-8">
                     <label class="form-label fs-6 fw-bold text-dark">Course Thumbnail</label>
                     <div id="dropzoneThumbnail" class="dropzone needsclick text-center p-4">
@@ -166,62 +175,103 @@
 
 <!-- Templates pour Lessons/SubLessons (inchangé) -->
 
+<!-- Lesson Template -->
 <template id="lesson-template">
-    <div class="card mb-4 lesson-item">
-        <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <h5>New Lesson</h5>
-                <button type="button" class="btn btn-sm btn-danger remove-lesson-btn">Remove</button>
-            </div>
-            <input type="text" name="lesson_title[]" placeholder="Lesson title" class="form-control mb-2" />
-            <div class="invalid-feedback"></div>
-            <textarea name="lesson_description[]" placeholder="Lesson description" class="form-control mb-2"></textarea>
-            <div class="invalid-feedback"></div>
+  <div class="card mb-4 lesson-item">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h5>New Lesson</h5>
+        <button type="button" class="btn btn-sm btn-danger remove-lesson-btn">Remove</button>
+      </div>
 
-            <div class="dropzone needsclick text-center p-4 mb-2 lesson-dropzone">
-                <div class="dz-message">
-                    <i class="ki-duotone ki-file-up fs-3hx text-primary"></i>
-                    <div class="ms-4">
-                        <h3 class="fs-3 fw-bold text-gray-900 mb-1">Drop files here or click to upload.</h3>
-                        <span class="fw-semibold fs-4 text-muted">Upload lesson resources</span>
+      <input type="text" name="lesson_title[]" placeholder="Lesson title" class="form-control mb-2" />
+      <div class="invalid-feedback"></div>
+
+      <textarea name="lesson_description[]" placeholder="Lesson description" class="form-control mb-2"></textarea>
+      <div class="col-md-6">
+                        <label class="form-label fs-6 fw-bold text-dark">Max SubLessons (optional)</label>
+                        <input type="number" name="max_sublessons" class="form-control form-control-lg form-control-solid" placeholder="Ex: 10" min="1"/>
+                        <div class="invalid-feedback">Please enter a valid number</div>
                     </div>
-                </div>
-            </div>
-            <input type="file" name="lesson_resources[]" multiple class="d-none lessonFilesInput" />
-            <div class="lessonPreview mt-2 d-flex flex-wrap gap-2"></div>
-
-            <div class="sublessons-list mt-2"></div>
-            <button type="button" class="btn btn-outline-primary btn-sm mt-2 add-sublesson-btn">+ Add SubLesson</button>
+      <div class="invalid-feedback"></div>
+    
+      <!-- File Upload -->
+      <div class="dropzone needsclick text-center p-4 mb-2 lesson-dropzone">
+        <div class="dz-message">
+          <i class="ki-duotone ki-file-up fs-3hx text-primary"></i>
+          <div class="ms-4">
+            <h3 class="fs-3 fw-bold text-gray-900 mb-1">Drop files here or click to upload.</h3>
+            <span class="fw-semibold fs-4 text-muted">Upload lesson resources</span>
+          </div>
         </div>
+      </div>
+      <input type="file" name="lesson_resources[]" multiple class="d-none lessonFilesInput" />
+      <div class="lessonPreview mt-2 d-flex flex-wrap gap-2"></div>
+
+      <!-- External Resource Input -->
+      <div class="external-resources-list mt-2"></div>
+      <button type="button" class="btn btn-outline-secondary btn-sm mt-2 add-external-resource-btn">
+        + Add External Resource
+      </button>
+
+      <div class="sublessons-list mt-2"></div>
+      <button type="button" class="btn btn-outline-primary btn-sm mt-2 add-sublesson-btn">+ Add SubLesson</button>
     </div>
+  </div>
 </template>
 
+<!-- SubLesson Template -->
 <template id="sublesson-template">
-    <div class="card mb-2 sublesson-item">
-        <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <h6>New SubLesson</h6>
-                <button type="button" class="btn btn-sm btn-danger remove-sublesson-btn">Remove</button>
-            </div>
-            <input type="text" name="sublesson_title[]" placeholder="SubLesson title" class="form-control mb-2" />
-            <div class="invalid-feedback"></div>
-            <textarea name="sublesson_content[]" placeholder="Content" class="form-control mb-2"></textarea>
-            <div class="invalid-feedback"></div>
+  <div class="card mb-2 sublesson-item">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h6>New SubLesson</h6>
+        <button type="button" class="btn btn-sm btn-danger remove-sublesson-btn">Remove</button>
+      </div>
 
-            <div class="dropzone needsclick text-center p-4 mb-2 sublesson-dropzone">
-                <div class="dz-message">
-                    <i class="ki-duotone ki-file-up fs-3hx text-primary"></i>
-                    <div class="ms-4">
-                        <h3 class="fs-3 fw-bold text-gray-900 mb-1">Drop files here or click to upload.</h3>
-                        <span class="fw-semibold fs-4 text-muted">Upload sublesson resources</span>
-                    </div>
-                </div>
-            </div>
-            <input type="file" name="sublesson_resources[]" multiple class="d-none sublessonFilesInput" />
-            <div class="sublessonPreview mt-2 d-flex flex-wrap gap-2"></div>
+      <input type="text" name="sublesson_title[]" placeholder="SubLesson title" class="form-control mb-2" />
+      <div class="invalid-feedback"></div>
+
+      <textarea name="sublesson_content[]" placeholder="Content" class="form-control mb-2"></textarea>
+      <div class="invalid-feedback"></div>
+
+      <!-- File Upload -->
+      <div class="dropzone needsclick text-center p-4 mb-2 sublesson-dropzone">
+        <div class="dz-message">
+          <i class="ki-duotone ki-file-up fs-3hx text-primary"></i>
+          <div class="ms-4">
+            <h3 class="fs-3 fw-bold text-gray-900 mb-1">Drop files here or click to upload.</h3>
+            <span class="fw-semibold fs-4 text-muted">Upload sublesson resources</span>
+          </div>
         </div>
+      </div>
+      <input type="file" name="sublesson_resources[]" multiple class="d-none sublessonFilesInput" />
+      <div class="sublessonPreview mt-2 d-flex flex-wrap gap-2"></div>
+
+      <!-- External Resource Input -->
+      <div class="external-resources-list mt-2"></div>
+      <button type="button" class="btn btn-outline-secondary btn-sm mt-2 add-external-resource-btn">
+        + Add External Resource
+      </button>
     </div>
+  </div>
 </template>
+
+<!-- External Resource Template -->
+<template id="external-resource-template">
+  <div class="external-resource-input mb-2 d-flex align-items-center gap-2" style="position:relative;">
+    <input type="url" name="external_url[]" placeholder="Paste external link (YouTube, Google Docs…)" class="form-control" />
+    <select name="resource_type[]" class="form-select">
+      <option value="external">External Link</option>
+      <option value="video">Video File</option>
+      <option value="pdf">PDF File</option>
+      <option value="image">Image</option>
+      <option value="audio">Audio</option>
+    </select>
+    <button type="button" class="btn btn-sm btn-danger remove-external-btn" style="position:absolute; top:2px; right:2px;">&times;</button>
+  </div>
+</template>
+
 
 <script>
 (function(){
@@ -248,30 +298,67 @@ function validateStep(stepIndex){
     step.querySelectorAll('.invalid-feedback').forEach(div=>div.textContent='');
     step.querySelectorAll('input, select, textarea').forEach(input=>input.classList.remove('is-invalid'));
 
-    if(stepIndex===0){ // Course
-        const title = step.querySelector('input[name="title"]');
-        const category = step.querySelector('select[name="category"]');
-        if(!title.value.trim()){ title.classList.add('is-invalid'); title.nextElementSibling.textContent='Title required'; valid=false; }
-        if(!category.value){ category.classList.add('is-invalid'); category.nextElementSibling.textContent='Category required'; valid=false; }
+if(stepIndex===0){ // Course Info
+    const title = step.querySelector('input[name="title"]');
+    const category = step.querySelector('select[name="category"]');
+    const startDate = step.querySelector('input[name="start_date"]');
+    const endDate = step.querySelector('input[name="end_date"]');
+    const thumbnail = step.querySelector('input[name="thumbnail"]');
+    const maxLessons = step.querySelector('input[name="max_lessons"]');
+
+    // validations existantes...
+    if(!title.value.trim()){ title.classList.add('is-invalid'); title.nextElementSibling.textContent='Title required'; valid=false; }
+    if(!category.value){ category.classList.add('is-invalid'); category.nextElementSibling.textContent='Category required'; valid=false; }
+    if(!startDate.value){ startDate.classList.add('is-invalid'); startDate.nextElementSibling.textContent='Start date required'; valid=false; }
+    if(!endDate.value){ endDate.classList.add('is-invalid'); endDate.nextElementSibling.textContent='End date required'; valid=false; }
+    if(startDate.value && endDate.value && startDate.value > endDate.value){
+        endDate.classList.add('is-invalid');
+        endDate.nextElementSibling.textContent='End date must be after start date';
+        valid=false;
     }
+    if(!thumbnail.files.length){ alert("Thumbnail is required"); valid=false; }
 
-    if(stepIndex===1){ // Lessons
-        const lessons = step.querySelectorAll('.lesson-item');
-        if(lessons.length===0){ alert("Add at least one lesson"); return false; }
+    // ✅ Validation Max Lessons (required)
+    if(!maxLessons.value || maxLessons.value <= 0){
+        maxLessons.classList.add('is-invalid');
+        maxLessons.nextElementSibling.textContent='Max lessons is required and must be > 0';
+        valid=false;
+    }
+}
 
-        lessons.forEach(lesson=>{
-            const ltitle = lesson.querySelector('input[name^="lesson_title"]');
-            if(!ltitle.value.trim()){ ltitle.classList.add('is-invalid'); ltitle.nextElementSibling.textContent='Lesson title required'; valid=false; }
 
-            const subs = lesson.querySelectorAll('.sublesson-item');
-            subs.forEach(sub=>{
-                const stitle = sub.querySelector('input[name^="sublesson_title"]');
-                if(!stitle.value.trim()){ stitle.classList.add('is-invalid'); stitle.nextElementSibling.textContent='SubLesson title required'; valid=false; }
-            });
+
+   if(stepIndex===1){ // Lessons (non required)
+    const lessons = step.querySelectorAll('.lesson-item');
+    lessons.forEach(lesson=>{
+        const ltitle = lesson.querySelector('input[name^="lesson_title"]');
+      
+        if(ltitle && ltitle.value.trim()){ 
+         }
+     
+        const subs = lesson.querySelectorAll('.sublesson-item');
+        subs.forEach(sub=>{
+            const stitle = sub.querySelector('input[name^="sublesson_title"]');
+            if(stitle && stitle.value.trim()){ 
+                // validations sublesson optionnelles
+            }
         });
-    }
+    });
+}
+
+
     return valid;
 }
+
+// Next/Previous buttons
+document.querySelectorAll('[data-kt-element="type-next"], [data-kt-element="settings-next"]').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+        const stepIndex = parseInt(btn.closest('[data-kt-stepper-element="content"]').getAttribute('data-stepindex'));
+        // Lessons non required, on peut passer même s'il n'y a pas de lesson
+        if(validateStep(stepIndex)) showStep(stepIndex+1);
+    });
+});
+
 
 // Nav clickable
 navItems.forEach((nav,i)=>{
@@ -300,45 +387,111 @@ document.querySelectorAll('[data-kt-element="settings-previous"], [data-kt-eleme
 function handleFiles(event, previewArea){
     const files = Array.from(event.target.files);
     previewArea.innerHTML = "";
-    files.forEach(file=>{
+
+    files.forEach(file => {
         const container = document.createElement("div");
-        container.style.position="relative"; container.style.display="inline-block"; container.style.marginRight="5px";
-        const img = document.createElement("img");
-        img.src = URL.createObjectURL(file);
-        img.classList.add("img-fluid","rounded","shadow"); img.style.maxWidth="120px"; img.style.maxHeight="120px";
-        const btn = document.createElement("button"); btn.innerHTML="&times;";
-        btn.style.position="absolute"; btn.style.top="2px"; btn.style.right="2px";
-        btn.classList.add("btn","btn-sm","btn-danger"); btn.onclick=()=>container.remove();
-        container.appendChild(img); container.appendChild(btn); previewArea.appendChild(container);
+        container.style.position = "relative";
+        container.style.display = "inline-block";
+        container.style.marginRight = "5px";
+
+        let preview;
+
+        if (file.type.startsWith("image/")) {
+            preview = document.createElement("img");
+            preview.src = URL.createObjectURL(file);
+            preview.style.maxWidth = "120px";
+            preview.style.maxHeight = "120px";
+            preview.classList.add("img-fluid","rounded","shadow");
+        } 
+        else if (file.type === "application/pdf") {
+            preview = document.createElement("embed");
+            preview.src = URL.createObjectURL(file);
+            preview.type = "application/pdf";
+            preview.style.width = "120px";
+            preview.style.height = "120px";
+            preview.classList.add("rounded","shadow");
+        }
+        else if (file.type.startsWith("video/")) {
+            preview = document.createElement("video");
+            preview.src = URL.createObjectURL(file);
+            preview.controls = true;
+            preview.style.width = "120px";
+            preview.style.height = "80px";
+        }
+        else if (file.type.startsWith("audio/")) {
+            preview = document.createElement("audio");
+            preview.src = URL.createObjectURL(file);
+            preview.controls = true;
+            preview.style.width = "120px";
+        }
+        else {
+            preview = document.createElement("span");
+            preview.textContent = file.name;
+        }
+
+        const btn = document.createElement("button");
+        btn.innerHTML = "&times;";
+        btn.style.position = "absolute";
+        btn.style.top = "2px";
+        btn.style.right = "2px";
+        btn.classList.add("btn","btn-sm","btn-danger");
+        btn.onclick = () => container.remove();
+
+        container.appendChild(preview);
+        container.appendChild(btn);
+        previewArea.appendChild(container);
     });
 }
 
-function attachSublessonEvents(subRoot){
-    subRoot.querySelector('.remove-sublesson-btn')?.addEventListener('click',()=>subRoot.remove());
-    const dz = subRoot.querySelector('.sublesson-dropzone');
-    const input = subRoot.querySelector('.sublessonFilesInput');
-    const previewArea = subRoot.querySelector('.sublessonPreview');
-    dz?.addEventListener('click',()=>input.click());
-    input?.addEventListener('change',e=>handleFiles(e,previewArea));
-}
+function attachLessonEvents(lessonRoot) {
+    // Remove lesson
+    lessonRoot.querySelector('.remove-lesson-btn')?.addEventListener('click', ()=>lessonRoot.remove());
 
-function attachLessonEvents(lessonRoot){
-    lessonRoot.querySelector('.remove-lesson-btn')?.addEventListener('click',()=>lessonRoot.remove());
+    // File upload
     const dz = lessonRoot.querySelector('.lesson-dropzone');
     const input = lessonRoot.querySelector('.lessonFilesInput');
     const previewArea = lessonRoot.querySelector('.lessonPreview');
-    dz?.addEventListener('click',()=>input.click());
-    input?.addEventListener('change',e=>handleFiles(e,previewArea));
+    dz?.addEventListener('click', ()=>input.click());
+    input?.addEventListener('change', e => handleFiles(e, previewArea));
 
-    lessonRoot.querySelector('.add-sublesson-btn')?.addEventListener('click',()=>{
-        sublessonCounter++;
+    // Add sublesson
+    lessonRoot.querySelector('.add-sublesson-btn')?.addEventListener('click', ()=>{
         const subContainer = lessonRoot.querySelector('.sublessons-list');
-        const subClone = initialSublessonTemplate.content.cloneNode(true);
+        const subClone = document.getElementById('sublesson-template').content.cloneNode(true);
         subContainer.appendChild(subClone);
         const newSub = subContainer.querySelector('.sublesson-item:last-child');
         attachSublessonEvents(newSub);
     });
+
+    // Add external resource
+    lessonRoot.querySelector('.add-external-resource-btn')?.addEventListener('click', ()=>{
+        const container = lessonRoot.querySelector('.external-resources-list');
+        const clone = document.getElementById('external-resource-template').content.cloneNode(true);
+        container.appendChild(clone);
+        const newRes = container.querySelector('.external-resource-input:last-child');
+        newRes.querySelector('.remove-external-btn').addEventListener('click', ()=>newRes.remove());
+    });
 }
+
+function attachSublessonEvents(subRoot){
+    subRoot.querySelector('.remove-sublesson-btn')?.addEventListener('click', ()=>subRoot.remove());
+
+    const dz = subRoot.querySelector('.sublesson-dropzone');
+    const input = subRoot.querySelector('.sublessonFilesInput');
+    const previewArea = subRoot.querySelector('.sublessonPreview');
+    dz?.addEventListener('click', ()=>input.click());
+    input?.addEventListener('change', e => handleFiles(e, previewArea));
+
+    // Add external resource
+    subRoot.querySelector('.add-external-resource-btn')?.addEventListener('click', ()=>{
+        const container = subRoot.querySelector('.external-resources-list');
+        const clone = document.getElementById('external-resource-template').content.cloneNode(true);
+        container.appendChild(clone);
+        const newRes = container.querySelector('.external-resource-input:last-child');
+        newRes.querySelector('.remove-external-btn').addEventListener('click', ()=>newRes.remove());
+    });
+}
+
 
 function addLesson(){
     lessonCounter++;

@@ -1,80 +1,77 @@
- {% extends 'baseF.html' %}
- {% load static %}
+{% extends 'baseF.html' %}
+{% load static %}
 {% load custom_filters %}
 {% load review_tags %}
- {% load humanize %}
+{% load humanize %}
 
-
-      {% include 'includes/nav.html' %}
-{% block title %}Home Page{% endblock %}
+{% include 'includes/nav.html' %}
+{% block title %}
+  Home Page
+{% endblock %}
 
 {% block content %}
- <link rel="stylesheet" href="{% static 'website/css/details_cours.css' %}">
-  
-    <main class="container">
-        <!-- Breadcrumb -->
-        <nav class="breadcrumb">
-          
-        </nav>
+  <link rel="stylesheet" href="{% static 'website/css/details_cours.css' %}" />
 
-       <div class="course-header" style="display: flex; align-items: flex-start; gap: 1.5rem; flex-wrap: wrap;">
-              <!-- Image à gauche -->
-                 <img src="{{ course.thumbnail.url }}" alt="thumbnail" style="width: 150px; height: 150px; object-fit: cover; border-radius: 4px;border-bottom-right-radius: 50px;" />
-              
+  <main class="container">
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb"></nav>
 
-              <!-- Contenu à droite -->
-              <div class="course-details" style="flex: 1; min-width: 250px;">
-               <div class="header-info">
-                    <h1 class="course-title">{{ course.title }}</h1>
-                    <p class="course-description">
-                        {{ course.description }}
-                    </p>
+    <div class="course-header" style="display: flex; align-items: flex-start; gap: 1.5rem; flex-wrap: wrap;">
+      <!-- Image à gauche -->
+      <img src="{{ course.thumbnail.url }}" alt="thumbnail" style="width: 150px; height: 150px; object-fit: cover; border-radius: 4px;border-bottom-right-radius: 50px;" />
 
-                    <div class="course-meta-grid">
-                        <div class="meta-item">
-                            <span class="meta-label">Instructor</span>
-                            <span class="meta-value">{{ course.teacher.first_name }} {{ course.teacher.last_name }}</span>
-                        </div>
-                        <div class="meta-item">
-                            <span class="meta-label">Duration</span>
-                            <span class="meta-value">
-                                {% if duration_weeks or duration_days %}
-                                    {{ duration_weeks }} weeks{% if duration_days %} and {{ duration_days }} days{% endif %}
-                                {% else %}
-                                    Not specified
-                                {% endif %}
-                            </span>
-                        </div>
-                        <div class="meta-item">
-                            <span class="meta-label">Capacity</span>
-                            <span class="meta-value">{{ course.capacity }} students</span>
-                        </div>
-                        <div class="meta-item">
-                            <span class="meta-label">Format</span>
-                            <span class="meta-value">Online</span>
-                        </div>
-                    </div>
-                     {% if course.start_date or course.end_date %}
-                    <div class="course-dates" style="display: flex; gap: 1rem; margin-bottom: 1rem;">
-                        {% if course.start_date %}
-                        <div class="date-item">
-                            <span>📅</span>
-                            <span>Start: {{ course.start_date|date:"d M Y" }}</span>
-                        </div>
-                        {% endif %}
-                        {% if course.end_date %}
-                        <div class="date-item">
-                            <span>🏁</span>
-                            <span>End: {{ course.end_date|date:"d M Y" }}</span>
-                        </div>
-                        {% endif %}
-                    </div>
-                    {% endif %}
+      <!-- Contenu à droite -->
+      <div class="course-details" style="flex: 1; min-width: 250px;">
+        <div class="header-info">
+          <h1 class="course-title">{{ course.title }}</h1>
+          <p class="course-description">{{ course.description }}</p>
 
-                    <div class="course-badges">
-                        <span class="badge badge-category">{{ course.category }}</span>
-                      <span class="badge badge-level level-{{ course.level|default:'beginner' }}"
-                        style="
+          <div class="course-meta-grid">
+            <div class="meta-item">
+              <span class="meta-label">Instructor</span>
+              <span class="meta-value">{{ course.teacher.first_name }} {{ course.teacher.last_name }}</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Duration</span>
+              <span class="meta-value">
+                {% if duration_weeks or duration_days %}
+                  {{ duration_weeks }} weeks{% if duration_days %}
+                    and {{ duration_days }} days
+                  {% endif %}
+                {% else %}
+                  Not specified
+                {% endif %}
+              </span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Capacity</span>
+              <span class="meta-value">{{ course.capacity }} students</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Format</span>
+              <span class="meta-value">Online</span>
+            </div>
+          </div>
+          {% if course.start_date or course.end_date %}
+            <div class="course-dates" style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+              {% if course.start_date %}
+                <div class="date-item">
+                  <span>📅</span>
+                  <span>Start: {{ course.start_date|date:'d M Y' }}</span>
+                </div>
+              {% endif %}
+              {% if course.end_date %}
+                <div class="date-item">
+                  <span>🏁</span>
+                  <span>End: {{ course.end_date|date:'d M Y' }}</span>
+                </div>
+              {% endif %}
+            </div>
+          {% endif %}
+
+          <div class="course-badges">
+            <span class="badge badge-category">{{ course.category }}</span>
+            <span class="badge badge-level level-{{ course.level|default:'beginner' }}" style="
                             padding: 0.5rem 1rem;
                             border-radius: 25px;
                             font-weight: 600;
@@ -82,348 +79,391 @@
                             {% if course.level == 'beginner' %} background-color: #099410ff ; color: white; {% endif %}
                             {% if course.level == 'intermediate' %} background-color: #9da706ff; color: white; {% endif %}
                             {% if course.level == 'advanced' %} background-color: #a2101fff; color: white; {% endif %}
-                        ">
-                        {{ course.get_level_display|default:"Beginner" }}
-                    </span>
+                        ">{{ course.get_level_display|default:'Beginner' }}</span>
 
+            <span class="badge badge-status">{{ course.status }}</span>
+          </div>
 
-                        <span class="badge badge-status">{{ course.status }}</span>
-                    </div>
-
-                    <div class="progress-section">
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width:{{ course.progress|default:'0' }}%"></div>
-                        </div>
-                        <div class="progress-text">{{ course.progress|default:'0' }}% completed</div>
-                    </div>
-                </div></div>
+          <div class="progress-section">
+            <div class="progress-bar">
+              <div class="progress-fill" style="width:{{ course.progress|default:'0' }}%"></div>
             </div>
-        <div class="content-grid">
-            <!-- Main Content -->
-            <div class="main-content">
-                <!-- Course Program -->
-                <div class="content-card">
-                    <h3 class="section-title">
-                        <svg style="width:24px; height:24px; fill:#FDC800;" viewBox="0 0 24 24">
-                            <path d="M19,3H5C3.9,3 3,3.9 3,5V19C3,20.1 3.9,21 5,21H19C20.1,21 21,20.1 21,19V5C21,3.9 20.1,3 19,3M5,19V5H19V19H5M17,17H7V15H17V17M17,13H7V11H17V13M17,9H7V7H17V9Z" />
-                        </svg>
-                        Course Program
-                    </h3>
-                    <div class="lessons-list">
-                        {% for lesson in lessons %}
-                            <div class="lesson-item">
-                            <!-- En-tête de la leçon (cliquable pour toggle) -->
-                            <div class="lesson-header" onclick="toggleLesson(this)">
-                                <div class="lesson-title">
-                                {{ forloop.counter }}. {{ lesson.title }}
-                                <span class="expand-icon">▼</span>
-                                </div>
-                                <div class="lesson-description">
-                                {{ lesson.description }}
-                                </div>
-                            </div>
-
-                            <!-- Contenu de la leçon -->
-                            <div class="lesson-content">
-                                <!-- Ressources de la leçon -->
-                                <div class="resources">
-                                
-                                <div class="resource-tags">
-                                    {% if lesson.resource_list %}
-                                    {% for resource in lesson.resource_list|slice:':4' %}
-                                        <span class="resource-tag resource-{{ resource.resource_type }}" style="background-color: #81d4fa;"
-                                            onclick="openResource('{{ resource.file.url }}', '{{ resource.resource_type }}')">
-                                        {{ resource.title }}
-                                        </span>
-                                    {% endfor %}
-
-                                    {% if lesson.resource_list|length > 4 %}
-                                        <button class="see-more-btn" onclick="toggleResources(this)">See more</button>
-                                        <div class="extra-resources hidden">
-                                        {% for resource in lesson.resource_list|slice:'4:' %}
-                                            <span class="resource-tag resource-{{ resource.resource_type }}" style="background-color: #81d4fa;"
-                                                onclick="openResource('{{ resource.file.url }}', '{{ resource.resource_type }}')">
-                                            {{ resource.title }}
-                                            </span>
-                                        {% endfor %}
-                                        </div>
-                                    {% endif %}
-                                    {% else %}
-                                    <span class="resource-tag">No resource</span>
-                                    {% endif %}
-                                </div>
-                                </div>
-
-                                <!-- Sous-leçons -->
-                                <div class="sub-lessons">
-                                {% for sub in lesson.sublessons %}
-                                    <div class="sub-lesson">
-                                    <div class="sub-lesson-title">
-                                        {{ forloop.parentloop.counter }}.{{ forloop.counter }} {{ sub.title }}
-                                    </div>
-                                    <div class="sub-lesson-content">{{ sub.content }}</div>
-
-                                    <div class="resources">
-                                        
-                                        <div class="resource-tags">
-                                        {% if sub.resource_list %}
-                                            {% for resource in sub.resource_list|slice:':4' %}
-                                            <span class="resource-tag resource-{{ resource.resource_type }}" style="background-color: #79B93C"
-                                                    onclick="openResource('{{ resource.file.url }}', '{{ resource.resource_type }}')">
-                                                {{ resource.title }}
-                                            </span>
-                                            {% endfor %}
-
-                                            {% if sub.resource_list|length > 4 %}
-                                            <button class="see-more-btn" onclick="toggleResources(this)">See more</button>
-                                            <div class="extra-resources hidden">
-                                                {% for resource in sub.resource_list|slice:'4:' %}
-                                                <span class="resource-tag resource-{{ resource.resource_type }}" style="background-color: #79B93C"
-                                                        onclick="openResource('{{ resource.file.url }}', '{{ resource.resource_type }}')">
-                                                    {{ resource.title }}
-                                                </span>
-                                                {% endfor %}
-                                            </div>
-                                            {% endif %}
-                                        {% else %}
-                                            <span class="resource-tag">No resource</span>
-                                        {% endif %}
-                                        </div>
-                                    </div>
-                                    </div>
-                                {% endfor %}
-                                </div>
-                            </div>
-                            </div>
-                        {% empty %}
-                            <p>No lessons added yet.</p>
-                        {% endfor %}
-                    </div>
+            <div class="progress-text">{{ course.progress|default:'0' }}% completed</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="content-grid">
+      <!-- Main Content -->
+      <div class="main-content">
+        <!-- Course Program -->
+        <div class="content-card">
+          <h3 class="section-title">
+            <svg style="width:24px; height:24px; fill:#FDC800;" viewBox="0 0 24 24">
+              <path d="M19,3H5C3.9,3 3,3.9 3,5V19C3,20.1 3.9,21 5,21H19C20.1,21 21,20.1 21,19V5C21,3.9 20.1,3 19,3M5,19V5H19V19H5M17,17H7V15H17V17M17,13H7V11H17V13M17,9H7V7H17V9Z" />
+            </svg>Course Program
+          </h3>
+          <div class="lessons-list">
+            {% for lesson in lessons %}
+              <div class="lesson-item">
+                <div class="lesson-header" onclick="toggleLesson(this)">
+                  <div class="lesson-title">
+                    {{ forloop.counter }}. {{ lesson.title }}
+                    <span class="expand-icon">▼</span>
+                  </div>
+                  <div class="lesson-description">{{ lesson.description }}</div>
                 </div>
 
-                <!-- Reviews Section -->
-                <div class="content-card">
-                    <h3 class="section-title">
-                        <svg style="width:24px; height:24px; fill:#FDC800;" viewBox="0 0 24 24">
-                            <path d="M12,17.27L18.18,21L16.54,13.97L22,9.24L14.81,8.62L12,2L9.19,8.62L2,9.24L7.45,13.97L5.82,21L12,17.27Z" />
-                        </svg>
-                        Student Reviews
-                    </h3>
-                    
-                    <!-- Review Form -->
-                      <div class="review-form-container">
-                        <h4 class="form-title">Share Your Experience</h4>
-                        <form id="review-form" class="review-form" method="post" data-course-id="{{ course.id }}">
-                            {% csrf_token %}
-                            <div class="rating-input">
-                                <label class="rating-label">Your Rating:</label>
-                                <div class="star-rating">
-                                    {% for i in star_range %}
-                                        <input type="radio" name="rating" value="{{ i }}" id="star{{ i }}">
-                                        <label for="star{{ i }}" class="star">★</label>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="review-title" class="form-label">Review Title</label>
-                                <input type="text" id="review-title" name="title" class="form-input" placeholder="Summarize your experience..." required>
-                            </div>
-                            <div class="form-group">
-                                <label for="review-content" class="form-label">Your Review</label>
-                                <textarea id="review-content" name="content" class="form-textarea" rows="4" placeholder="Share your thoughts about this course..." required></textarea>
-                            </div>
-                            <button type="submit" class="btn btn-primary submit-review-btn">Post Review</button>
-                        </form>
-                    </div>
+                <div class="lesson-content">
+                  <div class="resources">
+                    <div class="left">
+                      <div class="resource-tags">
+                        {% if lesson.resource_list %}
+                          {% for resource in lesson.resource_list|slice:':4' %}
+                            {% if resource.resource_type == 'external' %}
+                              <span class="resource-tag resource-{{ resource.resource_type }}" onclick="openResource('{{ resource.external_url }}', '{{ resource.resource_type }}')" style="
+                                                            {% if resource.resource_type == 'video' %} background-color: #099410ff; color: white; {% endif %}
+                                                            {% if resource.resource_type == 'pdf' %} background-color: #9da706ff; color: white; {% endif %}
+                                                            {% if resource.resource_type == 'file' or resource.resource_type == 'image' %} background-color: #a2101fff; color: white; {% endif %}
+                                                            {% if resource.resource_type == 'audio' %} background-color: #0077ccff; color: white; {% endif %}
+                                                            {% if resource.resource_type == 'external' %} background-color: #ff6f00ff; color: white; {% endif %}
+                                                        ">{{ resource.title }}</span>
+                            {% else %}
+                              {% if resource.file %}
+                                <span class="resource-tag resource-{{ resource.resource_type }}" onclick="openResource('{{ resource.file.url }}', '{{ resource.resource_type }}')" style="
+                                                            {% if resource.resource_type == 'video' %} background-color: #099410ff; color: white; {% endif %}
+                                                            {% if resource.resource_type == 'pdf' %} background-color: #9da706ff; color: white; {% endif %}
+                                                            {% if resource.resource_type == 'file' or resource.resource_type == 'image' %} background-color: #a2101fff; color: white; {% endif %}
+                                                            {% if resource.resource_type == 'audio' %} background-color: #0077ccff; color: white; {% endif %}
+                                                            {% if resource.resource_type == 'external' %} background-color: #ff6f00ff; color: white; {% endif %}
+                                                            ">{{ resource.title }}</span>
+                              {% endif %}
+                            {% endif %}
+                          {% endfor %}
 
+                          {% if lesson.resource_list|length > 4 %}
+                            <button class="see-more-btn" onclick="toggleResources(this)">See more</button>
+                            <div class="extra-resources hidden">
+                              {% for resource in lesson.resource_list|slice:'4:' %}
+                                {% if resource.resource_type == 'external' %}
+                                  <span class="resource-tag resource-{{ resource.resource_type }}" onclick="openResource('{{ resource.external_url }}', '{{ resource.resource_type }}')" style="
+                                                                        {% if resource.resource_type == 'video' %} background-color: #099410ff; color: white; {% endif %}
+                                                                        {% if resource.resource_type == 'pdf' %} background-color: #9da706ff; color: white; {% endif %}
+                                                                        {% if resource.resource_type == 'file' or resource.resource_type == 'image' %} background-color: #a2101fff; color: white; {% endif %}
+                                                                        {% if resource.resource_type == 'audio' %} background-color: #0077ccff; color: white; {% endif %}
+                                                                        {% if resource.resource_type == 'external' %} background-color: #ff6f00ff; color: white; {% endif %}
+                                                                    ">{{ resource.title }}</span>
+                                {% else %}
+                                  {% if resource.file %}
+                                    <span class="resource-tag resource-{{ resource.resource_type }}" onclick="openResource('{{ resource.file.url }}', '{{ resource.resource_type }}')" style="
+                                                                        {% if resource.resource_type == 'video' %} background-color: #099410ff; color: white; {% endif %}
+                                                                        {% if resource.resource_type == 'pdf' %} background-color: #9da706ff; color: white; {% endif %}
+                                                                        {% if resource.resource_type == 'file' or resource.resource_type == 'image' %} background-color: #a2101fff; color: white; {% endif %}
+                                                                        {% if resource.resource_type == 'audio' %} background-color: #0077ccff; color: white; {% endif %}
+                                                                        {% if resource.resource_type == 'external' %} background-color: #ff6f00ff; color: white; {% endif %}
+                                                                        ">{{ resource.title }}</span>
+                                  {% endif %}
+                                {% endif %}
+                              {% endfor %}
+                            </div>
+                          {% endif %}
+                        {% else %}
+                          <span class="resource-tag">No resource</span>
+                        {% endif %}
+                      </div>
+                    </div>
+                    <div class="right" style="margin-left: 20rem;">
+                      <svg style="width:24px; height:24px; fill:#FDC800; " viewBox="0 0 24 24">
+                        <path d="M19,3H5C3.9,3 3,3.9 3,5V19C3,20.1 3.9,21 5,21H19C20.1,21 21,20.1 21,19V5C21,3.9 20.1,3 19,3M5,19V5H19V19H5M17,17H7V15H17V17M17,13H7V11H17V13M17,9H7V7H17V9Z" />
+                      </svg>
+                      <a href="{% url 'lesson_details' course.id lesson.id %}" style="color: #FDC800;">see all</a>
+                    </div>
+                  </div>
+
+                  <!-- Sous-leçons -->
+                  <div class="sub-lessons">
+                    {% for sub in lesson.sublessons %}
+                      <div class="sub-lesson">
+                        <div class="sub-lesson-title">{{ forloop.parentloop.counter }}.{{ forloop.counter }} {{ sub.title }}</div>
+                        <div class="sub-lesson-content">{{ sub.content }}</div>
+
+                        <div class="resources">
+                          <div class="resource-tags">
+                            {% if sub.resource_list %}
+                              {% for resource in sub.resource_list|slice:':4' %}
+                                {% if resource.resource_type == 'external' %}
+                                  <span class="resource-tag resource-{{ resource.resource_type }}" onclick="openResource('{{ resource.external_url }}', '{{ resource.resource_type }}')" style="
+                                                        {% if resource.resource_type == 'video' %} background-color: #099410ff; color: white; {% endif %}
+                                                        {% if resource.resource_type == 'pdf' %} background-color: #9da706ff; color: white; {% endif %}
+                                                        {% if resource.resource_type == 'file' or resource.resource_type == 'image' %} background-color: #a2101fff; color: white; {% endif %}
+                                                        {% if resource.resource_type == 'audio' %} background-color: #0077ccff; color: white; {% endif %}
+                                                        {% if resource.resource_type == 'external' %} background-color: #ff6f00ff; color: white; {% endif %}
+                                                        ">{{ resource.title }}</span>
+                                {% else %}
+                                  {% if resource.file %}
+                                    <span class="resource-tag resource-{{ resource.resource_type }}" onclick="openResource('{{ resource.file.url }}', '{{ resource.resource_type }}')" style="
+                                                            {% if resource.resource_type == 'video' %} background-color: #099410ff; color: white; {% endif %}
+                                                            {% if resource.resource_type == 'pdf' %} background-color: #9da706ff; color: white; {% endif %}
+                                                            {% if resource.resource_type == 'file' or resource.resource_type == 'image' %} background-color: #a2101fff; color: white; {% endif %}
+                                                            {% if resource.resource_type == 'audio' %} background-color: #0077ccff; color: white; {% endif %}
+                                                            {% if resource.resource_type == 'external' %} background-color: #ff6f00ff; color: white; {% endif %}
+                                                        ">{{ resource.title }}</span>
+                                  {% endif %}
+                                {% endif %}
+                              {% endfor %}
+
+                              {% if sub.resource_list|length > 4 %}
+                                <button class="see-more-btn" onclick="toggleResources(this)">See more</button>
+                                <div class="extra-resources hidden">
+                                  {% for resource in sub.resource_list|slice:'4:' %}
+                                    {% if resource.resource_type == 'external' %}
+                                      <span class="resource-tag resource-{{ resource.resource_type }}" onclick="openResource('{{ resource.external_url }}', '{{ resource.resource_type }}')" style="
+                                                            {% if resource.resource_type == 'video' %} background-color: #099410ff; color: white; {% endif %}
+                                                            {% if resource.resource_type == 'pdf' %} background-color: #9da706ff; color: white; {% endif %}
+                                                            {% if resource.resource_type == 'file' or resource.resource_type == 'image' %} background-color: #a2101fff; color: white; {% endif %}
+                                                            {% if resource.resource_type == 'audio' %} background-color: #0077ccff; color: white; {% endif %}
+                                                            {% if resource.resource_type == 'external' %} background-color: #ff6f00ff; color: white; {% endif %}
+                                                            ">{{ resource.title }}</span>
+                                    {% else %}
+                                      {% if resource.file %}
+                                        <span class="resource-tag resource-{{ resource.resource_type }}" onclick="openResource('{{ resource.file.url }}', '{{ resource.resource_type }}')" style="
+                                                                {% if resource.resource_type == 'video' %} background-color: #099410ff; color: white; {% endif %}
+                                                                {% if resource.resource_type == 'pdf' %} background-color: #9da706ff; color: white; {% endif %}
+                                                                {% if resource.resource_type == 'file' or resource.resource_type == 'image' %} background-color: #a2101fff; color: white; {% endif %}
+                                                                {% if resource.resource_type == 'audio' %} background-color: #0077ccff; color: white; {% endif %}
+                                                                {% if resource.resource_type == 'external' %} background-color: #ff6f00ff; color: white; {% endif %}
+                                                            ">{{ resource.title }}</span>
+                                      {% endif %}
+                                    {% endif %}
+                                  {% endfor %}
+                                </div>
+                              {% endif %}
+                            {% else %}
+                              <span class="resource-tag">No resource</span>
+                            {% endif %}
+                          </div>
+                        </div>
+                      </div>
+                    {% endfor %}
+                  </div>
+                </div>
+              </div>
+            {% empty %}
+              <p>No lessons added yet.</p>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Reviews Section -->
+        <div class="content-card">
+          <h3 class="section-title">
+            <svg style="width:24px; height:24px; fill:#FDC800;" viewBox="0 0 24 24">
+              <path d="M12,17.27L18.18,21L16.54,13.97L22,9.24L14.81,8.62L12,2L9.19,8.62L2,9.24L7.45,13.97L5.82,21L12,17.27Z" />
+            </svg>Student Reviews
+          </h3>
+
+          <!-- Review Form -->
+          <div class="review-form-container">
+            <h4 class="form-title">Share Your Experience</h4>
+            <form id="review-form" class="review-form" method="post" data-course-id="{{ course.id }}">
+              {% csrf_token %}
+              <div class="rating-input">
+                <label class="rating-label">Your Rating:</label>
+                <div class="star-rating">
+                  {% for i in star_range %}
+                    <input type="radio" name="rating" value="{{ i }}" id="star{{ i }}" />
+                    <label for="star{{ i }}" class="star">★</label>
+                  {% endfor %}
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="review-title" class="form-label">Review Title</label>
+                <input type="text" id="review-title" name="title" class="form-input" placeholder="Summarize your experience..." required />
+              </div>
+              <div class="form-group">
+                <label for="review-content" class="form-label">Your Review</label>
+                <textarea id="review-content" name="content" class="form-textarea" rows="4" placeholder="Share your thoughts about this course..." required></textarea>
+              </div>
+              <button type="submit" class="btn btn-primary submit-review-btn">Post Review</button>
+            </form>
+          </div>
 
           <div class="reviews-list">
-    <div class="reviews-header">
-        <h4 class="reviews-count">{{ course.reviews.count }} Reviews</h4>
-        <div class="average-rating">
-            <div class="rating-stars">
-                {% for i in avg_full_stars|times %}
+            <div class="reviews-header">
+              <h4 class="reviews-count">{{ course.reviews.count }} Reviews</h4>
+              <div class="average-rating">
+                <div class="rating-stars">
+                  {% for i in avg_full_stars|times %}
                     <span class="star filled">★</span>
-                {% endfor %}
-                {% for i in avg_empty_stars|times %}
+                  {% endfor %}
+                  {% for i in avg_empty_stars|times %}
                     <span class="star">★</span>
-                {% endfor %}
+                  {% endfor %}
+                </div>
+                <span class="rating-number">{{ avg_rating|floatformat:1 }}/5</span>
+              </div>
             </div>
-            <span class="rating-number">{{ avg_rating|floatformat:1 }}/5</span>
-        </div>
-    </div>
 
-    {% for review in reviews %}
-    <div class="review-item" id="review-{{ review.id }}">
-        <div class="review-header">
-            <div class="reviewer-info">
-                <div class="reviewer-avatar">{{ review.student.username|slice:":2"|upper }}</div>
-                <div class="reviewer-details">
-                    <h5 class="reviewer-name">{{ review.student.get_full_name|default:review.student.username }}</h5>
-                    <div class="review-meta">
+            {% for review in reviews %}
+              <div class="review-item" id="review-{{ review.id }}">
+                <div class="review-header">
+                  <div class="reviewer-info">
+                    <div class="reviewer-avatar">{{ review.student.username|slice:':2'|upper }}</div>
+                    <div class="reviewer-details">
+                      <h5 class="reviewer-name">{{ review.student.get_full_name|default:review.student.username }}</h5>
+                      <div class="review-meta">
                         <div class="rating-stars">
-                            {% for i in review.full_stars|times %}
-                                <span class="star filled">★</span>
-                            {% endfor %}
-                            {% for i in review.empty_stars|times %}
-                                <span class="star">★</span>
-                            {% endfor %}
+                          {% for i in review.full_stars|times %}
+                            <span class="star filled">★</span>
+                          {% endfor %}
+                          {% for i in review.empty_stars|times %}
+                            <span class="star">★</span>
+                          {% endfor %}
                         </div>
                         <span class="review-date">{{ review.created_at|naturaltime }}</span>
+                      </div>
                     </div>
+                  </div>
                 </div>
-            </div>
-        </div>
 
-        <div class="review-content" id="review-content-{{ review.id }}">
-            <h6 class="review-title">{{ review.title }}</h6>
-            <p class="review-text">{{ review.content }}</p>
-        </div>
+                <div class="review-content" id="review-content-{{ review.id }}">
+                  <h6 class="review-title">{{ review.title }}</h6>
+                  <p class="review-text">{{ review.content }}</p>
+                </div>
 
-        <div class="review-actions">
-            <!-- Like / Unlike -->
-          <button class="action-btn helpful-btn {% if review.user_liked %}btn-primary{% endif %}" 
-        style="{% if review.user_liked %}background: var(--bs-primary); color: var(--bs-secondary);{% endif %}" 
-        onclick="toggleLike({{ review.id }}, this)">
-    <svg width="16" height="16" viewBox="0 0 24 24">
-        <path fill="currentColor" d="M23,10C23,8.89 22.1,8 21,8H14.68L15.64,3.43C15.66,3.33 15.67,3.22 15.67,3.11C15.67,2.7 15.5,2.32 15.23,2.05L14.17,1L7.59,7.58C7.22,7.95 7,8.45 7,9V19A2,2 0 0,0 9,21H18C18.83,21 19.54,20.5 19.84,19.78L22.86,12.73C22.95,12.5 23,12.26 23,12V10.08L23,10M1,21H5V9H1V21Z"/>
-    </svg>
-            Helpful (<span id="like-count-{{ review.id }}">{{ review.helpful_count }}</span>)
-            </button>
+                <div class="review-actions">
+                  <!-- Like / Unlike -->
+                  <button class="action-btn helpful-btn {% if review.user_liked %}btn-primary{% endif %}" style="{% if review.user_liked %}background: var(--bs-primary); color: var(--bs-secondary);{% endif %}" onclick="toggleLike({{ review.id }}, this)">
+                    <svg width="16" height="16" viewBox="0 0 24 24">
+                      <path fill="currentColor" d="M23,10C23,8.89 22.1,8 21,8H14.68L15.64,3.43C15.66,3.33 15.67,3.22 15.67,3.11C15.67,2.7 15.5,2.32 15.23,2.05L14.17,1L7.59,7.58C7.22,7.95 7,8.45 7,9V19A2,2 0 0,0 9,21H18C18.83,21 19.54,20.5 19.84,19.78L22.86,12.73C22.95,12.5 23,12.26 23,12V10.08L23,10M1,21H5V9H1V21Z" />
+                    </svg>Helpful (<span id="like-count-{{ review.id }}">{{ review.helpful_count }}</span>)
+                  </button>
 
+                  {% if request.user == review.student or request.user.role == 'teacher' %}
+                    <button class="action-btn delete-btn" onclick="deleteReview({{ review.id }}, this)">
+                      <svg width="16" height="16" viewBox="0 0 24 24">
+                        <path fill="currentColor" d="M9,3V4H4V6H20V4H15V3H9M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z" />
+                      </svg>Delete
+                    </button>
+                  {% endif %}
 
-            {% if request.user == review.student or request.user.role == 'teacher' %}
-            <button class="action-btn delete-btn" onclick="deleteReview({{ review.id }}, this)">
-                <svg width="16" height="16" viewBox="0 0 24 24">
-                    <path fill="currentColor" d="M9,3V4H4V6H20V4H15V3H9M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z"/>
-                </svg>
-                Delete
-            </button>
-            {% endif %}
+                  {% if request.user == review.student %}
+                    <button class="action-btn edit-btn" onclick="openEditForm({{ review.id }})">
+                      <svg width="16" height="16" viewBox="0 0 24 24">
+                        <path fill="currentColor" d="M5,18.08V19H5.92L14.81,10.11L13.89,9.19L5,18.08M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.13,5.12L18.88,8.87L20.71,7.04Z" />
+                      </svg>Edit
+                    </button>
+                  {% endif %}
+                </div>
+              </div>
+            {% empty %}
+              <p>No reviews yet. Be the first to review this course!</p>
+            {% endfor %}
+          </div>
 
-            {% if request.user == review.student %}
-            <button class="action-btn edit-btn" onclick="openEditForm({{ review.id }})">
-                <svg width="16" height="16" viewBox="0 0 24 24">
-                    <path fill="currentColor" d="M5,18.08V19H5.92L14.81,10.11L13.89,9.19L5,18.08M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.13,5.12L18.88,8.87L20.71,7.04Z"/>
-                </svg>
-                Edit
-            </button>
-            {% endif %}
-        </div>
-    </div>
-    {% empty %}
-        <p>No reviews yet. Be the first to review this course!</p>
-    {% endfor %}
-</div>
-
-<!-- Review Form Modal -->
-<div id="edit-review-modal" class="review-form-container" style="display:none;">
-    <h4 class="form-title">Edit Your Review</h4>
-    <form id="edit-review-form" class="review-form" method="post">
-        {% csrf_token %}
-        <input type="hidden" name="review_id" id="edit-review-id">
-        <div class="rating-input">
-            <label class="rating-label">Your Rating:</label>
-            <div class="star-rating">
-                {% for i in star_range %}
-                    <input type="radio" name="rating" value="{{ i }}" id="edit-star{{ i }}">
+          <!-- Review Form Modal -->
+          <div id="edit-review-modal" class="review-form-container" style="display:none;">
+            <h4 class="form-title">Edit Your Review</h4>
+            <form id="edit-review-form" class="review-form" method="post">
+              {% csrf_token %}
+              <input type="hidden" name="review_id" id="edit-review-id" />
+              <div class="rating-input">
+                <label class="rating-label">Your Rating:</label>
+                <div class="star-rating">
+                  {% for i in star_range %}
+                    <input type="radio" name="rating" value="{{ i }}" id="edit-star{{ i }}" />
                     <label for="edit-star{{ i }}" class="star">★</label>
-                {% endfor %}
-            </div>
-        </div>
-        <div class="form-group">
-            <label for="edit-review-title" class="form-label">Review Title</label>
-            <input type="text" id="edit-review-title" name="title" class="form-input" required>
-        </div>
-        <div class="form-group">
-            <label for="edit-review-content" class="form-label">Your Review</label>
-            <textarea id="edit-review-content" name="content" class="form-textarea" rows="4" required></textarea>
-        </div>
-        <button type="submit" class="btn btn-primary submit-review-btn">Save Changes</button>
-        <button type="button" class="btn btn-outline" onclick="closeEditForm()">Cancel</button>
-    </form>
-</div>
-
-
-            </div>
-        </div>
-
-            <!-- Sidebar -->
-            <div class="sidebar">
-               <!-- Course Information -->
-                <div class="info-card">
-                    <h3 class="section-title">
-                        <svg style="width:24px; height:24px; fill:#FDC800;" viewBox="0 0 24 24">
-                            <path d="M11 9H13V7H11M12 20C7.59 20 4 16.41 4 12C4 7.59 7.59 4 12 4C16.41 4 20 7.59 20 12C20 16.41 16.41 20 12 20ZM12 2A10 10 0 0 0 2 12A10 10 0 0 0 12 22A10 10 0 0 0 22 12A10 10 0 0 0 12 2ZM11 17H13V11H11V17Z" />
-                        </svg>
-                        Information
-                    </h3>
-                    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-                        <div class="meta-item">
-                            <strong>Created:</strong>
-                            <span class="value">{{ course.created_at|date:"d M, Y" }}</span>
-                        </div>
-                        <div class="meta-item">
-                            <strong>Duration:</strong>
-                            <span class="value">
-                                {% if duration_weeks or duration_days %}
-                                    {{ duration_weeks }} weeks{% if duration_days %} and {{ duration_days }} days{% endif %}
-                                {% else %}
-                                    Not specified
-                                {% endif %}
-                            </span>
-                        </div>
-                        <div class="meta-item">
-                            <strong>Format:</strong>
-                            <span class="value">Online</span>
-                        </div>
-                        <div class="meta-item">
-                            <strong>Prerequisites:</strong>
-                            <span class="value">{{ course.prerequisites|default:"None" }}</span>
-                        </div>
-                        <div class="meta-item">
-                            <strong>Certification:</strong>
-                            <span class="value">{{ course.certification|yesno:"Yes,No" }}</span>
-                        </div>
-                    </div>
+                  {% endfor %}
                 </div>
-
-                <!-- Instructor -->
-                <div class="info-card">
-                    <h3 class="section-title">
-                        <svg style="width:24px; height:24px; fill:#FDC800;" viewBox="0 0 24 24">
-                            <path d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z" />
-                        </svg>
-                        Instructor
-                    </h3>
-                    <div class="teacher-card">
-                        <div class="teacher-avatar">{{ teacher.first_name|slice:":1" }}{{ teacher.last_name|slice:":1" }}</div>
-                        <div class="teacher-info">
-                            <h4>{{ teacher.first_name }} {{ teacher.last_name }}</h4>
-                            <p>{{ teacher.bio|default:"No bio available" }}</p>
-                        </div>
-                    </div>
-                </div>
-
-
-                <!-- Actions -->
-                <div class="info-card">
-                    <h3 class="section-title">
-                        <svg style="width:24px; height:24px; fill:#FDC800;" viewBox="0 0 24 24">
-                            <path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" />
-                        </svg>
-                        Actions
-                    </h3>
-                    <div class="action-buttons">
-                        <a href="#" class="btn btn-primary">Continue Course</a>
-                        <a href="#" class="btn btn-outline">Download Syllabus</a>
-                        <a href="#" class="btn btn-outline">Contact Instructor</a>
-                    </div>
-                </div>
-            </div>
+              </div>
+              <div class="form-group">
+                <label for="edit-review-title" class="form-label">Review Title</label>
+                <input type="text" id="edit-review-title" name="title" class="form-input" required />
+              </div>
+              <div class="form-group">
+                <label for="edit-review-content" class="form-label">Your Review</label>
+                <textarea id="edit-review-content" name="content" class="form-textarea" rows="4" required></textarea>
+              </div>
+              <button type="submit" class="btn btn-primary submit-review-btn">Save Changes</button>
+              <button type="button" class="btn btn-outline" onclick="closeEditForm()">Cancel</button>
+            </form>
+          </div>
         </div>
-    </main>
+      </div>
 
+      <!-- Sidebar -->
+      <div class="sidebar">
+        <!-- Course Information -->
+        <div class="info-card">
+          <h3 class="section-title">
+            <svg style="width:24px; height:24px; fill:#FDC800;" viewBox="0 0 24 24">
+              <path d="M11 9H13V7H11M12 20C7.59 20 4 16.41 4 12C4 7.59 7.59 4 12 4C16.41 4 20 7.59 20 12C20 16.41 16.41 20 12 20ZM12 2A10 10 0 0 0 2 12A10 10 0 0 0 12 22A10 10 0 0 0 22 12A10 10 0 0 0 12 2ZM11 17H13V11H11V17Z" />
+            </svg>Information
+          </h3>
+          <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+            <div class="meta-item">
+              <strong>Created:</strong>
+              <span class="value">{{ course.created_at|date:'d M, Y' }}</span>
+            </div>
+            <div class="meta-item">
+              <strong>Duration:</strong>
+              <span class="value">
+                {% if duration_weeks or duration_days %}
+                  {{ duration_weeks }} weeks{% if duration_days %}
+                    and {{ duration_days }} days
+                  {% endif %}
+                {% else %}
+                  Not specified
+                {% endif %}
+              </span>
+            </div>
+            <div class="meta-item">
+              <strong>Format:</strong>
+              <span class="value">Online</span>
+            </div>
+            <div class="meta-item">
+              <strong>Prerequisites:</strong>
+              <span class="value">{{ course.prerequisites|default:'None' }}</span>
+            </div>
+            <div class="meta-item">
+              <strong>Certification:</strong>
+              <span class="value">{{ course.certification|yesno:'Yes,No' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Instructor -->
+        <div class="info-card">
+          <h3 class="section-title">
+            <svg style="width:24px; height:24px; fill:#FDC800;" viewBox="0 0 24 24">
+              <path d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z" />
+            </svg>Instructor
+          </h3>
+          <div class="teacher-card">
+            <div class="teacher-avatar">{{ teacher.first_name|slice:':1' }}{{ teacher.last_name|slice:':1' }}</div>
+            <div class="teacher-info">
+              <h4>{{ teacher.first_name }} {{ teacher.last_name }}</h4>
+              <p>{{ teacher.bio|default:'No bio available' }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="info-card">
+          <h3 class="section-title">
+            <svg style="width:24px; height:24px; fill:#FDC800;" viewBox="0 0 24 24">
+              <path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" />
+            </svg>Actions
+          </h3>
+          <div class="action-buttons">
+            <a href="#" class="btn btn-primary">Continue Course</a>
+            <a href="#" class="btn btn-outline">Download Syllabus</a>
+            <a href="#" class="btn btn-outline">Contact Instructor</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
     <script>
         // Toggle lesson expansion
         function toggleLesson(header) {
@@ -573,136 +613,134 @@
         
       
 
-function deleteReview(reviewId, btn) {
-    if(!confirm('Are you sure you want to delete this review?')) return;
+        function deleteReview(reviewId, btn) {
+            if(!confirm('Are you sure you want to delete this review?')) return;
 
-    fetch(`/review-delete/${reviewId}/`, {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': '{{ csrf_token }}',
-            'Accept': 'application/json',
-        },
-    })
-    .then(response => response.json())
-    .then(data => {
-        if(data.deleted){
-            document.getElementById(`review-${reviewId}`).remove();
-        } else {
-            alert(data.error || 'Cannot delete review');
+            fetch(`/review-delete/${reviewId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Accept': 'application/json',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.deleted){
+                    document.getElementById(`review-${reviewId}`).remove();
+                } else {
+                    alert(data.error || 'Cannot delete review');
+                }
+            });
         }
-    });
-}
 
-function editReview(reviewId) {
-    const title = prompt("Edit review title:");
-    const content = prompt("Edit review content:");
+        function editReview(reviewId) {
+            const title = prompt("Edit review title:");
+            const content = prompt("Edit review content:");
 
-    if(title !== null && content !== null){
-        const formData = new FormData();
-        formData.append('title', title);
-        formData.append('content', content);
+            if(title !== null && content !== null){
+                const formData = new FormData();
+                formData.append('title', title);
+                formData.append('content', content);
 
-        fetch(`/review-edit/${reviewId}/`, {
-            method: 'POST',
-            headers: {'X-CSRFToken': '{{ csrf_token }}'},
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if(data.success){
-                document.querySelector(`#review-content-${reviewId} h6`).textContent = data.title;
-                document.querySelector(`#review-content-${reviewId} p`).textContent = data.content;
-            } else {
-                alert(data.error || 'Cannot edit review');
+                fetch(`/review-edit/${reviewId}/`, {
+                    method: 'POST',
+                    headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if(data.success){
+                        document.querySelector(`#review-content-${reviewId} h6`).textContent = data.title;
+                        document.querySelector(`#review-content-${reviewId} p`).textContent = data.content;
+                    } else {
+                        alert(data.error || 'Cannot edit review');
+                    }
+                });
             }
+        }
+        function openEditForm(reviewId){
+            const review = document.getElementById(`review-${reviewId}`);
+            const title = review.querySelector('h6').textContent;
+            const content = review.querySelector('p').textContent;
+            const rating = review.querySelectorAll('.star.filled').length;
+
+            document.getElementById('edit-review-id').value = reviewId;
+            document.getElementById('edit-review-title').value = title;
+            document.getElementById('edit-review-content').value = content;
+
+            // ⭐ Pré-remplir les étoiles
+            document.querySelectorAll('#edit-review-form input[name="rating"]').forEach(input => {
+                input.checked = parseInt(input.value) === rating;
+            });
+
+            document.getElementById('edit-review-modal').style.display = 'block';
+        }
+
+        function closeEditForm(){
+            document.getElementById('edit-review-modal').style.display = 'none';
+        }
+
+        // Soumission du formulaire d'édition
+        document.getElementById('edit-review-form').addEventListener('submit', function(e){
+            e.preventDefault();
+            const reviewId = document.getElementById('edit-review-id').value;
+            const formData = new FormData(this);
+
+            fetch(`/review-edit/${reviewId}/`, {
+                method: 'POST',
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success){
+                    const review = document.getElementById(`review-${reviewId}`);
+                    review.querySelector('h6').textContent = data.title;
+                    review.querySelector('p').textContent = data.content;
+
+                    // Mettre à jour les étoiles
+                    const starsContainer = review.querySelector('.review-meta .rating-stars');
+                    starsContainer.innerHTML = '';
+                    for(let i=1;i<=5;i++){
+                        starsContainer.innerHTML += `<span class="star ${i <= data.rating ? 'filled' : ''}">★</span>`;
+                    }
+
+                    closeEditForm();
+                } else {
+                    alert(data.error || 'Cannot edit review');
+                }
+            });
         });
-    }
-}
-function openEditForm(reviewId){
-    const review = document.getElementById(`review-${reviewId}`);
-    const title = review.querySelector('h6').textContent;
-    const content = review.querySelector('p').textContent;
-    const rating = review.querySelectorAll('.star.filled').length;
 
-    document.getElementById('edit-review-id').value = reviewId;
-    document.getElementById('edit-review-title').value = title;
-    document.getElementById('edit-review-content').value = content;
 
-    // ⭐ Pré-remplir les étoiles
-    document.querySelectorAll('#edit-review-form input[name="rating"]').forEach(input => {
-        input.checked = parseInt(input.value) === rating;
-    });
-
-    document.getElementById('edit-review-modal').style.display = 'block';
-}
-
-function closeEditForm(){
-    document.getElementById('edit-review-modal').style.display = 'none';
-}
-
-// Soumission du formulaire d'édition
-document.getElementById('edit-review-form').addEventListener('submit', function(e){
-    e.preventDefault();
-    const reviewId = document.getElementById('edit-review-id').value;
-    const formData = new FormData(this);
-
-    fetch(`/review-edit/${reviewId}/`, {
-        method: 'POST',
-        headers: {'X-CSRFToken': '{{ csrf_token }}'},
-        body: formData
-    })
-    .then(res => res.json())
-    .then(data => {
-        if(data.success){
-            const review = document.getElementById(`review-${reviewId}`);
-            review.querySelector('h6').textContent = data.title;
-            review.querySelector('p').textContent = data.content;
-
-            // Mettre à jour les étoiles
-            const starsContainer = review.querySelector('.review-meta .rating-stars');
-            starsContainer.innerHTML = '';
-            for(let i=1;i<=5;i++){
-                starsContainer.innerHTML += `<span class="star ${i <= data.rating ? 'filled' : ''}">★</span>`;
-            }
-
-            closeEditForm();
-        } else {
-            alert(data.error || 'Cannot edit review');
+        function closeEditForm(){
+            document.getElementById('edit-review-modal').style.display = 'none';
         }
-    });
-});
 
+        document.getElementById('edit-review-form').addEventListener('submit', function(e){
+            e.preventDefault();
+            const reviewId = document.getElementById('edit-review-id').value;
+            const formData = new FormData(this);
 
-function closeEditForm(){
-    document.getElementById('edit-review-modal').style.display = 'none';
-}
+            fetch(`/review-edit/${reviewId}/`, {
+                method: 'POST',
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success){
+                    const review = document.getElementById(`review-${reviewId}`);
+                    review.querySelector('h6').textContent = data.title;
+                    review.querySelector('p').textContent = data.content;
 
-document.getElementById('edit-review-form').addEventListener('submit', function(e){
-    e.preventDefault();
-    const reviewId = document.getElementById('edit-review-id').value;
-    const formData = new FormData(this);
+                    closeEditForm();
+                } else {
+                    alert(data.error || 'Cannot edit review');
+                }
+            });
+        });
 
-    fetch(`/review-edit/${reviewId}/`, {
-        method: 'POST',
-        headers: {'X-CSRFToken': '{{ csrf_token }}'},
-        body: formData
-    })
-    .then(res => res.json())
-    .then(data => {
-        if(data.success){
-            const review = document.getElementById(`review-${reviewId}`);
-            review.querySelector('h6').textContent = data.title;
-            review.querySelector('p').textContent = data.content;
-
-            closeEditForm();
-        } else {
-            alert(data.error || 'Cannot edit review');
-        }
-    });
-});
-
-
-        // Button click animations
         document.querySelectorAll('.btn').forEach(button => {
             button.addEventListener('click', function(e) {
                 if (!this.closest('.review-form') && !this.classList.contains('action-btn')) {
@@ -715,7 +753,7 @@ document.getElementById('edit-review-form').addEventListener('submit', function(
                 }
             });
         });
+
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'994d56297027910e',t:'MTc2MTUxNzE4MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
 
 {% endblock %}
