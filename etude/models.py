@@ -31,8 +31,7 @@ class Message(models.Model):
     date_envoi = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.nom
-
+        return f"{self.auteur.username}: {self.contenu[:30]}"
 class ResourceEtude(models.Model):
     groupe = models.ForeignKey(GroupeEtude, on_delete=models.CASCADE, related_name='resources_etude')
     uploaded_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -45,17 +44,15 @@ class ResourceEtude(models.Model):
         return self.title or (self.file.name.split('/')[-1])
 
 class Meeting(models.Model):
-    groupe = models.ForeignKey("GroupeEtude", on_delete=models.CASCADE, related_name="meetings")
-    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    title = models.CharField(max_length=200)
-    description = models.TextField(blank=True)
+    groupe = models.ForeignKey(GroupeEtude, related_name="meetings", on_delete=models.CASCADE)
+    title = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
     start = models.DateTimeField()
     end = models.DateTimeField()
-    event_id = models.CharField(max_length=300, blank=True)  # Google Calendar event id
-    meet_link = models.URLField(blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    uuid = models.UUIDField(default=uuid.uuid4, editable=False)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    meet_link = models.URLField(blank=True, null=True)
+    event_id = models.CharField(max_length=255, blank=True, null=True)  # 🔹 make nullable
 
     def __str__(self):
-        return f"{self.title} ({self.groupe.nom})"
+        return self.title
 

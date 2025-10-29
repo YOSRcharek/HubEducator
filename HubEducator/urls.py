@@ -13,6 +13,7 @@ urlpatterns = [
     path('core/', include('core.urls')),
     path('accounts/', include('allauth.urls')),  # routes pour login Go
     path('etude/', include('etude.urls')),
+    path('<int:groupe_id>/messages/', views.get_messages, name='get_messages'),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -36,23 +36,29 @@
 
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
-    <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        var calendarEl = document.getElementById('teacher-calendar');
-        if (!calendarEl) return;
-        var calendar = new FullCalendar.Calendar(calendarEl, {
-          initialView: 'dayGridMonth',
-          events: "{% url 'group_meetings_json' groupe.id %}",
-          eventClick: function(info) {
-            if (info.event.url) {
-              window.open(info.event.url, '_blank');
-              info.jsEvent.preventDefault();
-            }
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var calendarEl = document.getElementById('teacher-calendar');
+    if (!calendarEl) return;
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+      initialView: 'dayGridMonth',
+      events: "{% url 'group_meetings_json' groupe.id %}",
+      eventClick: function(info) { 
+          const meetLink = info.event.extendedProps.meet_link;
+          if (meetLink) {
+              window.open(meetLink, '_blank');  // opens Jitsi Meet
+          } else {
+              alert("No meeting link available for this event.");
           }
-        });
-        calendar.render();
-      });
-    </script>
+          info.jsEvent.preventDefault();
+      }
+
+
+    });
+    calendar.render();
+  });
+</script>
+
   </div>
 </div>
 {% endblock %}

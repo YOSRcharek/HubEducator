@@ -56,24 +56,30 @@ def etude_detail(request, groupe_id):
     Strict access: only creator, members, or staff may view.
     Non-authorized users get 404 (so the URL appears non-existent).
     """
-    # fetch the group by id first
     groupe = get_object_or_404(GroupeEtude, pk=groupe_id)
-
     user = request.user
-    # allow if user is staff, creator, or a member
+
+    # access control
     if not (user.is_staff or user == groupe.createur or groupe.membres.filter(pk=user.pk).exists()):
-        # hide existence for unauthorized users
         raise Http404()
 
-    # load group related data for the template
+    #  Handle sending a new message
+    if request.method == "POST":
+        contenu = request.POST.get("contenu")
+        if contenu:
+            groupe.messages.create(auteur=request.user, contenu=contenu)
+            return JsonResponse({"success": True})
+
+    # Load group-related data
     messages_list = groupe.messages.all().order_by('date_envoi')
-    resources = groupe.resources_etude.all() if hasattr(groupe, 'resources_etude') else None
+    resources = getattr(groupe, 'resources_etude', None)
 
     return render(request, 'etude/etude_detail.html', {
         'groupe': groupe,
         'messages': messages_list,
         'resources': resources,
     })
+
 
 @login_required
 def get_messages(request, groupe_id):

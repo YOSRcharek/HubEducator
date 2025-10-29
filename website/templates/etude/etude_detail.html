@@ -47,9 +47,9 @@
 <div class="chat-box mb-3" id="chat-box">
   {% for msg in messages %}
     <div class="message {% if msg.auteur == request.user %}user{% else %}other{% endif %}">
-      <strong>{{ msg.auteur.username }}</strong><br>
-      {{ msg.contenu }}
-      <small>{{ msg.date_envoi|date:"d/m/Y H:i" }}</small>
+      <div class="message-author">{{ msg.auteur.username }}</div>
+      <div class="message-content">{{ msg.contenu }}</div>
+      <div class="message-time">{{ msg.date_envoi|date:"d/m/Y H:i" }}</div>
     </div>
   {% empty %}
     <p>No messages yet.</p>
@@ -65,54 +65,62 @@
 </form>
 
 <script>
-  const chatBox = document.querySelector('.chat-box');
-  const groupeId = "{{ groupe.id }}";
-  const form = document.getElementById('chat-form');
-  const messageInput = document.getElementById('message-input');
+const chatBox = document.getElementById('chat-box');
+const groupeId = "{{ groupe.id }}";
+const form = document.getElementById('messageForm');
+const messageInput = document.getElementById('messageInput');
+let lastMessages = "";
 
-  // Fonction pour récupérer les messages sans recharger
-  function loadMessages() {
-    fetch(`/etude/${groupeId}/messages/`)
-      .then(response => response.json())
-      .then(data => {
-        chatBox.innerHTML = '';
-        data.messages.forEach(msg => {
-          const msgDiv = document.createElement('div');
-          msgDiv.classList.add('mb-2');
-          msgDiv.innerHTML = `<strong>${msg.auteur}</strong> : ${msg.contenu} <small class="text-muted">(${msg.date})</small>`;
-          chatBox.appendChild(msgDiv);
-        });
-        chatBox.scrollTop = chatBox.scrollHeight;
+function loadMessages() {
+  fetch(`/etude/${groupeId}/messages/`)
+    .then(response => response.json())
+    .then(data => {
+      const newMessages = JSON.stringify(data.messages);
+      if (newMessages === lastMessages) return; // avoid flicker 
+      lastMessages = newMessages;
+
+      chatBox.innerHTML = '';
+      data.messages.forEach(msg => {
+        const isUser = msg.auteur === "{{ request.user.username }}";
+        const msgDiv = document.createElement('div');
+        msgDiv.classList.add('message', isUser ? 'user' : 'other');
+        msgDiv.innerHTML = `
+          <div class="message-author">${msg.auteur}</div>
+          <div class="message-content">${msg.contenu}</div>
+          <div class="message-time">${msg.date}</div>
+        `;
+        chatBox.appendChild(msgDiv);
       });
-  }
-
-  //  Intercepter le formulaire pour envoyer le message sans rechargement
-  form.addEventListener('submit', function(event) {
-    event.preventDefault(); // Empêche le rechargement
-    const contenu = messageInput.value.trim();
-    if (!contenu) return;
-
-    fetch(window.location.href, {
-      method: "POST",
-      headers: {
-        "X-CSRFToken": document.querySelector('[name=csrfmiddlewaretoken]').value,
-        "Content-Type": "application/x-www-form-urlencoded"
-      },
-      body: new URLSearchParams({ "contenu": contenu })
-    })
-    .then(() => {
-      messageInput.value = '';
-      loadMessages(); // recharge les messages immédiatement
+      chatBox.scrollTop = chatBox.scrollHeight;
     });
-  });
+}
 
-  // Rafraîchir les messages toutes les 3 secondes
-  setInterval(loadMessages, 3000);
-  loadMessages();
+// send message without reload
+form.addEventListener('submit', function(e) {
+  e.preventDefault();
+  const contenu = messageInput.value.trim();
+  if (!contenu) return;
+
+  fetch(window.location.href, {
+    method: "POST",
+    headers: {
+      "X-CSRFToken": document.querySelector('[name=csrfmiddlewaretoken]').value,
+      "Content-Type": "application/x-www-form-urlencoded"
+    },
+    body: new URLSearchParams({ "contenu": contenu })
+  }).then(() => {
+    messageInput.value = '';
+    loadMessages();
+  });
+});
+
+// refresh every 3s without blinking
+setInterval(loadMessages, 3000);
+loadMessages();
 </script>
+
 <style>
-  /* 🩵 Style du chat */
-.chat-box {
+  .chat-box {
     max-height: 350px;
     overflow-y: auto;
     border: 1px solid #ddd;
@@ -121,45 +129,66 @@
     background-color: #f9f9f9;
     display: flex;
     flex-direction: column;
-    gap: 10px; /* espace entre bulles */
-}
+    gap: 10px; /* espace entre les bulles */
+  }
 
 .message {
-    padding: 10px 15px;
-    border-radius: 15px;
-    display: inline-block; /* ✅ s'adapte au texte */
-    max-width: 70%; /* ✅ limite largeur max */
-    word-wrap: break-word;
-    justify-content: center;
-    animation: fadeIn 0.4s ease-in-out;
+  max-width: 70%;
+  width: auto;
+  padding: 10px 15px;
+  border-radius: 15px;
+  word-wrap: break-word;
+  display: flex;
+  flex-direction: column;
+  animation: fadeIn 0.3s ease-in-out;
+  margin: 5px 0;
 }
 
+  /*  Message utilisateur */
 .message.user {
-    background-color: #d1e7ff;
-    align-self: flex-end;
-    text-align: right;
-    border-bottom-right-radius: 5px;
+  background-color: #d1e7ff;
+  align-self: flex-end;
+  text-align: right;
+  border-bottom-right-radius: 5px;
 }
 
 .message.other {
-    background-color: #eaeaea;
-    align-self: flex-start;
-    text-align: left;
-    border-bottom-left-radius: 5px;
+  background-color: #eaeaea;
+  align-self: flex-start;
+  text-align: left;
+  border-bottom-left-radius: 5px;
+}
+/*  Author name above the bubble */
+.message-author {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 5px;
 }
 
-.message small {
-    display: block;
-    font-size: 0.75rem;
-    color: #777;
-    margin-top: 4px;
+/*  Message content inside */
+.message-content {
+  font-size: 0.95rem;
 }
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(5px); }
-    to { opacity: 1; transform: translateY(0); }
+/*  Time below the bubble */
+.message-time {
+  font-size: 0.75rem;
+  color: #777;
+  margin-top: 5px;
+  align-self: flex-end;
 }
 
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(5px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 </style>
 
 {% if request.user == groupe.createur or request.user.is_staff or request.user in groupe.membres.all %}
@@ -172,12 +201,16 @@
       var calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
         events: "{% url 'group_meetings_json' groupe.id %}",
-        eventClick: function(info) {
-          if (info.event.url) {
-            window.open(info.event.url, '_blank');
-            info.jsEvent.preventDefault();
+      eventClick: function(info) { 
+          const meetLink = info.event.extendedProps.meet_link;
+          if (meetLink) {
+              window.open(meetLink, '_blank');  // opens Jitsi Meet
+          } else {
+              alert("No meeting link available for this event.");
           }
-        }
+          info.jsEvent.preventDefault();
+      }
+
       });
       calendar.render();
     });

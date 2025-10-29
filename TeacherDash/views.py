@@ -297,8 +297,7 @@ def teacher_group_detail(request, group_id):
     return render(request, 'etude/groupDetail.html', {
         'groupe': groupe,
         'members': members,
-        'resources': resources,
-        'messages': messages_list
+        'resources': resources
     })
 
 @login_required
@@ -310,64 +309,22 @@ def add_meeting(request, group_id):
             meeting = form.save(commit=False)
             meeting.groupe = groupe
             meeting.created_by = request.user
+            # Generate unique Jitsi Meet link
+            import uuid
+            unique_id = str(uuid.uuid4())[:8]
+            meeting.meet_link = f"https://meet.jit.si/{unique_id}"
             meeting.save()
-
-            # Optionally create event on Google Calendar if account connected
-            try:
-                creds = get_google_credentials_for_user(request.user)
-                service = build("calendar", "v3", credentials=creds)
-                event_body = {
-                    "summary": meeting.title,
-                    "description": meeting.description or "",
-                    "start": {"dateTime": meeting.start.isoformat()},
-                    "end": {"dateTime": meeting.end.isoformat()},
-                    "conferenceData": {
-                        "createRequest": {
-                            "requestId": str(uuid.uuid4()),
-                            "conferenceSolutionKey": {"type": "hangoutsMeet"}
-                        }
-                    }
-                }
-                created = service.events().insert(
-                    calendarId="primary",
-                    body=event_body,
-                    conferenceDataVersion=1
-                ).execute()
-                meeting.event_id = created.get("id", "")
-                # hangoutLink or conferenceData entryPoints
-                meet_link = created.get("hangoutLink")
-                if not meet_link:
-                    conf = created.get("conferenceData", {})
-                    entry = conf.get("entryPoints", [])
-                    if entry:
-                        meet_link = entry[0].get("uri")
-                meeting.meet_link = meet_link or ""
-                meeting.save()
-                messages.success(request, "Meeting created and added to Google Calendar.")
-            except ValueError:
-                # google credentials not available
-                messages.info(request, "Meeting created locally. Connect Google to add to Calendar.")
-            except HttpError as e:
-                messages.warning(request, f"Meeting created locally but Google Calendar API failed: {e}")
-            except Exception as e:
-                messages.warning(request, f"Meeting created locally but Google sync failed: {e}")
-
+            messages.success(request, f"Meeting created! Join link: {meeting.meet_link}")
             return redirect('teacher_group_detail', group_id=groupe.id)
         else:
             messages.error(request, "Please correct the errors below.")
     else:
         form = MeetingForm()
-
     return render(request, 'etude/addMeeting.html', {'form': form, 'groupe': groupe})
 
 @login_required
 def meetings_json(request, group_id):
     groupe = get_object_or_404(GroupeEtude, id=group_id)
-    # only allow creator, staff or members to get events
-    if not (request.user.is_staff or request.user == groupe.createur or groupe.membres.filter(pk=request.user.pk).exists()):
-        # return empty list for unauthorized JS consumers
-        return JsonResponse([], safe=False)
-
     qs = groupe.meetings.all()
     events = []
     for m in qs:
@@ -376,10 +333,9 @@ def meetings_json(request, group_id):
             "title": m.title,
             "start": m.start.isoformat(),
             "end": m.end.isoformat(),
-            "url": reverse('meeting_detail', args=[groupe.id, m.id]),
+            "url": m.meet_link,  
             "extendedProps": {
-                "meet_link": m.meet_link,
-                "event_id": m.event_id
+                "meet_link": m.meet_link
             }
         })
     return JsonResponse(events, safe=False)
@@ -395,9 +351,6 @@ def group_meetings(request, group_id):
 
 @login_required
 def meeting_detail(request, group_id, meeting_id):
-    """
-    Show a single meeting. Only accessible to the group's creator or staff.
-    """
     groupe = get_object_or_404(GroupeEtude, id=group_id, createur=request.user)
     meeting = get_object_or_404(Meeting, id=meeting_id, groupe=groupe)
     return render(request, 'etude/meeting_detail.html', {
