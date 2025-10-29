@@ -174,7 +174,15 @@ class Review(models.Model):
     def helpful_count(self):
         return self.likes.count()
    
-    """ exercise_type = models.CharField(max_length=20, choices=EXERCISE_TYPE_CHOICES)
+class Exercise(models.Model):
+    EXERCISE_TYPE_CHOICES = (
+        ('mcq', 'Multiple Choice Question'),
+        ('true_false', 'True/False'),
+        ('fill_blank', 'Fill in the Blank'),
+        ('open', 'Open Problem'),
+    )
+    title = models.CharField(max_length=200)
+    exercise_type = models.CharField(max_length=20, choices=EXERCISE_TYPE_CHOICES)
     statement = models.TextField()
     correction = models.TextField()
     generated_by = models.CharField(max_length=20, choices=(('AI', 'AI'), ('Teacher', 'Teacher')), default='Teacher')
@@ -182,7 +190,6 @@ class Review(models.Model):
 
     def __str__(self):
         return f"{self.title} - {self.chapter.title}"
-"""
 
 # --------------------------
 # Speciality model

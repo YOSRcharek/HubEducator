@@ -361,7 +361,6 @@ document.addEventListener("DOMContentLoaded", function() {
     {% endfor %}
 });
 
-<<<<<<< HEAD
 function closeModal(courseId) {
     const modal = document.getElementById(`modal${courseId}`);
     modal.style.display = "none";
@@ -430,55 +429,6 @@ window.onclick = function(event) {
 
 <!-- Flatpickr JS -->
      <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-=======
-				</div>
-			</div>
-		</div>
-<script>
-document.getElementById('load-course-btn').addEventListener('click', function() {
-    fetch("{% url 'add_courses' %}")
-        .then(response => response.text())
-        .then(html => {
-            document.getElementById('modal-course-content').innerHTML = html;
-        });
-});
-
-      document.addEventListener('DOMContentLoaded', function () {
-        const stepperItems = document.querySelectorAll('.stepper-item')
-        const stepperContents = document.querySelectorAll('[data-kt-stepper-element="content"]')
-      
-        stepperItems.forEach((item, index) => {
-          item.addEventListener('click', () => {
-            // Remove current class from all items
-            stepperItems.forEach((i) => i.classList.remove('current'))
-            // Hide all content sections
-            stepperContents.forEach((c) => c.classList.add('d-none'))
-      
-            // Activate clicked step
-            item.classList.add('current')
-            stepperContents[index].classList.remove('d-none')
-          })
-        })
-      })
-     var modal = document.getElementById('kt_modal_create_project');
-modal.addEventListener('shown.bs.modal', function () {
-    var stepperEl = document.getElementById('kt_modal_create_project_stepper');
-    if (stepperEl) {
-        var stepper = new KTStepper(stepperEl);
-
-        stepper.on('kt.stepper.next', function (stepper) {
-            console.log('Next clicked');
-        });
-
-        stepper.on('kt.stepper.previous', function (stepper) {
-            console.log('Previous clicked');
-        });
-    }
-});
-
-
-    </script>
->>>>>>> 356362c2d67dfe656a543bce4c1ef2631a812247
 
      <script src="{% static 'dashboard/vendors/@popperjs/popper.min.js' %}"></script>
       <script src="{% static 'dashboard/vendors/base/vendor.bundle.base.js' %}"></script>
@@ -516,93 +466,4 @@ modal.addEventListener('shown.bs.modal', function () {
 
     
 </html>
-<<<<<<< HEAD
 {% endblock %}
-=======
-
-
-<!---
-
-{% load static %}
-
-{% block title %}Courses{% endblock %}
-
-{% block content %}
-<div class="col-lg-12 grid-margin stretch-card">
-    <div class="card">
-        <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h4 class="card-title mb-0">Courses List</h4>
-                  <a href="{% url 'add_student' %}" class="btn btn-outline-success btn-icon-text">
-                    <i class="mdi mdi-book-open-variant btn-icon-prepend"></i>
-                    Add Courses
-                </a> 
-            </div>
-
-            <div class="table-responsive">
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>Course Name</th>
-                            <th>Description</th>
-                            <th>Students Count</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for course in page_obj %}
-                        <tr>
-                            <td>{{ course.name }}</td>
-                            <td>{{ course.description|truncatewords:10 }}</td>
-                            <td>{{ course.students.count }}</td>
-                            <td>
-                                <div class="input-group mb-2 mr-sm-2">
-                                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                        <i class="mdi mdi-dots-vertical"></i>
-                                    </button>
-                                    <ul class="dropdown-menu">
-                                        <li><a class="dropdown-item" href="{% url 'course_detail' course.id %}">View Details</a></li>
-                                    </ul>
-                                </div>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="4" class="text-center">No courses found.</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-
-        
-                <div class="d-flex justify-content-center mt-3">
-                    <nav>
-                        <ul class="pagination">
-                            {% if page_obj.has_previous %}
-                                <li class="page-item"><a class="page-link" href="?page=1">First</a></li>
-                                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a></li>
-                            {% endif %}
-
-                            {% for num in page_obj.paginator.page_range %}
-                                {% if page_obj.number == num %}
-                                    <li class="page-item active"><span class="page-link">{{ num }}</span></li>
-                                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                                    <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
-                                {% endif %}
-                            {% endfor %}
-
-                            {% if page_obj.has_next %}
-                                <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a></li>
-                                <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last</a></li>
-                            {% endif %}
-                        </ul>
-                    </nav>
-                </div>
-
-            </div>
-        </div>
-    </div>
-</div>
-{% endblock %}
-->
->>>>>>> 356362c2d67dfe656a543bce4c1ef2631a812247

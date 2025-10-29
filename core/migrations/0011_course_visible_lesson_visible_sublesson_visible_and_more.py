@@ -24,8 +24,6 @@ class Migration(migrations.Migration):
             model_name='sublesson',
             name='visible',
             field=models.BooleanField(default=False),
-        ),
-        migrations.DeleteModel(
-            name='Exercise',
-        ),
+        )
+       
     ]
