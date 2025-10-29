@@ -1,9 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from .models import GroupeEtude
-from django.conf import settings
-from .models import GroupeEtude, Message
-from django.http import JsonResponse
+from django.http import JsonResponse, Http404
+from django.db.models import Q
+from django.urls import reverse
 
 @login_required
 def etude_list(request):
@@ -34,35 +35,44 @@ def creer_groupe(request):
     return render(request, 'etude/creer_groupe.html')
 
 @login_required
-def rejoindre_groupe(request, groupe_id):
-    groupe = get_object_or_404(GroupeEtude, pk=groupe_id)
-    user = request.user
+def join_group(request, group_id):
+    # only accept POST to join
+    if request.method != "POST":
+        return redirect('etude_list')
 
-    # Vérifier si l'utilisateur n'est pas déjà membre
+    groupe = get_object_or_404(GroupeEtude, id=group_id)
     if request.user not in groupe.membres.all():
         groupe.membres.add(request.user)
+        messages.success(request, "You have joined the group.")
+    else:
+        messages.info(request, "You are already a member of this group.")
 
-    # Retourner JSON pour l'AJAX
-    return JsonResponse({
-        "success": True,
-        "groupe_id": groupe.id,
-        "groupe_nom": groupe.nom
-    })
+    # After joining, go to the group's detail page so member list shows you
+    return redirect('etude_detail', groupe_id=group_id)
 
 @login_required
 def etude_detail(request, groupe_id):
+    """
+    Strict access: only creator, members, or staff may view.
+    Non-authorized users get 404 (so the URL appears non-existent).
+    """
+    # fetch the group by id first
     groupe = get_object_or_404(GroupeEtude, pk=groupe_id)
-    messages = groupe.messages.all().order_by('date_envoi')
 
-    if request.method == "POST":
-        contenu = request.POST.get("contenu")
-        if contenu:
-            Message.objects.create(groupe=groupe, auteur=request.user, contenu=contenu)
-            return redirect('etude_detail', groupe_id=groupe.id)
+    user = request.user
+    # allow if user is staff, creator, or a member
+    if not (user.is_staff or user == groupe.createur or groupe.membres.filter(pk=user.pk).exists()):
+        # hide existence for unauthorized users
+        raise Http404()
+
+    # load group related data for the template
+    messages_list = groupe.messages.all().order_by('date_envoi')
+    resources = groupe.resources_etude.all() if hasattr(groupe, 'resources_etude') else None
 
     return render(request, 'etude/etude_detail.html', {
         'groupe': groupe,
-        'messages': messages
+        'messages': messages_list,
+        'resources': resources,
     })
 
 @login_required

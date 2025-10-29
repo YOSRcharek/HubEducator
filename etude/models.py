@@ -1,7 +1,20 @@
 from django.db import models
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
+import os
+import uuid
 
+def validate_resource_file(value):
+    """Allow only common document types and limit size (optional)."""
+    ext = os.path.splitext(value.name)[1].lower()
+    allowed = {'.pdf', '.doc', '.docx', '.ppt', '.pptx'}
+    if ext not in allowed:
+        raise ValidationError("Unsupported file type. Allowed: pdf, doc, docx, ppt, pptx.")
+    max_mb = 25
+    if hasattr(value, 'size') and value.size > max_mb * 1024 * 1024:
+        raise ValidationError(f"File too large (max {max_mb} MB).")
+        
 class GroupeEtude(models.Model):
     nom = models.CharField(max_length=100)
     description = models.TextField(blank=True)
@@ -19,4 +32,30 @@ class Message(models.Model):
 
     def __str__(self):
         return self.nom
-        # return f"{self.auteur.username}: {self.contenu[:30]}"
+
+class ResourceEtude(models.Model):
+    groupe = models.ForeignKey(GroupeEtude, on_delete=models.CASCADE, related_name='resources_etude')
+    uploaded_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    title = models.CharField(max_length=200, blank=True)
+    description = models.TextField(blank=True)
+    file = models.FileField(upload_to='resources_etude/etude/%Y/%m', validators=[validate_resource_file])
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title or (self.file.name.split('/')[-1])
+
+class Meeting(models.Model):
+    groupe = models.ForeignKey("GroupeEtude", on_delete=models.CASCADE, related_name="meetings")
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    start = models.DateTimeField()
+    end = models.DateTimeField()
+    event_id = models.CharField(max_length=300, blank=True)  # Google Calendar event id
+    meet_link = models.URLField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False)
+
+    def __str__(self):
+        return f"{self.title} ({self.groupe.nom})"
+

@@ -5,8 +5,20 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 from .forms import AddUserForm, EditUserForm
 from core.models import User, Course,CourseCategory, Lesson, SubLesson, Resource
-from etude.models import GroupeEtude
+from etude.models import GroupeEtude, ResourceEtude
 from etude.forms import GroupeEtudeForm
+from etude.forms import ResourceEtudeForm
+from etude.models import Meeting
+from .forms import MeetingForm
+from etude.google_utils import get_google_credentials_for_user
+from googleapiclient.discovery import build
+import uuid
+from django.http import JsonResponse
+import datetime
+from django.utils.dateparse import parse_date, parse_time
+import uuid
+from django.utils import timezone as dj_timezone
+from googleapiclient.errors import HttpError
 
 # --------------------------
 # Teacher Dashboard
@@ -213,7 +225,7 @@ def add_groupe(request):
                 createur=request.user
             )
             messages.success(request, "Study group created successfully!")
-            return redirect('teacher_groupes')  
+            return redirect('teacher_groups')  
 
     return render(request, 'etude/addGroupe.html')
     # --------------------------
@@ -252,3 +264,192 @@ def delete_group(request, group_id):
         return redirect('teacher_groups')
 
     return render(request, 'etude/deleteGroupe.html', {'groupe': groupe})
+
+
+# etude resources
+@login_required
+def add_resource_etude(request, group_id):
+    # only the group creator (teacher) can upload resources
+    if request.user.role != 'teacher':
+        return redirect('unauthorized')
+    groupe = get_object_or_404(GroupeEtude, id=group_id, createur=request.user)
+    if request.method == "POST":
+        form = ResourceEtudeForm(request.POST, request.FILES)
+        if form.is_valid():
+            res = form.save(commit=False)
+            res.groupe = groupe
+            res.uploaded_by = request.user
+            res.save()
+            messages.success(request, "Resource uploaded.")
+            return redirect('teacher_groups')
+    else:
+        form = ResourceEtudeForm()
+    return render(request, 'etude/addResourceEtude.html', {'form': form, 'groupe': groupe})
+
+@login_required
+def teacher_group_detail(request, group_id):
+    if request.user.role != 'teacher':
+        return redirect('unauthorized')
+    groupe = get_object_or_404(GroupeEtude, id=group_id, createur=request.user)
+    members = groupe.membres.all()
+    resources = groupe.resources_etude.all()
+    messages_list = groupe.messages.all().order_by('date_envoi')
+    return render(request, 'etude/groupDetail.html', {
+        'groupe': groupe,
+        'members': members,
+        'resources': resources,
+        'messages': messages_list
+    })
+
+@login_required
+def add_meeting(request, group_id):
+    groupe = get_object_or_404(GroupeEtude, id=group_id, createur=request.user)
+    if request.method == "POST":
+        form = MeetingForm(request.POST)
+        if form.is_valid():
+            meeting = form.save(commit=False)
+            meeting.groupe = groupe
+            meeting.created_by = request.user
+            meeting.save()
+
+            # Optionally create event on Google Calendar if account connected
+            try:
+                creds = get_google_credentials_for_user(request.user)
+                service = build("calendar", "v3", credentials=creds)
+                event_body = {
+                    "summary": meeting.title,
+                    "description": meeting.description or "",
+                    "start": {"dateTime": meeting.start.isoformat()},
+                    "end": {"dateTime": meeting.end.isoformat()},
+                    "conferenceData": {
+                        "createRequest": {
+                            "requestId": str(uuid.uuid4()),
+                            "conferenceSolutionKey": {"type": "hangoutsMeet"}
+                        }
+                    }
+                }
+                created = service.events().insert(
+                    calendarId="primary",
+                    body=event_body,
+                    conferenceDataVersion=1
+                ).execute()
+                meeting.event_id = created.get("id", "")
+                # hangoutLink or conferenceData entryPoints
+                meet_link = created.get("hangoutLink")
+                if not meet_link:
+                    conf = created.get("conferenceData", {})
+                    entry = conf.get("entryPoints", [])
+                    if entry:
+                        meet_link = entry[0].get("uri")
+                meeting.meet_link = meet_link or ""
+                meeting.save()
+                messages.success(request, "Meeting created and added to Google Calendar.")
+            except ValueError:
+                # google credentials not available
+                messages.info(request, "Meeting created locally. Connect Google to add to Calendar.")
+            except HttpError as e:
+                messages.warning(request, f"Meeting created locally but Google Calendar API failed: {e}")
+            except Exception as e:
+                messages.warning(request, f"Meeting created locally but Google sync failed: {e}")
+
+            return redirect('teacher_group_detail', group_id=groupe.id)
+        else:
+            messages.error(request, "Please correct the errors below.")
+    else:
+        form = MeetingForm()
+
+    return render(request, 'etude/addMeeting.html', {'form': form, 'groupe': groupe})
+
+@login_required
+def meetings_json(request, group_id):
+    groupe = get_object_or_404(GroupeEtude, id=group_id)
+    # only allow creator, staff or members to get events
+    if not (request.user.is_staff or request.user == groupe.createur or groupe.membres.filter(pk=request.user.pk).exists()):
+        # return empty list for unauthorized JS consumers
+        return JsonResponse([], safe=False)
+
+    qs = groupe.meetings.all()
+    events = []
+    for m in qs:
+        events.append({
+            "id": m.id,
+            "title": m.title,
+            "start": m.start.isoformat(),
+            "end": m.end.isoformat(),
+            "url": reverse('meeting_detail', args=[groupe.id, m.id]),
+            "extendedProps": {
+                "meet_link": m.meet_link,
+                "event_id": m.event_id
+            }
+        })
+    return JsonResponse(events, safe=False)
+
+@login_required
+def group_meetings(request, group_id):
+    groupe = get_object_or_404(GroupeEtude, id=group_id, createur=request.user)
+    meetings = groupe.meetings.all().order_by('start')
+    return render(request, 'etude/groupMeetings.html', {
+        'groupe': groupe,
+        'meetings': meetings
+    })
+
+@login_required
+def meeting_detail(request, group_id, meeting_id):
+    """
+    Show a single meeting. Only accessible to the group's creator or staff.
+    """
+    groupe = get_object_or_404(GroupeEtude, id=group_id, createur=request.user)
+    meeting = get_object_or_404(Meeting, id=meeting_id, groupe=groupe)
+    return render(request, 'etude/meeting_detail.html', {
+        'groupe': groupe,
+        'meeting': meeting
+    })
+
+
+@login_required
+def group_meetings_by_date(request, group_id, date):
+    """
+    Show meetings for group filtered by date (expected format: YYYY-MM-DD).
+    """
+    groupe = get_object_or_404(GroupeEtude, id=group_id, createur=request.user)
+    dt = parse_date(date)
+    if not dt:
+        messages.error(request, "Invalid date format. Use YYYY-MM-DD.")
+        return redirect('group_meetings', group_id=group_id)
+
+    meetings = groupe.meetings.filter(start__date=dt).order_by('start')
+    return render(request, 'etude/groupMeetings.html', {'groupe': groupe, 'meetings': meetings})
+
+
+@login_required
+def group_meetings_by_time(request, group_id, time):
+    """
+    Show meetings for group filtered by time (expected format: HH:MM).
+    This filters meetings whose start time matches the provided time.
+    """
+    groupe = get_object_or_404(GroupeEtude, id=group_id, createur=request.user)
+    t = parse_time(time)
+    if not t:
+        messages.error(request, "Invalid time format. Use HH:MM.")
+        return redirect('group_meetings', group_id=group_id)
+
+    meetings = groupe.meetings.filter(start__time=t).order_by('start')
+    return render(request, 'etude/groupMeetings.html', {'groupe': groupe, 'meetings': meetings})
+
+
+@login_required
+def group_meetings_by_date_time(request, group_id, date, time):
+    """
+    Filter meetings by both date and time. date=YYYY-MM-DD, time=HH:MM
+    """
+    groupe = get_object_or_404(GroupeEtude, id=group_id, createur=request.user)
+    dt = parse_date(date)
+    t = parse_time(time)
+    if not dt or not t:
+        messages.error(request, "Invalid date/time format. Use YYYY-MM-DD and HH:MM.")
+        return redirect('group_meetings', group_id=group_id)
+
+    # combine into a datetime for exact match on start
+    start_dt = datetime.datetime.combine(dt, t)
+    meetings = groupe.meetings.filter(start=start_dt).order_by('start')
+    return render(request, 'etude/groupMeetings.html', {'groupe': groupe, 'meetings': meetings})

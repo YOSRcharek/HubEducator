@@ -18,9 +18,24 @@
       {% endfor %}
     </ul>
 
+    <h4 class="mt-4">Resources</h4>
+    <ul>
+      {% for res in groupe.resources_etude.all %}
+        <li>
+          <a href="{{ res.file.url }}" target="_blank">{{ res.title|default:res.file.name|slice:"-40:" }}</a>
+          <small class="text-muted"> — uploaded by {{ res.uploaded_by.username }} on {{ res.uploaded_at|date:"d/m/Y" }}</small>
+        </li>
+      {% empty %}
+        <li>No resources yet.</li>
+      {% endfor %}
+    </ul>
+
     <div class="text-center mt-4">
-      <a href="#" class="btn btn-success">💬 Send a message</a>
-      <a href="#" class="btn btn-primary">📅 Schedule a live class</a>
+      <a href="#messageForm" class="btn btn-success"
+         onclick="document.getElementById('messageForm').scrollIntoView({behavior:'smooth'}); document.getElementById('messageInput').focus(); return false;">
+        💬 Send a message
+      </a>
+      <!-- <a href="#" class="btn btn-primary">📅 Schedule a live class</a> -->
       <a href="{% url 'etude_list' %}" class="btn btn-secondary">⬅ Back</a>
     </div>
   </div>
@@ -146,4 +161,26 @@
 }
 
 </style>
+
+{% if request.user == groupe.createur or request.user.is_staff or request.user in groupe.membres.all %}
+  <div id="front-calendar" class="mt-4"></div>
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      var calendarEl = document.getElementById('front-calendar');
+      var calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        events: "{% url 'group_meetings_json' groupe.id %}",
+        eventClick: function(info) {
+          if (info.event.url) {
+            window.open(info.event.url, '_blank');
+            info.jsEvent.preventDefault();
+          }
+        }
+      });
+      calendar.render();
+    });
+  </script>
+{% endif %}
 {% endblock %}

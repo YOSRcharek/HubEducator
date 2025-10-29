@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
-from etude.models import GroupeEtude
+from etude.models import GroupeEtude, Meeting
 
 User = get_user_model()
 
@@ -69,4 +69,16 @@ class EditUserForm(forms.ModelForm):
         if User.objects.filter(email=email).exclude(pk=self.instance.pk).exists():
             raise forms.ValidationError("This email already exists.")
         return email
+
+
+class MeetingForm(forms.ModelForm):
+    class Meta:
+        model = Meeting
+        fields = ['title', 'description', 'start', 'end']
+        widgets = {
+            'start': forms.DateTimeInput(attrs={'type': 'datetime-local', 'class': 'form-control'}),
+            'end': forms.DateTimeInput(attrs={'type': 'datetime-local', 'class': 'form-control'}),
+            'title': forms.TextInput(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows':3}),
+        }
 
