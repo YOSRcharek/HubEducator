@@ -1,6 +1,6 @@
 """
 Script pour générer des données de revenus historiques de test
-⚠️ POUR DÉMONSTRATION UNIQUEMENT - NE PAS UTILISER EN PRODUCTION
+⚠️ POUR DÉMONSTRATION UNIQUEMENT 
 """
 import os
 import django

@@ -205,6 +205,13 @@ def change_subscription_teacher(request):
     if request.user.role != 'teacher':
         return redirect('unauthorized')
     
+    # Delete old preferences to force new questionnaire
+    try:
+        from .ml_models import UserPreference
+        UserPreference.objects.filter(user=request.user).delete()
+    except Exception as e:
+        print(f"Error deleting old preferences: {e}")
+    
     # Get the active subscription for this teacher
     active_subscription = UserSubscription.objects.filter(
         user=request.user,
@@ -217,10 +224,14 @@ def change_subscription_teacher(request):
         is_active=True
     ).order_by('price')
     
+    # No AI recommendations - user must complete questionnaire
+    ai_recommendations = None
+    
     return render(request, 'change_subscription_teacher.html', {
         'user_subscription': active_subscription,
         'available_subscriptions': available_subscriptions,
-        'user_type': 'teacher'
+        'user_type': 'teacher',
+        'ai_recommendations': ai_recommendations
     })
 
 
@@ -229,6 +240,13 @@ def change_subscription_student(request):
     """View for students to browse and change their subscription"""
     if request.user.role != 'student':
         return redirect('unauthorized')
+    
+    # Delete old preferences to force new questionnaire
+    try:
+        from .ml_models import UserPreference
+        UserPreference.objects.filter(user=request.user).delete()
+    except Exception as e:
+        print(f"Error deleting old preferences: {e}")
     
     # Get the active subscription for this student
     active_subscription = UserSubscription.objects.filter(
@@ -242,10 +260,14 @@ def change_subscription_student(request):
         is_active=True
     ).order_by('price')
     
+    # No AI recommendations - user must complete questionnaire
+    ai_recommendations = None
+    
     return render(request, 'change_subscription_student.html', {
         'user_subscription': active_subscription,
         'available_subscriptions': available_subscriptions,
-        'user_type': 'student'
+        'user_type': 'student',
+        'ai_recommendations': ai_recommendations
     })
 
 

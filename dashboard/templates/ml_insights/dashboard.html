@@ -60,6 +60,7 @@
         background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0));
         opacity: 0;
         transition: opacity 0.3s;
+        pointer-events: none;
     }
     
     .ml-card:hover::after {
@@ -88,6 +89,8 @@
         border: none;
         position: relative;
         overflow: hidden;
+        z-index: 10;
+        cursor: pointer;
     }
     
     .btn-modern::before {
@@ -178,9 +181,6 @@
                                 <i class="fas fa-users me-2"></i>Active Subscriptions
                             </p>
                             <h2 class="stat-number mb-0">{{ total_subscriptions }}</h2>
-                            <small class="text-success">
-                                <i class="fas fa-arrow-up"></i> +12% this month
-                            </small>
                         </div>
                         <div class="icon-wrapper bg-primary bg-opacity-10">
                             <i class="fas fa-users text-primary fa-2x"></i>
@@ -199,9 +199,6 @@
                                 <i class="fas fa-dollar-sign me-2"></i>Total Revenue
                             </p>
                             <h2 class="stat-number mb-0">${{ total_revenue|floatformat:2 }}</h2>
-                            <small class="text-success">
-                                <i class="fas fa-arrow-up"></i> +8% this month
-                            </small>
                         </div>
                         <div class="icon-wrapper bg-success bg-opacity-10">
                             <i class="fas fa-dollar-sign text-success fa-2x"></i>
@@ -214,8 +211,8 @@
     </div>
 
     <!-- ML Features Cards -->
-    <div class="row g-4">
-        <div class="col-md-4 fade-in" style="animation-delay: 0.4s">
+    <div class="row g-4 justify-content-center">
+        <div class="col-md-5 col-lg-4 fade-in" style="animation-delay: 0.4s">
             <div class="card ml-card shadow-lg h-100 border-0">
                 <div class="card-body p-4">
                     <div class="text-center mb-4">
@@ -238,7 +235,7 @@
             </div>
         </div>
 
-        <div class="col-md-4 fade-in" style="animation-delay: 0.5s">
+        <div class="col-md-5 col-lg-4 fade-in" style="animation-delay: 0.5s">
             <div class="card ml-card shadow-lg h-100 border-0">
                 <div class="card-body p-4">
                     <div class="text-center mb-4">
@@ -261,28 +258,6 @@
             </div>
         </div>
 
-        <div class="col-md-4 fade-in" style="animation-delay: 0.6s">
-            <div class="card ml-card shadow-lg h-100 border-0">
-                <div class="card-body p-4">
-                    <div class="text-center mb-4">
-                        <div class="icon-wrapper bg-primary bg-opacity-10 mx-auto">
-                            <i class="fas fa-gem text-primary fa-3x"></i>
-                        </div>
-                    </div>
-                    <h4 class="card-title text-center fw-bold mb-3">LTV Analysis</h4>
-                    <p class="card-text text-muted text-center mb-4">
-                        Calculate customer lifetime value and identify your most valuable users.
-                    </p>
-                    <div class="d-grid">
-                        <a href="{% url 'ltv_analysis' %}" class="btn btn-primary btn-modern">
-                            <span class="position-relative">
-                                View Analysis <i class="fas fa-arrow-right ms-2"></i>
-                            </span>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 
 </div>

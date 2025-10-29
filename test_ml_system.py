@@ -13,7 +13,6 @@ django.setup()
 from core.models import UserSubscription, Transaction
 from core.ml.models.churn_predictor import ChurnPredictor
 from core.ml.models.revenue_forecaster import RevenueForecaster
-from core.ml.models.ltv_calculator import LTVCalculator
 
 
 def test_data_availability():
@@ -117,40 +116,6 @@ def test_revenue_model():
         return False
 
 
-def test_ltv_model():
-    """Test LTV calculator model."""
-    print("\n" + "=" * 60)
-    print("Testing LTV Calculator Model")
-    print("=" * 60)
-    
-    try:
-        calculator = LTVCalculator()
-        
-        try:
-            calculator.load()
-            print("✅ LTV model loaded successfully!")
-            print(f"   Trained at: {calculator.metadata.get('trained_at')}")
-            
-            # Test prediction on first active subscription
-            subscription = UserSubscription.objects.filter(status='active').first()
-            if subscription:
-                prediction = calculator.predict_ltv(subscription)
-                print(f"\n💎 Sample LTV Prediction:")
-                print(f"   User: {subscription.user.username}")
-                print(f"   Current LTV: ${prediction['current_ltv']:.2f}")
-                print(f"   Predicted LTV: ${prediction['predicted_ltv']:.2f}")
-                print(f"   Potential: ${prediction['ltv_potential']:.2f}")
-            
-        except FileNotFoundError:
-            print("⚠️  Model not trained yet.")
-            print("   Run: python manage.py train_ml_models --model ltv")
-            return False
-        
-        return True
-        
-    except Exception as e:
-        print(f"❌ Error testing LTV model: {e}")
-        return False
 
 
 def main():
@@ -172,7 +137,6 @@ def main():
     # Test models
     churn_ok = test_churn_model()
     revenue_ok = test_revenue_model()
-    ltv_ok = test_ltv_model()
     
     # Summary
     print("\n" + "=" * 60)
@@ -181,9 +145,8 @@ def main():
     print(f"Data Availability: {'✅' if has_data else '❌'}")
     print(f"Churn Model: {'✅' if churn_ok else '❌'}")
     print(f"Revenue Model: {'✅' if revenue_ok else '❌'}")
-    print(f"LTV Model: {'✅' if ltv_ok else '❌'}")
     
-    if churn_ok and revenue_ok and ltv_ok:
+    if churn_ok and revenue_ok:
         print("\n🎉 All ML models are working correctly!")
         print("\nNext steps:")
         print("1. Access the ML dashboard: http://localhost:8000/dashboard/ml-insights/")

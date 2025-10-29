@@ -27,15 +27,14 @@ urlpatterns = [
     
     # Transactions URLs
     path('transactions/', views.transactions, name='transactions'),
+    path('transactions/delete/<int:transaction_id>/', views.delete_transaction, name='delete_transaction'),
     
     # ML Analytics URLs
     path('ml-insights/', views.ml_insights, name='ml_insights'),
     path('ml-insights/churn-predictions/', views.churn_predictions, name='churn_predictions'),
     path('ml-insights/revenue-forecast/', views.revenue_forecast, name='revenue_forecast'),
-    path('ml-insights/ltv-analysis/', views.ltv_analysis, name='ltv_analysis'),
     
     # ML API Endpoints
     path('api/predict-churn/<int:subscription_id>/', views.api_predict_churn, name='api_predict_churn'),
     path('api/revenue-forecast/', views.api_revenue_forecast, name='api_revenue_forecast'),
-    path('api/ltv-prediction/<int:subscription_id>/', views.api_ltv_prediction, name='api_ltv_prediction'),
 ]

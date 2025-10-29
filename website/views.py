@@ -58,7 +58,7 @@ def login_view(request):
                     return redirect("verify_code")
 
                 auth_login(request, user)
-                messages.success(request, "Connecté avec succès.")
+                # messages.success(request, "Connecté avec succès.")
                 if user.role == 'admin':
                     return redirect('dashboard')
                 elif user.role == 'teacher':
@@ -84,7 +84,7 @@ def register(request):
 
             # Send verification code
             send_verification_code(user)
-            messages.success(request, "Compte créé — un code de vérification a été envoyé à votre email.")
+            # messages.success(request, "Compte créé — un code de vérification a été envoyé à votre email.")
             return redirect("verify_code")
     else:
         form = RegisterForm()
@@ -123,8 +123,16 @@ def verify_code_view(request):
                 user.email_verified = True
                 user.verification_code = ''
                 user.save()
-                messages.success(request, "Your email is verified!")
-                return redirect("login")
+                # messages.success(request, "Your email is verified!")
+                
+                # Auto-login after verification
+                auth_login(request, user)
+                if user.role == 'admin':
+                    return redirect('dashboard')
+                elif user.role == 'teacher':
+                    return redirect('teacherDash')
+                else:
+                    return redirect('home')
             except User.DoesNotExist:
                 messages.error(request, "Invalid verification code.")
     else:
@@ -369,6 +377,12 @@ def process_payment(request):
                         days_match = re.search(r'(\d+)', subscription.duration)
                         if days_match:
                             duration_days = int(days_match.group(1))
+                    
+                    # Deactivate all existing active subscriptions for this user
+                    UserSubscription.objects.filter(
+                        user=request.user,
+                        is_active=True
+                    ).update(is_active=False)
                     
                     # Create user subscription
                     UserSubscription.objects.create(
