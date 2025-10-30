@@ -1,0 +1,786 @@
+
+       
+
+        :root {
+            --bs-primary: #FDC800;
+            --bs-secondary: #002147;
+            --bs-green: #79B93C;
+            --bs-white: #ffffff;
+            --bs-light: #f8f9fa;
+            --bs-gray-dark: #6c757d;
+            --bs-purple: #6f42c1;
+            --bs-orange: #fd7e14;
+            --bs-teal: #20c997;
+        }
+
+        
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        .lesson-title {
+            font-family: "DM Serif Display", cursive;
+            font-size: 2.5rem;
+            color: var(--bs-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .lesson-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .meta-card {
+            background: var(--bs-white);
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 33, 71, 0.08);
+            text-align: center;
+            transition: all 0.3s ease;
+            border-top: 4px solid var(--bs-primary);
+        }
+
+        .meta-card:nth-child(2) {
+            border-top-color: var(--bs-green);
+        }
+
+        .meta-card:nth-child(3) {
+            border-top-color: var(--bs-purple);
+        }
+
+        .meta-card:nth-child(4) {
+            border-top-color: var(--bs-orange);
+        }
+
+        .meta-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 33, 71, 0.12);
+        }
+
+        .meta-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .meta-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--bs-secondary);
+            margin-bottom: 0.25rem;
+        }
+
+        .meta-label {
+            color: var(--bs-gray-dark);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 3rem;
+            margin-bottom: 3rem;
+        }
+
+        .main-content {
+            animation: fadeInUp 0.8s ease-out 0.2s both;
+        }
+
+        .sidebar {
+            animation: fadeInUp 0.8s ease-out 0.4s both;
+        }
+
+        .content-card {
+            background: var(--bs-white);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 6px 25px rgba(0, 33, 71, 0.08);
+            margin-bottom: 2rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .content-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 35px rgba(0, 33, 71, 0.12);
+        }
+
+        .info-card {
+            background: var(--bs-white);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 6px 25px rgba(0, 33, 71, 0.08);
+            margin-bottom: 2rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .info-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 35px rgba(0, 33, 71, 0.12);
+        }
+
+        .section-title {
+            font-family: "DM Serif Display", cursive;
+            font-size: 1.5rem;
+            color: var(--bs-secondary);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border-bottom: 2px solid var(--bs-light);
+            padding-bottom: 0.75rem;
+        }
+
+        .lessons-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .lesson-item {
+            background: var(--bs-light);
+            border-radius: 15px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .lesson-header {
+            padding: 1.5rem;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .lesson-item-title {
+            font-weight: 600;
+            color: var(--bs-secondary);
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .lesson-description {
+            color: var(--bs-gray-dark);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .expand-icon {
+            transition: transform 0.3s ease;
+            color: var(--bs-primary);
+        }
+
+        .lesson-item.expanded .expand-icon {
+            transform: rotate(180deg);
+        }
+
+        .lesson-content {
+            padding: 0 1.5rem;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .lesson-item.expanded .lesson-content {
+            max-height: 1000px;
+            padding: 1.5rem;
+        }
+
+        .resources {
+            margin-bottom: 1.5rem;
+        }
+
+        .resources-title {
+            font-weight: 600;
+            color: var(--bs-secondary);
+            margin-bottom: 0.75rem;
+            font-size: 0.9rem;
+        }
+
+        .resource-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .resource-tag {
+            background: var(--bs-primary);
+            color: var(--bs-secondary);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .resource-tag:hover {
+            background: var(--bs-secondary);
+            color: var(--bs-white);
+            transform: scale(1.05);
+        }
+
+        .sub-lessons {
+            margin-top: 1.5rem;
+        }
+
+        .sub-lesson {
+            background: var(--bs-white);
+            border-radius: 15px;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid var(--bs-primary);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 33, 71, 0.06);
+        }
+
+        .sub-lesson:nth-child(2n) {
+            border-left-color: var(--bs-green);
+        }
+
+        .sub-lesson:nth-child(3n) {
+            border-left-color: var(--bs-purple);
+        }
+
+        .sub-lesson:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 33, 71, 0.12);
+        }
+
+        .sub-lesson-header {
+            padding: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .sub-lesson-info {
+            flex: 1;
+        }
+
+        .sub-lesson-title {
+            font-weight: 600;
+            color: var(--bs-secondary);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.1rem;
+        }
+
+        .sub-lesson-number {
+            background: var(--bs-primary);
+            color: var(--bs-secondary);
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .sub-lesson-description {
+            color: var(--bs-gray-dark);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .sub-lesson-controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .mark-complete-btn {
+            background: var(--bs-green);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .mark-complete-btn:hover {
+            background: #6ba832;
+            transform: scale(1.05);
+        }
+
+        .mark-complete-btn.completed {
+            background: var(--bs-secondary);
+        }
+
+        .expand-icon {
+            background: var(--bs-light);
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: var(--bs-secondary);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .expand-icon:hover {
+            background: var(--bs-primary);
+            transform: rotate(45deg);
+        }
+
+        .sub-lesson.expanded .expand-icon {
+            transform: rotate(45deg);
+            background: var(--bs-primary);
+        }
+
+        .sub-lesson-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.4s ease;
+        }
+
+        .sub-lesson.expanded .sub-lesson-content {
+            max-height: 2000px;
+            padding: 0 1.5rem 1.5rem;
+        }
+
+        .video-container {
+            margin-bottom: 1.5rem;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 33, 71, 0.1);
+        }
+
+        .video-container iframe {
+            width: 100%;
+            height: 300px;
+            border: none;
+        }
+
+        .resources-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+        }
+
+        .resource-card {
+            background: var(--bs-light);
+            border-radius: 12px;
+            padding: 1.25rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .resource-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 33, 71, 0.1);
+        }
+
+        .resource-pdf {
+            border-color: var(--bs-orange);
+        }
+
+        .resource-pdf:hover {
+            background: #fff5f0;
+            border-color: var(--bs-orange);
+        }
+
+        .resource-link {
+            border-color: var(--bs-teal);
+        }
+
+        .resource-link:hover {
+            background: #f0fffe;
+            border-color: var(--bs-teal);
+        }
+
+        .resource-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .resource-icon {
+            font-size: 1.5rem;
+        }
+
+        .resource-title {
+            font-weight: 600;
+            color: var(--bs-secondary);
+            margin: 0;
+            font-size: 1rem;
+        }
+
+        .resource-description {
+            color: var(--bs-gray-dark);
+            font-size: 0.85rem;
+            line-height: 1.4;
+            margin-bottom: 0.75rem;
+        }
+
+        .resource-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.8rem;
+            color: var(--bs-gray-dark);
+            font-weight: 500;
+        }
+
+        .completion-checkbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--bs-primary);
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .completion-checkbox.completed {
+            background: var(--bs-primary);
+            color: var(--bs-secondary);
+        }
+
+        .completion-checkbox:hover {
+            transform: scale(1.1);
+        }
+
+        .progress-bar {
+            background: var(--bs-light);
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, var(--bs-primary), #ffed4e);
+            height: 100%;
+            transition: width 0.5s ease;
+        }
+
+        .summary-card {
+            background: linear-gradient(135deg, var(--bs-primary), #ffed4e);
+            color: var(--bs-secondary);
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+        }
+
+        .summary-title {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .video-container {
+            background: var(--bs-secondary);
+            border-radius: 15px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            aspect-ratio: 16/9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--bs-white);
+            font-size: 3rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .video-container:hover {
+            background: #003366;
+            transform: scale(1.02);
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .pdf-viewer-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 33, 71, 0.9);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pdf-viewer-container {
+            background: var(--bs-white);
+            border-radius: 20px;
+            width: 95%;
+            height: 90%;
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 33, 71, 0.3);
+        }
+
+        .pdf-viewer {
+            background: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .pdf-header {
+            background: var(--bs-secondary);
+            color: white;
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .pdf-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .pdf-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .pdf-btn {
+            background: var(--bs-primary);
+            color: var(--bs-secondary);
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .pdf-btn:hover {
+            background: #e6b800;
+            transform: scale(1.05);
+        }
+
+        .close-pdf {
+            background: #dc3545;
+            color: white;
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .pdf-content {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+            background: white;
+        }
+
+        .pdf-page {
+            background: white;
+            margin-bottom: 2rem;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 33, 71, 0.1);
+            line-height: 1.6;
+        }
+
+        .pdf-page h1, .pdf-page h2, .pdf-page h3 {
+            color: var(--bs-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .pdf-page p {
+            margin-bottom: 1rem;
+            color: var(--bs-gray-dark);
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 1rem;
+            background: var(--bs-light);
+        }
+
+        .page-btn {
+            background: var(--bs-white);
+            border: 2px solid var(--bs-primary);
+            color: var(--bs-secondary);
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .page-btn:hover, .page-btn.active {
+            background: var(--bs-primary);
+            color: var(--bs-secondary);
+        }
+
+        .chat-panel {
+            background: var(--bs-white);
+            display: flex;
+            flex-direction: column;
+            border-left: 1px solid var(--bs-light);
+        }
+
+        .chat-header {
+            background: var(--bs-green);
+            color: white;
+            padding: 1rem 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .chat-message {
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            max-width: 85%;
+            line-height: 1.4;
+        }
+
+        .chat-message.user {
+            background: var(--bs-primary);
+            color: var(--bs-secondary);
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+        .chat-message.ai {
+            background: var(--bs-light);
+            color: var(--bs-secondary);
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+
+        .chat-input-container {
+            padding: 1rem;
+            border-top: 1px solid var(--bs-light);
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 0.75rem;
+            border: 2px solid var(--bs-light);
+            border-radius: 25px;
+            outline: none;
+            font-size: 0.9rem;
+        }
+
+        .chat-input:focus {
+            border-color: var(--bs-green);
+        }
+
+        .send-btn {
+            background: var(--bs-green);
+            color: white;
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .send-btn:hover {
+            background: #6ba832;
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            
+            .lesson-meta {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1rem;
+            }
+            
+            .lesson-title {
+                font-size: 2rem;
+            }
+
+            .pdf-viewer-container {
+                grid-template-columns: 1fr;
+                height: 95%;
+            }
+
+            .chat-panel {
+                display: none;
+            }
+        }
+
+  

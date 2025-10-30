@@ -2,6 +2,10 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
+from django.forms import inlineformset_factory
+from django.forms import modelformset_factory
+from core.models import Speciality, Certificate, CertificatExercise
+
 from core.models import Subscription
 
 User = get_user_model()

@@ -1,6 +1,8 @@
 
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
+
+from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth import logout
@@ -16,6 +18,24 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_CENTER, TA_RIGHT, TA_LEFT, TA_JUSTIFY
 from reportlab.pdfgen import canvas
 from datetime import datetime
+
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from django.contrib.auth import get_user_model
+from django.contrib.auth import logout
+from django.http import HttpResponse
+from .forms import EmailForm, ProfileUpdateForm, PasswordForm
+from .models import UserSubscription, Transaction, Subscription
+from io import BytesIO
+from reportlab.lib.pagesizes import letter, A4
+from reportlab.lib import colors
+from reportlab.lib.units import inch
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image, PageBreak
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.enums import TA_CENTER, TA_RIGHT, TA_LEFT, TA_JUSTIFY
+from reportlab.pdfgen import canvas
+from datetime import datetime
+
 
 
 def unauthorized (request):
@@ -105,6 +125,8 @@ def profil(request):
         "show_deactivate_success": show_deactivate_success,
         "show_deactivate_error": show_deactivate_error,
     })
+
+
 
 
 @login_required
