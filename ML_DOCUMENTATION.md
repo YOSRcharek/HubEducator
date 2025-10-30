@@ -18,12 +18,6 @@ Ce système ML fournit des analyses prédictives et des statistiques avancées p
 - **Features**: Revenus historiques, tendances, lags, rolling statistics
 - **Output**: Prévisions mensuelles pour les 6 prochains mois
 
-### 3. LTV Calculator (Calculateur de Valeur Vie Client)
-- **Objectif**: Estimer la valeur totale qu'un utilisateur générera
-- **Algorithme**: Random Forest Regressor
-- **Features**: Historique de transactions, engagement, comportement
-- **Output**: LTV actuel, LTV prédit, et potentiel de croissance
-
 ## 🚀 Installation
 
 ### 1. Installer les dépendances ML
@@ -50,8 +44,7 @@ core/
 │   ├── models/
 │   │   ├── __init__.py
 │   │   ├── churn_predictor.py
-│   │   ├── revenue_forecaster.py
-│   │   └── ltv_calculator.py
+│   │   └── revenue_forecaster.py
 │   ├── features/
 │   │   ├── __init__.py
 │   │   └── feature_engineering.py
@@ -61,8 +54,7 @@ core/
 │   │   └── model_evaluator.py
 │   └── trained_models/  (créé automatiquement)
 │       ├── churn_predictor.pkl
-│       ├── revenue_forecaster.pkl
-│       └── ltv_calculator.pkl
+│       └── revenue_forecaster.pkl
 ```
 
 ## 📝 Utilisation
@@ -81,9 +73,6 @@ python manage.py train_ml_models --model churn
 
 # Revenue forecasting
 python manage.py train_ml_models --model revenue
-
-# LTV calculator
-python manage.py train_ml_models --model ltv
 ```
 
 #### Options avancées
@@ -109,9 +98,6 @@ python manage.py generate_predictions --prediction-type churn
 
 # Seulement utilisateurs à haut risque
 python manage.py generate_predictions --prediction-type churn --high-risk-only
-
-# Seulement LTV
-python manage.py generate_predictions --prediction-type ltv
 ```
 
 ## 🌐 Interface Web
@@ -132,11 +118,6 @@ python manage.py generate_predictions --prediction-type ltv
    - Graphique de prévision des revenus
    - Insights sur les tendances
    - Prévisions pour les 6 prochains mois
-
-4. **LTV Analysis**: `/dashboard/ml-insights/ltv-analysis/`
-   - Classement des utilisateurs par valeur
-   - LTV actuel vs prédit
-   - Segmentation des clients
 
 ### API Endpoints
 
@@ -172,23 +153,6 @@ Réponse:
         "revenue_trend": "increasing",
         "growth_rate": 5.2
     }
-}
-```
-
-#### Prédire le LTV pour un abonnement
-```
-GET /dashboard/api/ltv-prediction/<subscription_id>/
-```
-
-Réponse:
-```json
-{
-    "subscription_id": 123,
-    "user_id": 456,
-    "current_ltv": 150.00,
-    "predicted_ltv": 450.00,
-    "ltv_potential": 300.00,
-    "predicted_at": "2025-10-23T05:45:00"
 }
 ```
 
@@ -234,11 +198,6 @@ Ou utilisez Celery pour des tâches périodiques dans Django.
 - **RMSE**: Root Mean Squared Error (erreur quadratique moyenne en $)
 - **MAPE**: Mean Absolute Percentage Error (erreur en %)
 
-### LTV Calculator
-- **R² Score**: Qualité de la prédiction
-- **MAE**: Erreur moyenne en $
-- **RMSE**: Erreur quadratique moyenne en $
-
 ## 🎯 Cas d'Usage
 
 ### 1. Réduire le Churn
@@ -268,23 +227,6 @@ forecasts = forecaster.forecast(periods_ahead=6)
 total_expected = sum(forecasts)
 
 print(f"Revenus attendus sur 6 mois: ${total_expected:.2f}")
-```
-
-### 3. Segmentation Client
-```python
-# Identifier les clients premium
-calculator = LTVCalculator()
-calculator.load()
-
-premium_users = []
-for subscription in subscriptions:
-    pred = calculator.predict_ltv(subscription)
-    if pred['predicted_ltv'] > 500:
-        premium_users.append(subscription.user)
-
-# Offrir des avantages VIP
-for user in premium_users:
-    grant_vip_access(user)
 ```
 
 ## 🔍 Features Utilisées
@@ -357,7 +299,6 @@ pip install -r requirements.txt
 ### Ré-entraînement recommandé
 - **Churn Model**: Tous les mois
 - **Revenue Model**: Tous les mois
-- **LTV Model**: Tous les 2-3 mois
 
 ### Monitoring
 - Vérifiez régulièrement les métriques de performance

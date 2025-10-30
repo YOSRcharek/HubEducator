@@ -39,6 +39,96 @@
             </div>
         </div>
 
+        <!-- AI Recommendation Section -->
+        {% if ai_recommendations %}
+        <div class="row mb-5">
+            <div class="col-12">
+                <div class="card" style="border: none; border-radius: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-4">
+                            <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 15px; margin-right: 20px;">
+                                <i class="mdi mdi-robot" style="font-size: 2.5rem; color: white;"></i>
+                            </div>
+                            <div>
+                                <h3 style="color: white; margin: 0; font-weight: 700;">🤖 AI Recommendation</h3>
+                                <p style="color: rgba(255,255,255,0.9); margin: 0; font-size: 0.95rem;">Based on your preferences and usage patterns</p>
+                            </div>
+                        </div>
+                        
+                        {% if ai_recommendations.primary %}
+                        <div class="card" style="border: 3px solid #ffd700; border-radius: 15px; background: white; box-shadow: 0 5px 20px rgba(0,0,0,0.1);">
+                            <div class="card-body p-4">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <div>
+                                        <span class="badge" style="background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%); color: #333; padding: 8px 16px; border-radius: 20px; font-weight: 600; font-size: 0.85rem;">
+                                            <i class="mdi mdi-star"></i> Best Match
+                                        </span>
+                                    </div>
+                                    <div class="text-end">
+                                        <div style="font-size: 0.85rem; color: #666; margin-bottom: 5px;">Compatibility Score</div>
+                                        <div class="progress" style="width: 150px; height: 8px; border-radius: 10px;">
+                                            <div class="progress-bar" style="width: {{ ai_recommendations.primary.compatibility_score }}%; background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);"></div>
+                                        </div>
+                                        <div style="font-size: 0.75rem; color: #667eea; font-weight: 600; margin-top: 3px;">{{ ai_recommendations.primary.compatibility_score|floatformat:0 }}%</div>
+                                    </div>
+                                </div>
+                                
+                                <h4 style="color: #2c3e50; font-weight: 700; margin-bottom: 10px;">{{ ai_recommendations.primary.subscription.name }}</h4>
+                                <p style="color: #666; margin-bottom: 15px;">{{ ai_recommendations.primary.subscription.description|truncatewords:20 }}</p>
+                                
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <span style="font-size: 2rem; font-weight: 700; color: #667eea;" class="price-currency">$</span>
+                                        <span style="font-size: 2rem; font-weight: 700; color: #667eea;" class="price">{{ ai_recommendations.primary.subscription.price }}</span>
+                                        <span style="color: #999; font-size: 0.9rem;">/ {{ ai_recommendations.primary.subscription.duration }}</span>
+                                    </div>
+                                    <a href="{% url 'initiate_payment' ai_recommendations.primary.subscription.id %}" class="btn" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 30px; border-radius: 25px; font-weight: 600; text-decoration: none; transition: all 0.3s;">
+                                        <span>Choose This Plan</span>
+                                        <i class="mdi mdi-arrow-right"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if ai_recommendations.alternatives %}
+                        <div class="mt-3">
+                            <p style="color: rgba(255,255,255,0.9); font-size: 0.9rem; margin-bottom: 10px;">
+                                <i class="mdi mdi-information"></i> Other options you might consider:
+                            </p>
+                            <div class="d-flex gap-2 flex-wrap">
+                                {% for alt in ai_recommendations.alternatives|slice:":2" %}
+                                <span class="badge" style="background: rgba(255,255,255,0.2); color: white; padding: 8px 15px; border-radius: 15px; font-weight: 500;">
+                                    {{ alt.subscription.name }} ({{ alt.compatibility_score|floatformat:0 }}% match)
+                                </span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <!-- Prompt to complete questionnaire -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="alert" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; border-radius: 15px; color: white;">
+                    <div class="d-flex align-items-center">
+                        <i class="mdi mdi-lightbulb-on" style="font-size: 2rem; margin-right: 15px;"></i>
+                        <div class="flex-grow-1">
+                            <h5 style="margin: 0; font-weight: 600;">Get Personalized AI Recommendations!</h5>
+                            <p style="margin: 5px 0 0 0; opacity: 0.9; font-size: 0.9rem;">Answer a few questions to get AI-powered subscription recommendations tailored to your needs.</p>
+                        </div>
+                        <a href="{% url 'ml_recommendation' %}" class="btn" style="background: white; color: #667eea; padding: 10px 25px; border-radius: 20px; font-weight: 600; text-decoration: none; white-space: nowrap;">
+                            Start Questionnaire <i class="mdi mdi-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
         <!-- Available Subscriptions Carousel -->
         <div class="row">
             <div class="col-12 mb-4">
@@ -46,8 +136,8 @@
                     <div class="section-icon">
                         <i class="mdi mdi-credit-card-multiple"></i>
                     </div>
-                    <h2 class="section-title">Available Subscription Plans</h2>
-                    <p class="section-subtitle">Choose the plan that best fits your needs</p>
+                    <h2 class="section-title">All Available Plans</h2>
+                    <p class="section-subtitle">Browse all subscription options</p>
                 </div>
             </div>
             <div class="col-12">

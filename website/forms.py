@@ -7,9 +7,6 @@ class RegisterForm(forms.ModelForm):
 
     class Meta:
         model = User
-
-        fields = ["username", "email", "role", "profile_picture"]
-
         fields = ["username", "email", "profile_picture"]
         
     def save(self, commit=True):
@@ -18,7 +15,6 @@ class RegisterForm(forms.ModelForm):
         if commit:
             user.save()
         return user
-
 
     def clean_email(self):
         email = self.cleaned_data.get("email")

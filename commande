@@ -1,0 +1,2 @@
+celery -A HubEducator worker -l info -P solo -n worker1@%h
+celery -A HubEducator beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
