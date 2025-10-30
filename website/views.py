@@ -1,6 +1,8 @@
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout, get_user_model
 from django.contrib import messages
+from tutor_ai.pdf_summarizer import summarize_pdf_file 
+from tutor_ai.course_recommender import recommend_for_student
 from .forms import RegisterForm
 from core.decorators import unauthenticated_user
 from django.contrib.auth.forms import PasswordResetForm
@@ -16,7 +18,8 @@ from django.contrib.auth import get_user_model, login
 from django.core.paginator import Paginator
 from core.models import Course
 from django.contrib.auth.decorators import login_required
-from core.models import Course, Lesson, SubLesson, Resource, User , Review
+from core.models import Course, Lesson, SubLesson, Resource, User , Review ,SubLessonProgress
+from django.views.decorators.http import require_POST
 import json
 from django.core.serializers.json import DjangoJSONEncoder
 from django.http import JsonResponse
@@ -26,6 +29,14 @@ import requests
 from django.views.decorators.csrf import csrf_exempt
 import json
 from django.utils import timezone
+import os
+import json
+import requests
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+
+
+
 
 User = get_user_model()  # Always use custom user
 
@@ -51,13 +62,18 @@ def mycourses(request):
     })
     
 def courses(request):
+    # Récupérer les cours visibles
     courses_list = Course.objects.filter(visible=True).order_by('-created_at')
     paginator = Paginator(courses_list, 6)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
+    student = request.user if request.user.is_authenticated else None
+    recs = recommend_for_student(student) if student else []
+
     return render(request, 'cours/courses.html', {
         'page_obj': page_obj,
+        'recommendations': recs,
     })
 
 def user_research(request):
@@ -65,38 +81,25 @@ def user_research(request):
 
 
 
-
 @login_required
 def courseDetails(request, course_id):
-    course = get_object_or_404(
-        Course,
-        id=course_id,
-        visible=True  # ✅ Ne montrer que les cours actifs
-    )
+    course = get_object_or_404(Course, id=course_id, visible=True)
 
-    # 🚨 Vérifier que l'utilisateur est inscrit à ce cours
     if request.user not in course.students.all():
         return HttpResponseForbidden("🚫 Vous n'êtes pas autorisé à accéder à ce cours. Veuillez d'abord vous inscrire.")
 
     teacher = course.teacher
     lessons = Lesson.objects.filter(course=course, visible=True).order_by('order')
 
+    # ✅ Calcul de progression pour chaque leçon
     for lesson in lessons:
-        lesson.resource_list = Resource.objects.filter(
-            lesson=lesson,
-            sub_lesson__isnull=True
-        ).order_by('order')
-
+        lesson.resource_list = Resource.objects.filter(lesson=lesson, sub_lesson__isnull=True).order_by('order')
         lesson.resources_json = json.dumps(
             list(lesson.resource_list.values('id', 'title', 'file', 'resource_type')),
             cls=DjangoJSONEncoder
         )
 
-        sub_lessons = SubLesson.objects.filter(
-            lesson=lesson,
-            visible=True
-        ).order_by('order')
-
+        sub_lessons = SubLesson.objects.filter(lesson=lesson, visible=True).order_by('order')
         for sub in sub_lessons:
             sub.resource_list = Resource.objects.filter(sub_lesson=sub).order_by('order')
             sub.resources_json = json.dumps(
@@ -106,7 +109,30 @@ def courseDetails(request, course_id):
 
         lesson.sublessons = sub_lessons
 
-    # ✅ Reviews
+        # ✅ Progression de la leçon
+        total_subs = sub_lessons.count()
+        completed_subs = SubLessonProgress.objects.filter(
+            student=request.user,
+            sub_lesson__in=sub_lessons,
+            completed=True
+        ).count()
+
+        if total_subs > 0:
+            lesson.progress = round((completed_subs / total_subs) * 100, 1)
+        else:
+            lesson.progress = 0
+
+    # ✅ Progression totale du cours
+    all_sublessons = SubLesson.objects.filter(lesson__course=course, visible=True)
+    completed_sublessons = SubLessonProgress.objects.filter(
+        student=request.user,
+        sub_lesson__in=all_sublessons,
+        completed=True
+    ).count()
+    total_sublessons = all_sublessons.count()
+    course.progress = round((completed_sublessons / total_sublessons) * 100, 1) if total_sublessons > 0 else 0
+
+    # ✅ Reviews, durée, etc. (inchangé)
     reviews = course.reviews.all().order_by('-created_at')
     for review in reviews:
         review.full_stars = review.rating or 0
@@ -114,12 +140,10 @@ def courseDetails(request, course_id):
         review.user_liked = request.user in review.likes.all()
         review.likes_count = review.likes.count()
 
-    # Moyenne des notes
     avg_rating = course.reviews.aggregate(avg=Avg('rating'))['avg'] or 0
     avg_full_stars = int(avg_rating)
     avg_empty_stars = 5 - avg_full_stars
 
-    # Durée
     if course.start_date and course.end_date:
         total_days = (course.end_date - course.start_date).days
         duration_weeks = total_days // 7
@@ -156,6 +180,14 @@ def enroll_course(request, course_id):
 
     return redirect('courseDetails', course_id=course.id)
 
+
+@login_required
+def unenroll_course(request, course_id):
+    course = get_object_or_404(Course, id=course_id)
+    if request.user in course.students.all():
+        course.students.remove(request.user)
+        messages.success(request, f"Vous avez été désinscrit du cours « {course.title} »")
+    return redirect('coursesUser')
 
 @login_required
 def lesson_details(request, course_id, lesson_id):
@@ -203,12 +235,23 @@ def lesson_details(request, course_id, lesson_id):
     avg_rating = course.reviews.aggregate(avg=Avg('rating'))['avg'] or 0
     avg_full_stars = int(avg_rating)
     avg_empty_stars = 5 - avg_full_stars
+    
+   # 🔹 Progression réelle à partir du modèle SubLessonProgress
+    completed_subs = SubLessonProgress.objects.filter(
+        student=request.user, sub_lesson__in=sub_lessons, completed=True
+    ).values_list('sub_lesson_id', flat=True)
 
+    completed_count = len(completed_subs)
+    total_count = sub_lessons.count()
+    progress_percent = int((completed_count / total_count) * 100) if total_count else 0
+
+    
     context = {
         'course': course,
         'lesson': lesson,
         'sub_lessons': sub_lessons,
         'completed_count': completed_count,
+        'completed_subs': list(completed_subs),
         'total_count': total_count,
         'progress_percent': progress_percent,
         'teacher': course.teacher,
@@ -530,3 +573,101 @@ def schedule_course(request, course_id):
         course.visible = False  # assure que ce sera publié plus tard
         course.save()
         return JsonResponse({"success": True})
+
+
+@csrf_exempt
+def ask_ai(request):
+    """
+    Endpoint pour poser des questions à l'IA en fonction de la ressource affichée.
+    """
+    if request.method != "POST":
+        return JsonResponse({"error": "Invalid request"}, status=400)
+
+    try:
+        data = json.loads(request.body)
+        question = data.get("question")
+        resource_url = data.get("resource_url")
+        resource_type = data.get("resource_type")
+
+        # Extraction du contenu selon le type de ressource
+        content_text = ""
+        if resource_type == "pdf":
+            # Télécharger le PDF temporairement
+            response = requests.get(resource_url)
+            with open("temp.pdf", "wb") as f:
+                f.write(response.content)
+            reader = PdfReader("temp.pdf")
+            content_text = "\n".join([page.extract_text() for page in reader.pages if page.extract_text()])
+        elif resource_type in ["image", "video", "audio"]:
+            content_text = f"Ressource de type {resource_type} : {resource_url}"
+        else:
+            content_text = "Contenu non exploitable."
+
+        # Préparer le prompt pour l'IA
+        prompt = f"""
+        Voici le contenu de la ressource :\n{content_text}\n
+        Question : {question}\n
+        Réponds de manière claire, concise et adaptée à ce contenu.
+        """
+
+        # Appel à OpenAI GPT
+        response = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=[{"role": "user", "content": prompt}],
+            max_tokens=500
+        )
+
+        answer = response.choices[0].message["content"]
+
+        return JsonResponse({"answer": answer})
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+
+
+
+@csrf_exempt
+def summarize_pdf_view(request):
+    if request.method == "POST":
+        try:
+            file = request.FILES.get('pdf')
+            if not file:
+                return JsonResponse({"error": "No PDF uploaded"}, status=400)
+
+            summary = summarize_pdf_file(file)
+            return JsonResponse({"summary": summary})
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+    return JsonResponse({"error": "POST method required"}, status=400)
+
+
+
+
+@require_POST
+@login_required
+def toggle_sublesson_completion(request, sublesson_id):
+    sublesson = get_object_or_404(SubLesson, id=sublesson_id)
+    user = request.user
+
+    progress, created = SubLessonProgress.objects.get_or_create(
+        student=user,
+        sub_lesson=sublesson
+    )
+
+    progress.completed = not progress.completed
+    progress.save()
+
+    # Calcul de la progression
+    total = sublesson.lesson.sub_lessons.count()
+    completed = SubLessonProgress.objects.filter(
+        student=user, 
+        sub_lesson__lesson=sublesson.lesson, 
+        completed=True
+    ).count()
+
+    return JsonResponse({
+        'success': True,
+        'completed': progress.completed,
+        'completed_count': completed,
+        'total_count': total,
+        'progress_percent': int((completed / total) * 100)
+    })
