@@ -1,4 +1,4 @@
-﻿import os
+import os
 from pathlib import Path
 from dotenv import load_dotenv
 from decouple import config
@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'dashboard',
     'TeacherDash',
     'widget_tweaks',
+    'etude',
 ]
 
 MIDDLEWARE = [
@@ -209,11 +210,26 @@ ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
 ACCOUNT_EMAIL_VERIFICATION = "optional"
 SOCIALACCOUNT_AUTO_SIGNUP = True
 
+# Google OAuth depuis .env
+GOOGLE_CLIENT_ID = config("GOOGLE_CLIENT_ID")
+GOOGLE_CLIENT_SECRET = config("GOOGLE_CLIENT_SECRET")
+GOOGLE_REDIRECT_URI = config("GOOGLE_REDIRECT_URI")
 
-GOOGLE_CLIENT_ID = config('GOOGLE_CLIENT_ID')
-GOOGLE_CLIENT_SECRET = config('GOOGLE_CLIENT_SECRET')
-GOOGLE_REDIRECT_URI = config('GOOGLE_REDIRECT_URI')
-GOOGLE_URL = config('GOOGLE_URL')
+STRIPE_PUBLIC_KEY = 'pk_test_51SEeCW69Sb3Q4dCaaizkiHSAWIXjHz8MgUUjcMSOTDup5dkH0t9BmboltyACSdLUu6HTh7n65rCGQTwrTRNto06H00gT4itReA'
+STRIPE_SECRET_KEY = 'sk_test_51SEeCW69Sb3Q4dCawL4mbZLdSzp1yV3RnykFQUMgu2a99zlCS4QLfhL1o5MIJ5hDp4qwAxSJUlywoCS8D2oRjV9r00tw0dkCtD'
+# calender
+SOCIALACCOUNT_PROVIDERS = {
+    "google": {
+        "SCOPE": [
+            "openid",
+            "email",
+            "profile",
+            "https://www.googleapis.com/auth/calendar.events",  # allow creating events
+        ],
+        "AUTH_PARAMS": {"access_type": "offline"},
+    }
+}
+
 
 
 

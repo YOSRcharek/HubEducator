@@ -18,17 +18,11 @@
 - ✅ Cross-validation
 
 #### Revenue Forecaster
-- ✅ Random Forest Regressor
-- ✅ Prévisions mensuelles/hebdomadaires
-- ✅ Time series features (lags, rolling stats)
-- ✅ Revenue insights et tendances
-- ✅ Prévisions sur 6 périodes
-
-#### LTV Calculator
-- ✅ Random Forest Regressor
-- ✅ Prédiction de valeur vie client
-- ✅ Segmentation des clients
-- ✅ Calcul du potentiel de croissance
+- Random Forest Regressor
+- Prévisions mensuelles/hebdomadaires
+- Time series features (lags, rolling stats)
+- Revenue insights et tendances
+- Prévisions sur 6 périodes
 
 ### 3. Commandes de Management
 
@@ -37,7 +31,7 @@
 python manage.py train_ml_models [options]
 ```
 Options:
-- `--model {churn,revenue,ltv,all}`: Modèle à entraîner
+- `--model {churn,revenue,all}`: Modèle à entraîner
 - `--optimize`: Optimisation des hyperparamètres
 - `--period {week,month}`: Période pour revenue forecasting
 
@@ -46,43 +40,40 @@ Options:
 python manage.py generate_predictions [options]
 ```
 Options:
-- `--prediction-type {churn,ltv,all}`: Type de prédiction
+- `--prediction-type {churn,all}`: Type de prédiction
 - `--high-risk-only`: Afficher seulement les hauts risques
 
 ### 4. Interface Web
 
 #### Pages Dashboard
-- ✅ `/dashboard/ml-insights/` - Dashboard principal
-- ✅ `/dashboard/ml-insights/churn-predictions/` - Prédictions de churn
-- ✅ `/dashboard/ml-insights/revenue-forecast/` - Prévisions de revenus
-- ✅ `/dashboard/ml-insights/ltv-analysis/` - Analyse LTV
+- `/dashboard/ml-insights/` - Dashboard principal
+- `/dashboard/ml-insights/churn-predictions/` - Prédictions de churn
+- `/dashboard/ml-insights/revenue-forecast/` - Prévisions de revenus
 
 #### Templates
-- ✅ `ml_insights/dashboard.html` - Vue d'ensemble
-- ✅ `ml_insights/churn_predictions.html` - Table des risques
-- ✅ `ml_insights/revenue_forecast.html` - Graphiques de prévision
-- ✅ `ml_insights/ltv_analysis.html` - Classement des clients
+- `ml_insights/dashboard.html` - Vue d'ensemble
+- `ml_insights/churn_predictions.html` - Table des risques
+- `ml_insights/revenue_forecast.html` - Graphiques de prévision
 
 ### 5. API Endpoints
 
-- ✅ `GET /dashboard/api/predict-churn/<id>/` - Prédiction churn individuelle
-- ✅ `GET /dashboard/api/revenue-forecast/` - Prévisions de revenus
-- ✅ `GET /dashboard/api/ltv-prediction/<id>/` - Prédiction LTV individuelle
+- `GET /dashboard/api/predict-churn/<id>/` - Prédiction churn individuelle
+- `GET /dashboard/api/revenue-forecast/` - Prévisions de revenus
 
 ### 6. Dépendances
-- ✅ scikit-learn (algorithmes ML)
-- ✅ pandas (manipulation de données)
-- ✅ numpy (calculs numériques)
-- ✅ joblib (sauvegarde de modèles)
-- ✅ matplotlib & seaborn (visualisations)
-- ✅ imbalanced-learn (gestion du déséquilibre)
+- scikit-learn (algorithmes ML)
+- pandas (manipulation de données)
+- numpy (calculs numériques)
+- joblib (sauvegarde de modèles)
+- matplotlib & seaborn (visualisations)
+- imbalanced-learn (gestion du déséquilibre)
 
 ### 7. Documentation
-- ✅ `ML_DOCUMENTATION.md` - Documentation complète
-- ✅ `ML_QUICKSTART.md` - Guide de démarrage rapide
-- ✅ `IMPLEMENTATION_SUMMARY.md` - Ce fichier
+- `ML_DOCUMENTATION.md` - Documentation complète
+- `ML_QUICKSTART.md` - Guide de démarrage rapide
+- `IMPLEMENTATION_SUMMARY.md` - Ce fichier
 
-## 🎯 Fonctionnalités Clés
+## Fonctionnalités Clés
 
 ### Churn Prevention
 - Identification automatique des utilisateurs à risque
@@ -96,13 +87,7 @@ Options:
 - Insights sur la croissance
 - Graphiques interactifs
 
-### Customer Value
-- Calcul du LTV actuel et prédit
-- Identification des clients premium
-- Segmentation automatique
-- Potentiel de croissance par client
-
-## 📊 Features Utilisées
+## Features Utilisées
 
 ### Catégories de Features
 1. **User Features** (3): account_age, is_teacher, is_student
@@ -113,7 +98,7 @@ Options:
 
 **Total**: 26 features pour chaque prédiction
 
-## 🔧 Configuration Technique
+## Configuration Technique
 
 ### Modèles Sauvegardés
 ```
@@ -123,10 +108,7 @@ core/ml/trained_models/
 ├── churn_metadata.pkl
 ├── revenue_forecaster.pkl
 ├── revenue_scaler.pkl
-├── revenue_metadata.pkl
-├── ltv_calculator.pkl
-├── ltv_scaler.pkl
-└── ltv_metadata.pkl
+└── revenue_metadata.pkl
 ```
 
 ### Hyperparamètres par Défaut
@@ -141,11 +123,7 @@ core/ml/trained_models/
 - n_estimators: 100
 - max_depth: 10
 
-**Random Forest (LTV)**:
-- n_estimators: 100
-- max_depth: 10
-
-## 🚀 Prochaines Étapes
+## Prochaines Étapes
 
 ### Pour Démarrer
 1. Installer les dépendances: `pip install -r requirements.txt`
@@ -165,7 +143,7 @@ core/ml/trained_models/
 - [ ] Tests unitaires pour les modèles ML
 - [ ] Monitoring de la drift des modèles
 
-## 📈 Métriques de Performance Attendues
+## Métriques de Performance Attendues
 
 ### Churn Prediction
 - Accuracy: 75-85%
@@ -178,12 +156,7 @@ core/ml/trained_models/
 - MAE: 5-15% du revenu moyen
 - RMSE: 10-20% du revenu moyen
 
-### LTV Calculator
-- R²: 0.65-0.80
-- MAE: $20-50
-- RMSE: $30-70
-
-## ⚠️ Points d'Attention
+## Points d'Attention
 
 ### Données Requises
 - Minimum 10 abonnements pour l'entraînement
@@ -233,7 +206,7 @@ python manage.py generate_predictions
 ## ✨ Résumé
 
 Un système ML complet et production-ready a été implémenté avec:
-- 3 modèles ML (Churn, Revenue, LTV)
+- 2 modèles ML (Churn, Revenue)
 - Interface web complète avec dashboards
 - API REST pour intégrations
 - Commandes de management pour automatisation

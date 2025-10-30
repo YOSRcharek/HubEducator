@@ -1,0 +1,11 @@
+{% extends 'baseT.html' %}
+{% block content %}
+<div class="container mt-5 text-center">
+  <h3>Are you sure you want to delete the group <strong>{{ groupe.nom }}</strong>?</h3>
+  <form method="POST">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Yes, delete</button>
+    <a href="{% url 'teacher_groups' %}" class="btn btn-secondary">Cancel</a>
+  </form>
+</div>
+{% endblock %}

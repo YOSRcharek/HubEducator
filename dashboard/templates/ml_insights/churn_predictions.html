@@ -70,10 +70,8 @@
                                     <th>Risk</th>
                                     <th>User</th>
                                     <th>Email</th>
-                                    <th>Plan</th>
-                                    <th>Amount</th>
+                                    <th>User Type</th>
                                     <th>Churn Probability</th>
-                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -93,7 +91,6 @@
                                     <td>
                                         <span class="badge bg-primary">{{ prediction.plan }}</span>
                                     </td>
-                                    <td>${{ prediction.amount|floatformat:2 }}</td>
                                     <td>
                                         <div class="progress" style="height: 20px;">
                                             <div class="progress-bar 
@@ -101,7 +98,7 @@
                                                 {% elif prediction.churn_probability > 0.3 %}bg-warning
                                                 {% else %}bg-success{% endif %}"
                                                 role="progressbar"
-                                                style="width: {{ prediction.churn_probability|floatformat:0|add:'%' }}%"
+                                               
                                                 aria-valuenow="{{ prediction.churn_probability|floatformat:0 }}"
                                                 aria-valuemin="0"
                                                 aria-valuemax="100">
@@ -109,16 +106,10 @@
                                             </div>
                                         </div>
                                     </td>
-                                    <td>
-                                        <button class="btn btn-sm btn-outline-primary" 
-                                                onclick="viewDetails({{ prediction.subscription_id }})">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                    </td>
                                 </tr>
                                 {% empty %}
                                 <tr>
-                                    <td colspan="7" class="text-center py-4">
+                                    <td colspan="5" class="text-center py-4">
                                         <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
                                         <p class="text-muted">No predictions available</p>
                                     </td>

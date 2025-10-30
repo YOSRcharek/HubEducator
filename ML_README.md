@@ -4,11 +4,10 @@
 
 Un système complet de Machine Learning pour analyser et prédire le comportement des abonnements utilisateurs.
 
-### 3 Modèles ML Principaux
+### 2 Modèles ML Principaux
 
 1. **🔴 Churn Prediction** - Prédire qui va se désabonner
-2. **📈 Revenue Forecasting** - Prévoir les revenus futurs  
-3. **💎 LTV Calculator** - Calculer la valeur vie client
+2. **📈 Revenue Forecasting** - Prévoir les revenus futurs
 
 ## 🚀 Démarrage Rapide (5 minutes)
 
@@ -45,7 +44,7 @@ python manage.py runserver
 ### Code Source
 ```
 core/ml/
-├── models/          # Modèles ML (Churn, Revenue, LTV)
+├── models/          # Modèles ML (Churn, Revenue)
 ├── features/        # Feature engineering
 ├── utils/           # Utilitaires (preprocessing, evaluation)
 └── trained_models/  # Modèles sauvegardés (créé automatiquement)
@@ -59,8 +58,7 @@ dashboard/
 └── templates/ml_insights/
     ├── dashboard.html
     ├── churn_predictions.html
-    ├── revenue_forecast.html
-    └── ltv_analysis.html
+    └── revenue_forecast.html
 ```
 
 ## 🎨 Interface Utilisateur
@@ -72,7 +70,6 @@ dashboard/
 | **ML Dashboard** | `/dashboard/ml-insights/` | Vue d'ensemble |
 | **Churn Predictions** | `/dashboard/ml-insights/churn-predictions/` | Utilisateurs à risque |
 | **Revenue Forecast** | `/dashboard/ml-insights/revenue-forecast/` | Prévisions de revenus |
-| **LTV Analysis** | `/dashboard/ml-insights/ltv-analysis/` | Valeur vie client |
 
 ### APIs REST
 
@@ -80,7 +77,6 @@ dashboard/
 |----------|---------|-------------|
 | `/api/predict-churn/<id>/` | GET | Prédiction churn |
 | `/api/revenue-forecast/` | GET | Prévisions revenus |
-| `/api/ltv-prediction/<id>/` | GET | Prédiction LTV |
 
 ## 📊 Fonctionnalités Clés
 
@@ -95,12 +91,6 @@ dashboard/
 - ✅ Analyse des tendances historiques
 - ✅ Graphiques interactifs
 - ✅ Insights sur la croissance
-
-### LTV Calculator
-- ✅ Valeur actuelle vs prédite
-- ✅ Potentiel de croissance
-- ✅ Segmentation automatique
-- ✅ Classement des meilleurs clients
 
 ## 🔧 Technologies Utilisées
 
@@ -122,11 +112,6 @@ dashboard/
 - R²: 0.70-0.85
 - MAE: 5-15% du revenu moyen
 - RMSE: 10-20% du revenu moyen
-
-### LTV Calculator
-- R²: 0.65-0.80
-- MAE: $20-50
-- RMSE: $30-70
 
 ## ⚙️ Configuration Requise
 
@@ -164,24 +149,11 @@ python manage.py generate_predictions --prediction-type churn --high-risk-only
 # Utiliser pour: Budget marketing, objectifs de vente, embauches
 ```
 
-### 3. Segmentation Client
-```bash
-# Analyser les LTV
-# Accéder à: /dashboard/ml-insights/ltv-analysis/
-
-# Segments:
-# - Premium (>$500): Offres VIP
-# - High ($150-500): Upselling
-# - Medium ($50-150): Engagement
-# - Low (<$50): Activation
-```
-
 ## 🔄 Maintenance
 
 ### Ré-entraînement Recommandé
 - **Churn**: Tous les mois
 - **Revenue**: Tous les mois
-- **LTV**: Tous les 2-3 mois
 
 ### Commande
 ```bash
@@ -249,4 +221,4 @@ Le système ML est **production-ready** et prêt à fournir des insights précie
 **Status**: ✅ Production Ready
 
 **Développé pour**: HubEducator Platform  
-**Modèles**: Churn Prediction | Revenue Forecasting | LTV Calculator
+**Modèles**: Churn Prediction | Revenue Forecasting

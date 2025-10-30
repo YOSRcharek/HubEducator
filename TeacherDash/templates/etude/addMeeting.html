@@ -1,0 +1,12 @@
+{% extends 'baseT.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h3>Plan meeting for "{{ groupe.nom }}"</h3>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button class="btn btn-success" type="submit">Create meeting & Meet link</button>
+    <a class="btn btn-secondary" href="{% url 'teacher_group_detail' groupe.id %}">Cancel</a>
+  </form>
+</div>
+{% endblock %}
