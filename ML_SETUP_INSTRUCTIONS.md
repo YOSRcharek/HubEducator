@@ -47,7 +47,6 @@ python manage.py train_ml_models
 # Option 2: Entraîner individuellement
 python manage.py train_ml_models --model churn
 python manage.py train_ml_models --model revenue
-python manage.py train_ml_models --model ltv
 
 # Option 3: Avec optimisation (plus lent mais meilleur)
 python manage.py train_ml_models --optimize
@@ -65,7 +64,6 @@ python manage.py generate_predictions
 
 # Ou spécifiquement
 python manage.py generate_predictions --prediction-type churn
-python manage.py generate_predictions --prediction-type ltv
 ```
 
 ### Étape 5: Démarrer le Serveur
@@ -90,7 +88,6 @@ Vous y trouverez:
 - 📊 Statistiques générales
 - 🔴 Lien vers Churn Predictions
 - 📈 Lien vers Revenue Forecast
-- 💎 Lien vers LTV Analysis
 
 ### Churn Predictions
 **URL**: `/dashboard/ml-insights/churn-predictions/`
@@ -109,15 +106,6 @@ Fonctionnalités:
 - Prévisions sur 6 mois
 - Insights sur les tendances
 - Métriques de croissance
-
-### LTV Analysis
-**URL**: `/dashboard/ml-insights/ltv-analysis/`
-
-Fonctionnalités:
-- Classement des clients par valeur
-- LTV actuel vs prédit
-- Potentiel de croissance
-- Segmentation automatique
 
 ## 🔧 Configuration Avancée
 
@@ -200,12 +188,6 @@ Réponse:
 curl http://localhost:8000/dashboard/api/revenue-forecast/?periods=3
 ```
 
-### API LTV Prediction
-```bash
-# Prédire le LTV pour un abonnement
-curl http://localhost:8000/dashboard/api/ltv-prediction/123/
-```
-
 ## 🐛 Troubleshooting
 
 ### Problème: "Model file not found"
@@ -284,7 +266,6 @@ pip install scikit-learn>=1.3.0
 ### 1. Ré-entraînement Régulier
 - **Churn Model**: Tous les mois
 - **Revenue Model**: Tous les mois
-- **LTV Model**: Tous les 2-3 mois
 
 ### 2. Monitoring des Performances
 ```bash
@@ -325,18 +306,6 @@ python manage.py generate_predictions --prediction-type churn --high-risk-only
 #    - Planifier les dépenses marketing
 #    - Ajuster les objectifs de vente
 #    - Prévoir les embauches
-```
-
-### Cas 3: Segmentation Client
-```bash
-# 1. Analyser les LTV
-# Accéder à: /dashboard/ml-insights/ltv-analysis/
-
-# 2. Identifier les segments:
-#    - Premium (LTV > $500): Offres VIP
-#    - High (LTV $150-500): Upselling
-#    - Medium (LTV $50-150): Engagement
-#    - Low (LTV < $50): Activation
 ```
 
 ## 📚 Ressources Supplémentaires
