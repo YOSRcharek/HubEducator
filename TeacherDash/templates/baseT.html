@@ -20,11 +20,7 @@
 <body>
 
     {% include 'includes/navbarTeach.html' %}
-  {% if messages %}
-    {% for message in messages %}
-      <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-    {% endfor %}
-  {% endif %}
+
 
     <main>
         {% block content %}
@@ -48,3 +44,4 @@
     <script src="{% static 'dashboard/js/dashboard.js' %}"></script> 
 </body>
 </html>
+

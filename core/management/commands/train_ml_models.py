@@ -5,7 +5,6 @@ Management command to train all ML models.
 from django.core.management.base import BaseCommand
 from core.ml.models.churn_predictor import ChurnPredictor
 from core.ml.models.revenue_forecaster import RevenueForecaster
-from core.ml.models.ltv_calculator import LTVCalculator
 
 
 class Command(BaseCommand):
@@ -15,7 +14,7 @@ class Command(BaseCommand):
         parser.add_argument(
             '--model',
             type=str,
-            choices=['churn', 'revenue', 'ltv', 'all'],
+            choices=['churn', 'revenue', 'all'],
             default='all',
             help='Which model to train'
         )
@@ -46,9 +45,6 @@ class Command(BaseCommand):
         
         if model_type in ['revenue', 'all']:
             self.train_revenue_model(period)
-        
-        if model_type in ['ltv', 'all']:
-            self.train_ltv_model()
         
         self.stdout.write(self.style.SUCCESS('\n' + '=' * 60))
         self.stdout.write(self.style.SUCCESS('Training completed!'))
@@ -117,28 +113,3 @@ class Command(BaseCommand):
         
         except Exception as e:
             self.stdout.write(self.style.ERROR(f'\n✗ Error training revenue model: {e}'))
-    
-    def train_ltv_model(self):
-        """Train LTV calculator model."""
-        self.stdout.write('\n' + '=' * 60)
-        self.stdout.write(self.style.WARNING('Training LTV Calculator Model'))
-        self.stdout.write('=' * 60 + '\n')
-        
-        try:
-            calculator = LTVCalculator()
-            metrics = calculator.train()
-            calculator.save()
-            
-            self.stdout.write(self.style.SUCCESS('\n✓ LTV model trained successfully!'))
-            self.stdout.write(f"  - R² Score: {metrics['r2_score']:.3f}")
-            self.stdout.write(f"  - MAE: ${metrics['mae']:.2f}")
-            self.stdout.write(f"  - RMSE: ${metrics['rmse']:.2f}")
-            
-            # Get LTV segments
-            segments = calculator.get_ltv_segments()
-            if segments:
-                self.stdout.write('\n  LTV Segments:')
-                self.stdout.write(f"    {segments}")
-        
-        except Exception as e:
-            self.stdout.write(self.style.ERROR(f'\n✗ Error training LTV model: {e}'))

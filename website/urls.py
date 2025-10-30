@@ -20,6 +20,11 @@ urlpatterns = [
     path('review-delete/<int:review_id>/', views.delete_review, name='review-delete'),
     path('review-edit/<int:review_id>/', views.edit_review, name='review-edit'),
     path('pricing/', views.pricing, name='pricing'),
+    path('certificates/', views.certificates, name='certificates'),
+    path('certificates/<int:cert_id>/', views.certificate_detail, name='certificate_detail'),
+    path('certificates/take/<int:cert_id>/', views.take_certificate, name='take_certificate'),
+    path('certificates/result/<int:attempt_id>/', views.certificate_result, name='certificate_result'),
+    path('my-certificates/', views.my_certificates, name='my_certificates'),
     path('cours/', views.courses, name='coursesUser'),
     path('course-details/<int:course_id>/', views.courseDetails, name='courseDetails'),
     path('course/<int:course_id>/lesson/<int:lesson_id>/', views.lesson_details, name='lesson_details'),
@@ -28,12 +33,15 @@ urlpatterns = [
     path("verify-code/", views.verify_code_view, name="verify_code"),
     path('resend-code/', views.resend_code_view, name='resend_code'),
     path('auth/google/callback/', views.google_callback, name='google_callback'),
+    path('unenroll-course/<int:course_id>/', views.unenroll_course, name='unenroll_course'),
 
 
     #***********************************************************#
     #****************ResetPassword***********************#
 
+    path('summarize-pdf/', views.summarize_pdf_view, name='summarize_pdf'),
 
+    path('toggle-completion/<int:sublesson_id>/', views.toggle_sublesson_completion, name='toggle_sublesson_completion'),
 
     path('password-reset/', views.custom_password_reset, name='password_reset'),
     path('password-reset/done/', 
@@ -45,5 +53,13 @@ urlpatterns = [
     path('reset/done/', 
          auth_views.PasswordResetCompleteView.as_view(template_name='ResetPassword/password_reset_complete.html'), 
          name='password_reset_complete'),
+    
+    #***********************************************************#
+    #****************Payment System***********************#
+    path('payment/initiate/<int:subscription_id>/', views.initiate_payment, name='initiate_payment'),
+    path('payment/process/', views.process_payment, name='process_payment'),
+    path('payment/success/', views.payment_success, name='payment_success'),
+    path('payment/failed/', views.payment_failed, name='payment_failed'),
+    path('payment/webhook/', views.stripe_webhook, name='stripe_webhook'),
 ]
 

@@ -18,7 +18,17 @@
 
     <div class="course-header" style="display: flex; align-items: flex-start; gap: 1.5rem; flex-wrap: wrap;">
       <!-- Image à gauche -->
-      <img src="{{ course.thumbnail.url }}" alt="thumbnail" style="width: 150px; height: 150px; object-fit: cover; border-radius: 4px;border-bottom-right-radius: 50px;" />
+     <!-- Image à gauche -->
+{% if course.thumbnail %}
+    <img src="{{ course.thumbnail.url }}" alt="thumbnail" 
+         style="width: 150px; height: 150px; object-fit: cover; border-radius: 4px;border-bottom-right-radius: 50px;" />
+{% else %}
+    <!-- Icône ou image par défaut -->
+    <div style="width: 150px; height: 150px; display: flex; align-items: center; justify-content: center; 
+                background-color: #f0f0f0; border-radius: 4px; border-bottom-right-radius: 50px; font-size: 3rem;">
+        🎓
+    </div>
+{% endif %}
 
       <!-- Contenu à droite -->
       <div class="course-details" style="flex: 1; min-width: 250px;">
@@ -90,6 +100,7 @@
             </div>
             <div class="progress-text">{{ course.progress|default:'0' }}% completed</div>
           </div>
+
         </div>
       </div>
     </div>
@@ -112,6 +123,12 @@
                     <span class="expand-icon">▼</span>
                   </div>
                   <div class="lesson-description">{{ lesson.description }}</div>
+                                      <div class="lesson-progress">
+                      <div class="progress-bar">
+                        <div class="progress-fill" style="width: {{ lesson.progress|default:'0' }}%;"></div>
+                      </div>
+                      <div class="progress-text">{{ lesson.progress|default:'0' }}% completed</div>
+                    </div>
                 </div>
 
                 <div class="lesson-content">
@@ -178,6 +195,9 @@
                       </svg>
                       <a href="{% url 'lesson_details' course.id lesson.id %}" style="color: #FDC800;">see all</a>
                     </div>
+                    <!-- 🔸 Barre de progression de la leçon -->
+
+
                   </div>
 
                   <!-- Sous-leçons -->
@@ -459,11 +479,155 @@
             <a href="#" class="btn btn-primary">Continue Course</a>
             <a href="#" class="btn btn-outline">Download Syllabus</a>
             <a href="#" class="btn btn-outline">Contact Instructor</a>
+            {% if user.is_authenticated and user in course.students.all %}
+            <!-- Formulaire désinscription -->
+            <form method="post" action="{% url 'unenroll_course' course.id %}"  id="unenrollForm">
+                {% csrf_token %}
+               <button type="button" class="btn btn-danger" 
+                      onclick="confirmUnenroll('{{ course.title }}')" 
+                      style="width: 100%; padding: 12px 20px; font-size: 1rem;">
+                  Unenroll
+              </button>
+
+            </form>
+            {% endif %}
           </div>
         </div>
       </div>
     </div>
+    <div id="unenrollPopup" class="popup-overlay hidden">
+    <div class="popup-content">
+        <h3>Confirm Unenrolling </h3>
+        <p id="unenroll-popup-message"></p>
+        <div class="popup-buttons">
+            <button id="confirmUnenrollBtn" class="btn-confirm">Yes, Unenroll</button>
+            <button id="cancelUnenrollBtn" class="btn-cancel" onclick="closeUnenrollPopup()">Cancel</button>
+        </div>
+    </div>
+</div>
   </main>
+  <style>
+    .progress-section {
+      margin-top: 20px;
+      width: 100%;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 10px;
+      background-color: #eee;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background-color: #28a745;
+      width: 0;
+      transition: width 0.6s ease-in-out;
+    }
+
+    .progress-text {
+      margin-top: 5px;
+      text-align: right;
+      font-size: 14px;
+      color: #333;
+    }
+
+    .popup-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.6); /* fond semi-transparent gris */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999; /* bien au-dessus du reste */
+        opacity: 1;
+        visibility: visible;
+        transition: opacity 0.3s ease;
+    }
+
+    /* Quand la popup est cachée */
+    .popup-overlay.hidden {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+    }
+
+    .popup-content {
+        background: #fff;
+        padding: 30px 40px;
+        border-radius: 12px;
+        text-align: center;
+        width: 400px;
+        max-width: 90%;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        transform: translateY(0);
+        animation: popup-appear 0.3s ease;
+    }
+
+
+    .popup-content h3 {
+        font-size: 1.5rem;
+        color: #333;
+        margin-bottom: 10px;
+    }
+
+    .popup-content p {
+        color: #555;
+        font-size: 1rem;
+        margin-bottom: 20px;
+    }
+
+    .popup-buttons {
+        display: flex;
+        justify-content: space-around;
+    }
+
+    .btn-confirm {
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .btn-cancel {
+        background-color: #f44336;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .btn-confirm:hover {
+        background-color: #45a049;
+    }
+
+    .btn-cancel:hover {
+        background-color: #e53935;
+    }
+
+    /* Animation d’apparition */
+    @keyframes popup-appear {
+        from {
+            transform: scale(0.9);
+            opacity: 0;
+        }
+        to {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+</style>
+
     <script>
         // Toggle lesson expansion
         function toggleLesson(header) {
@@ -753,6 +917,34 @@
                 }
             });
         });
+
+        document.addEventListener("DOMContentLoaded", () => {
+            let unenrollForm = null;
+
+            // Ouvre la popup de désinscription
+            window.confirmUnenroll = function(courseName) {
+                unenrollForm = document.getElementById('unenrollForm');
+                document.getElementById("unenroll-popup-message").innerText =
+                    `Do you really want to unenroll from the course « ${courseName} » ?`;
+                document.getElementById("unenrollPopup").classList.remove("hidden");
+            };
+
+            // Confirmer désinscription
+            document.getElementById("confirmUnenrollBtn").addEventListener("click", () => {
+                if (unenrollForm) unenrollForm.submit();
+                closeUnenrollPopup();
+            });
+
+            // Annuler
+            document.getElementById("cancelUnenrollBtn").addEventListener("click", closeUnenrollPopup);
+
+            // Fermer popup
+            function closeUnenrollPopup() {
+                document.getElementById("unenrollPopup").classList.add("hidden");
+            }
+        });
+
+
 
     </script>
 

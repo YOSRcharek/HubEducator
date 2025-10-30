@@ -1,4 +1,4 @@
-{% extends 'baseF.html' %}
+{% extends 'baseT.html' %}
 {% load static %}
 
 {% block title %}My Subscription - HubEducator{% endblock %}
@@ -168,7 +168,7 @@
                             
                             // Déplacer le track pour afficher 3 cartes à partir de currentIndex
                             const offset = -currentIndex * cardWidth;
-                            track.style.transform = `translateX(${offset}px)`;
+                            track.style.transform = translateX(${offset}px);
                             
                             // Gérer l'état des boutons
                             prevBtn.disabled = currentIndex === 0;

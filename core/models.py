@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
+from django.db.models import Count, Q
+
 # --------------------------
 # User model
 # --------------------------
@@ -72,7 +74,19 @@ class Course(models.Model):
     publish_date = models.DateTimeField(null=True, blank=True)
     max_lessons = models.PositiveIntegerField(default=10)
     created_at = models.DateTimeField(auto_now_add=True)
+    
+    def get_progress(self, student):
+        lessons = self.lessons.all()
+        total_lessons = lessons.count()
+        if total_lessons == 0:
+            return 0
 
+        # On calcule la moyenne des progressions des leçons
+        total_percent = 0
+        for lesson in lessons:
+            total_percent += lesson.get_progress(student)
+        return int(total_percent / total_lessons)
+    
     def __str__(self):
         return self.title
 
@@ -81,31 +95,33 @@ class Course(models.Model):
 # --------------------------
 # Chapter model
 # --------------------------
-class Chapter(models.Model):
-    title = models.CharField(max_length=200)
-    content = models.TextField(blank=True, null=True)  # text content
-    video = models.FileField(upload_to='chapter_videos/', null=True, blank=True)
-    document = models.FileField(upload_to='chapter_docs/', null=True, blank=True)
-    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='chapters')
-
-    def __str__(self):
-        return f"{self.title} - {self.course.title}"
-
 
 # --------------------------
 # Exercise model
 # --------------------------
+
 class Lesson(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='lessons')
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True, null=True)
     order = models.PositiveIntegerField(default=0)
-    visible = models.BooleanField(default=False)  # Nouveau champ
-    max_sublessons = models.PositiveIntegerField(default=5) 
+    visible = models.BooleanField(default=False)
+    max_sublessons = models.IntegerField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.title} (Course: {self.course.title})"
+
+    # ✅ Progression d'une leçon pour un étudiant
+    def get_progress(self, student):
+        sub_lessons = self.sub_lessons.all()
+        total = sub_lessons.count()
+        if total == 0:
+            return 0
+        completed = SubLessonProgress.objects.filter(
+            student=student, sub_lesson__in=sub_lessons, completed=True
+        ).count()
+        return int((completed / total) * 100)
 
 
 class SubLesson(models.Model):
@@ -174,15 +190,20 @@ class Review(models.Model):
     def helpful_count(self):
         return self.likes.count()
    
-    """ exercise_type = models.CharField(max_length=20, choices=EXERCISE_TYPE_CHOICES)
-    statement = models.TextField()
-    correction = models.TextField()
-    generated_by = models.CharField(max_length=20, choices=(('AI', 'AI'), ('Teacher', 'Teacher')), default='Teacher')
-    chapter = models.ForeignKey(Chapter, on_delete=models.CASCADE, related_name='exercises')
+   
+class SubLessonProgress(models.Model):
+    student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sublesson_progress')
+    sub_lesson = models.ForeignKey('SubLesson', on_delete=models.CASCADE, related_name='progress')
+    completed = models.BooleanField(default=False)
+    completed_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('student', 'sub_lesson')  # ✅ Un seul enregistrement par student/sublesson
 
     def __str__(self):
-        return f"{self.title} - {self.chapter.title}"
-"""
+        return f"{self.student.username} - {self.sub_lesson.title} ({'done' if self.completed else 'pending'})"   
+
+
 
 # --------------------------
 # Speciality model

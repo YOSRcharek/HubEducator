@@ -1,0 +1,21 @@
+{% extends 'baseT.html' %}
+{% block content %}
+<div class="container mt-5 text-center">
+  <h3>{{ meeting.title }}</h3>
+  <p>{{ meeting.description }}</p>
+  <p>Start: {{ meeting.start|date:"d/m/Y H:i" }}</p>
+  <p>End: {{ meeting.end|date:"d/m/Y H:i" }}</p>
+
+  {% if meeting.meet_link %}
+    <a href="{{ meeting.meet_link }}" target="_blank" class="btn btn-success">
+      Join Google Meet
+    </a>
+  {% else %}
+    <p>No meeting link available.</p>
+  {% endif %}
+
+  <div class="mt-3">
+    <a href="{% url 'group_meetings' groupe.id %}" class="btn btn-secondary">Back</a>
+  </div>
+</div>
+{% endblock %}

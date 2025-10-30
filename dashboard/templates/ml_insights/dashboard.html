@@ -4,25 +4,185 @@
 {% block title %}ML Insights Dashboard{% endblock %}
 
 {% block content %}
+<style>
+    .gradient-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 15px;
+        padding: 2rem;
+        color: white;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+    }
+    
+    .stat-card {
+        border-radius: 15px;
+        transition: all 0.3s ease;
+        border: none;
+        overflow: hidden;
+        position: relative;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+    }
+    
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(90deg, #667eea, #764ba2);
+    }
+    
+    .ml-card {
+        border-radius: 20px;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        border: none;
+        overflow: hidden;
+        position: relative;
+    }
+    
+    .ml-card:hover {
+        transform: translateY(-10px) scale(1.02);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    }
+    
+    .ml-card::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0));
+        opacity: 0;
+        transition: opacity 0.3s;
+        pointer-events: none;
+    }
+    
+    .ml-card:hover::after {
+        opacity: 1;
+    }
+    
+    .icon-wrapper {
+        width: 80px;
+        height: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 20px;
+        transition: all 0.3s;
+    }
+    
+    .ml-card:hover .icon-wrapper {
+        transform: scale(1.1) rotate(5deg);
+    }
+    
+    .btn-modern {
+        border-radius: 10px;
+        padding: 12px 24px;
+        font-weight: 600;
+        transition: all 0.3s;
+        border: none;
+        position: relative;
+        overflow: hidden;
+        z-index: 10;
+        cursor: pointer;
+    }
+    
+    .btn-modern::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.3);
+        transform: translate(-50%, -50%);
+        transition: width 0.6s, height 0.6s;
+    }
+    
+    .btn-modern:hover::before {
+        width: 300px;
+        height: 300px;
+    }
+    
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .pulse {
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+    }
+    
+    .fade-in {
+        animation: fadeIn 0.6s ease-in;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .btn-light {
+        transition: all 0.3s ease;
+    }
+    
+    .btn-light:hover {
+        transform: translateX(-5px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2) !important;
+    }
+</style>
+
 <div class="container-fluid py-4">
-    <div class="row mb-4">
-        <div class="col-12">
-            <h1 class="h3 mb-0">🤖 ML Analytics Dashboard</h1>
-            <p class="text-muted">Machine Learning insights for subscription analytics</p>
+    <!-- Modern Header -->
+    <div class="gradient-header fade-in">
+        <div class="row align-items-center">
+            <div class="col-md-10">
+                <h1 class="display-5 fw-bold mb-2">
+                    <i class="fas fa-brain me-3"></i>ML Analytics Dashboard
+                </h1>
+                <p class="mb-0 opacity-90">
+                    <i class="fas fa-chart-line me-2"></i>
+                    Machine Learning insights for subscription analytics
+                </p>
+            </div>
+            <div class="col-md-2 text-end">
+                <a href="{% url 'user_subscriptions' %}" class="btn btn-light btn-lg rounded-pill px-4 shadow-sm">
+                    <i class="fas fa-arrow-left me-2"></i>
+                    <span class="fw-semibold">Retour</span>
+                </a>
+            </div>
         </div>
     </div>
 
     <!-- Statistics Cards -->
-    <div class="row mb-4">
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body">
+    <div class="row mb-5">
+        <div class="col-md-6 mb-3 fade-in" style="animation-delay: 0.1s">
+            <div class="card stat-card shadow-sm">
+                <div class="card-body p-4">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <p class="text-muted mb-1">Active Subscriptions</p>
-                            <h3 class="mb-0">{{ total_subscriptions }}</h3>
+                            <p class="text-muted mb-2 text-uppercase small fw-semibold">
+                                <i class="fas fa-users me-2"></i>Active Subscriptions
+                            </p>
+                            <h2 class="stat-number mb-0">{{ total_subscriptions }}</h2>
                         </div>
-                        <div class="bg-primary bg-opacity-10 p-3 rounded">
+                        <div class="icon-wrapper bg-primary bg-opacity-10">
                             <i class="fas fa-users text-primary fa-2x"></i>
                         </div>
                     </div>
@@ -30,15 +190,17 @@
             </div>
         </div>
 
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body">
+        <div class="col-md-6 mb-3 fade-in" style="animation-delay: 0.2s">
+            <div class="card stat-card shadow-sm">
+                <div class="card-body p-4">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <p class="text-muted mb-1">Total Revenue</p>
-                            <h3 class="mb-0">${{ total_revenue|floatformat:2 }}</h3>
+                            <p class="text-muted mb-2 text-uppercase small fw-semibold">
+                                <i class="fas fa-dollar-sign me-2"></i>Total Revenue
+                            </p>
+                            <h2 class="stat-number mb-0">${{ total_revenue|floatformat:2 }}</h2>
                         </div>
-                        <div class="bg-success bg-opacity-10 p-3 rounded">
+                        <div class="icon-wrapper bg-success bg-opacity-10">
                             <i class="fas fa-dollar-sign text-success fa-2x"></i>
                         </div>
                     </div>
@@ -46,87 +208,56 @@
             </div>
         </div>
 
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <p class="text-muted mb-1">ML Models</p>
-                            <h3 class="mb-0">3 Active</h3>
-                        </div>
-                        <div class="bg-info bg-opacity-10 p-3 rounded">
-                            <i class="fas fa-brain text-info fa-2x"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 
     <!-- ML Features Cards -->
-    <div class="row">
-        <div class="col-md-4 mb-4">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <div class="text-center mb-3">
-                        <div class="bg-danger bg-opacity-10 d-inline-block p-4 rounded-circle">
+    <div class="row g-4 justify-content-center">
+        <div class="col-md-5 col-lg-4 fade-in" style="animation-delay: 0.4s">
+            <div class="card ml-card shadow-lg h-100 border-0">
+                <div class="card-body p-4">
+                    <div class="text-center mb-4">
+                        <div class="icon-wrapper bg-danger bg-opacity-10 mx-auto">
                             <i class="fas fa-user-slash text-danger fa-3x"></i>
                         </div>
                     </div>
-                    <h5 class="card-title text-center">Churn Prediction</h5>
-                    <p class="card-text text-muted text-center">
+                    <h4 class="card-title text-center fw-bold mb-3">Churn Prediction</h4>
+                    <p class="card-text text-muted text-center mb-4">
                         Identify users at risk of cancelling their subscription with ML-powered predictions.
                     </p>
                     <div class="d-grid">
-                        <a href="{% url 'churn_predictions' %}" class="btn btn-danger">
-                            View Predictions <i class="fas fa-arrow-right ms-2"></i>
+                        <a href="{% url 'churn_predictions' %}" class="btn btn-danger btn-modern">
+                            <span class="position-relative">
+                                View Predictions <i class="fas fa-arrow-right ms-2"></i>
+                            </span>
                         </a>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-4 mb-4">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <div class="text-center mb-3">
-                        <div class="bg-success bg-opacity-10 d-inline-block p-4 rounded-circle">
+        <div class="col-md-5 col-lg-4 fade-in" style="animation-delay: 0.5s">
+            <div class="card ml-card shadow-lg h-100 border-0">
+                <div class="card-body p-4">
+                    <div class="text-center mb-4">
+                        <div class="icon-wrapper bg-success bg-opacity-10 mx-auto">
                             <i class="fas fa-chart-line text-success fa-3x"></i>
                         </div>
                     </div>
-                    <h5 class="card-title text-center">Revenue Forecast</h5>
-                    <p class="card-text text-muted text-center">
+                    <h4 class="card-title text-center fw-bold mb-3">Revenue Forecast</h4>
+                    <p class="card-text text-muted text-center mb-4">
                         Predict future revenue trends and plan your business strategy accordingly.
                     </p>
                     <div class="d-grid">
-                        <a href="{% url 'revenue_forecast' %}" class="btn btn-success">
-                            View Forecast <i class="fas fa-arrow-right ms-2"></i>
+                        <a href="{% url 'revenue_forecast' %}" class="btn btn-success btn-modern">
+                            <span class="position-relative">
+                                View Forecast <i class="fas fa-arrow-right ms-2"></i>
+                            </span>
                         </a>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-4 mb-4">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <div class="text-center mb-3">
-                        <div class="bg-primary bg-opacity-10 d-inline-block p-4 rounded-circle">
-                            <i class="fas fa-gem text-primary fa-3x"></i>
-                        </div>
-                    </div>
-                    <h5 class="card-title text-center">LTV Analysis</h5>
-                    <p class="card-text text-muted text-center">
-                        Calculate customer lifetime value and identify your most valuable users.
-                    </p>
-                    <div class="d-grid">
-                        <a href="{% url 'ltv_analysis' %}" class="btn btn-primary">
-                            View Analysis <i class="fas fa-arrow-right ms-2"></i>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 
 </div>

@@ -133,30 +133,124 @@
 								</div>
 								
 								<div id="kt_app_content" class="app-content pb-0">
-
-									<div class="d-flex flex-wrap flex-stack my-5">
-										<h2 class="fs-2 fw-semibold my-2">Courses
-											<span class="fs-6 text-gray-400 ms-1">by Status</span>
-										</h2>
-										<div class="d-flex flex-wrap my-1 bg-light">
-											<form method="get" id="statusFilterForm">
-												<div class="m-0">
-													<select name="status" id="statusSelect" 
-															data-control="select2" 
-															data-hide-search="true" 
-															class="form-select form-select-sm bg-body border-body fw-bold w-125px bg-light"
-															onchange="document.getElementById('statusFilterForm').submit()">
-														<option value="">All</option>
-														{% for status in status_options %}
-															<option value="{{ status }}" {% if status == current_status %}selected{% endif %}>
-																{{ status|title }}
-															</option>
-														{% endfor %}
-													</select>
+									<div class="row g-6 g-xl-9">
+											<div class="col-lg-6 col-xxl-4">
+												<!--begin::Card-->
+												<div class="card h-100">
+													<!--begin::Card body-->
+													<div class=" card border-hover-primary">
+														<!--begin::Heading-->
+														<div class="fs-2hx fw-bold">{{ current_courses_count }}</div>
+														<div class="fs-4 fw-semibold text-gray-400 mb-7">Current Courses</div>
+														<!--end::Heading-->
+														<!--begin::Wrapper-->
+														<div class="d-flex flex-wrap">
+															<!--begin::Chart-->
+															<div class="d-flex flex-center h-100px w-100px me-9 mb-5">
+																<canvas id="kt_project_list_chart"></canvas>
+															</div>
+															<!--end::Chart-->
+															<!--begin::Labels-->
+															<div class="d-flex flex-column justify-content-center flex-row-fluid pe-11 mb-5">
+																<!--begin::Label-->
+																<div class="d-flex fs-6 fw-semibold align-items-center mb-3">
+																	<div class="bullet bg-primary me-3"></div>
+																	<div class="text-gray-400">Active</div>
+																	<div class="ms-auto fw-bold text-gray-700">{{ active_courses }}</div>
+																</div>
+																<!--end::Label-->
+																<!--begin::Label-->
+																<div class="d-flex fs-6 fw-semibold align-items-center mb-3">
+																	<div class="bullet bg-success me-3"></div>
+																	<div class="text-gray-400">Completed</div>
+																	<div class="ms-auto fw-bold text-gray-700">{{ completed_courses }}</div>
+																</div>
+																<!--end::Label-->
+																<!--begin::Label-->
+																<div class="d-flex fs-6 fw-semibold align-items-center">
+																	<div class="bullet bg-gray-300 me-3"></div>
+																	<div class="text-gray-400">Yet to start</div>
+																	<div class="ms-auto fw-bold text-gray-700">{{ pending_courses }}</div>
+																</div>
+																<!--end::Label-->
+															</div>
+															<!--end::Labels-->
+														</div>
+														<!--end::Wrapper-->
+													</div>
+													<!--end::Card body-->
 												</div>
-											</form>
+												<!--end::Card-->
+											</div>
+											
+											<div class="col-lg-6 col-xxl-4">
+												<!--begin::Clients-->
+												<div class="card h-100">
+													<div class=" card border-hover-primary">
+														<!--begin::Heading-->
+			<div class="fs-2hx fw-bold">{{ my_students_count }}</div>
+<div class="fs-4 fw-semibold text-gray-400 mb-7">My students</div>
+
+<div class="symbol-group symbol-hover" style="margin-bottom: 18px;margin-top: 10px;">
+    {% if my_students %}
+        {% for student in my_students %}
+            <div class="student-card" style="display:inline-block; margin-right:5px; position:relative;">
+                <div class="student-avatar" style="width:35px; height:35px; border-radius:50%; overflow:hidden;"
+                     data-bs-toggle="tooltip" title="{{ student.get_full_name|default:student.username }}">
+                    {% if student.profile_picture %}
+                        <img src="{{ student.profile_picture.url }}" 
+                             alt="{{ student.username }}" 
+                             style="width:100%; height:100%; object-fit:cover;">
+                    {% else %}
+                        <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#ccc;font-weight:600;color:#fff;">
+                            {{ student.username|slice:":2"|upper }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div style="font-size:0.85rem; color:#999;">No student assigned yet</div>
+    {% endif %}
+</div>
+
+
+														<!--end::Users group-->
+														<!--begin::Actions-->
+														<div class="d-flex">
+															<a href="#" class="btn btn-primary btn-sm me-3" data-bs-toggle="modal" data-bs-target="#kt_modal_view_users">All students</a>
+															<a href="#" class="btn btn-light btn-sm" data-bs-toggle="modal" data-bs-target="#kt_modal_users_search">Invite New</a>
+														</div>
+														<div style="margin-bottom: 10px;margin-top: 10px;"></div>
+														<!--end::Actions-->
+													</div>
+												</div>
+												<!--end::Clients-->
+											</div>
 										</div>
-									</div>
+										<div class="d-flex flex-wrap flex-stack my-5">
+											<h2 class="fs-2 fw-semibold my-2">Courses
+												<span class="fs-6 text-gray-400 ms-1">by Status</span>
+											</h2>
+											<div class="d-flex flex-wrap my-1 bg-light">
+												<form method="get" id="statusFilterForm">
+													<div class="m-0">
+														<select name="status" id="statusSelect" 
+																data-control="select2" 
+																data-hide-search="true" 
+																class="form-select form-select-sm bg-body border-body fw-bold w-125px bg-light"
+																onchange="document.getElementById('statusFilterForm').submit()">
+															<option value="">All</option>
+															{% for status in status_options %}
+																<option value="{{ status }}" {% if status == current_status %}selected{% endif %}>
+																	{{ status|title }}
+																</option>
+															{% endfor %}
+														</select>
+													</div>
+												</form>
+											</div>
+										</div>
 
 									<div class="row g-6 g-xl-9">
 										{% for course in page_obj %}
@@ -361,7 +455,6 @@ document.addEventListener("DOMContentLoaded", function() {
     {% endfor %}
 });
 
-<<<<<<< HEAD
 function closeModal(courseId) {
     const modal = document.getElementById(`modal${courseId}`);
     modal.style.display = "none";
@@ -430,55 +523,6 @@ window.onclick = function(event) {
 
 <!-- Flatpickr JS -->
      <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-=======
-				</div>
-			</div>
-		</div>
-<script>
-document.getElementById('load-course-btn').addEventListener('click', function() {
-    fetch("{% url 'add_courses' %}")
-        .then(response => response.text())
-        .then(html => {
-            document.getElementById('modal-course-content').innerHTML = html;
-        });
-});
-
-      document.addEventListener('DOMContentLoaded', function () {
-        const stepperItems = document.querySelectorAll('.stepper-item')
-        const stepperContents = document.querySelectorAll('[data-kt-stepper-element="content"]')
-      
-        stepperItems.forEach((item, index) => {
-          item.addEventListener('click', () => {
-            // Remove current class from all items
-            stepperItems.forEach((i) => i.classList.remove('current'))
-            // Hide all content sections
-            stepperContents.forEach((c) => c.classList.add('d-none'))
-      
-            // Activate clicked step
-            item.classList.add('current')
-            stepperContents[index].classList.remove('d-none')
-          })
-        })
-      })
-     var modal = document.getElementById('kt_modal_create_project');
-modal.addEventListener('shown.bs.modal', function () {
-    var stepperEl = document.getElementById('kt_modal_create_project_stepper');
-    if (stepperEl) {
-        var stepper = new KTStepper(stepperEl);
-
-        stepper.on('kt.stepper.next', function (stepper) {
-            console.log('Next clicked');
-        });
-
-        stepper.on('kt.stepper.previous', function (stepper) {
-            console.log('Previous clicked');
-        });
-    }
-});
-
-
-    </script>
->>>>>>> 356362c2d67dfe656a543bce4c1ef2631a812247
 
      <script src="{% static 'dashboard/vendors/@popperjs/popper.min.js' %}"></script>
       <script src="{% static 'dashboard/vendors/base/vendor.bundle.base.js' %}"></script>
@@ -516,93 +560,4 @@ modal.addEventListener('shown.bs.modal', function () {
 
     
 </html>
-<<<<<<< HEAD
 {% endblock %}
-=======
-
-
-<!---
-
-{% load static %}
-
-{% block title %}Courses{% endblock %}
-
-{% block content %}
-<div class="col-lg-12 grid-margin stretch-card">
-    <div class="card">
-        <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h4 class="card-title mb-0">Courses List</h4>
-                  <a href="{% url 'add_student' %}" class="btn btn-outline-success btn-icon-text">
-                    <i class="mdi mdi-book-open-variant btn-icon-prepend"></i>
-                    Add Courses
-                </a> 
-            </div>
-
-            <div class="table-responsive">
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>Course Name</th>
-                            <th>Description</th>
-                            <th>Students Count</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for course in page_obj %}
-                        <tr>
-                            <td>{{ course.name }}</td>
-                            <td>{{ course.description|truncatewords:10 }}</td>
-                            <td>{{ course.students.count }}</td>
-                            <td>
-                                <div class="input-group mb-2 mr-sm-2">
-                                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                        <i class="mdi mdi-dots-vertical"></i>
-                                    </button>
-                                    <ul class="dropdown-menu">
-                                        <li><a class="dropdown-item" href="{% url 'course_detail' course.id %}">View Details</a></li>
-                                    </ul>
-                                </div>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="4" class="text-center">No courses found.</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-
-        
-                <div class="d-flex justify-content-center mt-3">
-                    <nav>
-                        <ul class="pagination">
-                            {% if page_obj.has_previous %}
-                                <li class="page-item"><a class="page-link" href="?page=1">First</a></li>
-                                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a></li>
-                            {% endif %}
-
-                            {% for num in page_obj.paginator.page_range %}
-                                {% if page_obj.number == num %}
-                                    <li class="page-item active"><span class="page-link">{{ num }}</span></li>
-                                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                                    <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
-                                {% endif %}
-                            {% endfor %}
-
-                            {% if page_obj.has_next %}
-                                <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a></li>
-                                <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last</a></li>
-                            {% endif %}
-                        </ul>
-                    </nav>
-                </div>
-
-            </div>
-        </div>
-    </div>
-</div>
-{% endblock %}
-->
->>>>>>> 356362c2d67dfe656a543bce4c1ef2631a812247

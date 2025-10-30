@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import User, Course, Exercise, Subscription, Transaction, UserSubscription
+from .models import User, Course, Subscription, Transaction, UserSubscription
 
 # Register your models here.
 

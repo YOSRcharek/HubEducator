@@ -175,17 +175,72 @@
                 </a>
 
             {% endif %}
-        </div>
-
-
-
-
+         </div>
             </article>
         {% empty %}
         <p class="text-center text-muted">No courses available at the moment.</p>
         {% endfor %}
 
     </section>
+
+    <!-- =================== Recommandations =================== -->
+<!-- =================== Recommandations =================== -->
+{% if recommendations %}
+<section class="courses-grid recommendations" id="recommendedCourses">
+    <h2>🎯 Recommended for you</h2>
+    {% for course in recommendations %}
+    <article class="course-card">
+        <!-- Thumbnail + Status -->
+        <div class="course-thumbnail category-{{ forloop.counter }}">
+            <div class="course-icon">
+                {% if course.category == "Computer Science" %}💻{% endif %}
+                {% if course.category == "Science" %}🧪{% endif %}
+                {% if course.category == "Languages" %}🗣️{% endif %}
+                {% if course.category == "Arts" %}🎨{% endif %}
+                {% if course.category == "Business" %}📊{% endif %}
+                {% if course.category == "AI" %}🤖{% endif %}
+            </div>
+            <div class="status-badge status-recommended">Recommended</div>
+        </div>
+
+        <!-- Course content -->
+        <div class="course-content">
+            <div class="course-meta">
+                <span class="course-category">{{ course.category }}</span>
+                <span class="course-level level-{{ course.level|default:'beginner' }}">Level: {{ course.level|title }}</span>
+            </div>
+
+            <h3 class="course-title">{{ course.title }}</h3>
+            <p class="course-description">
+                ⭐ Avg rating: {{ course.avg_rating }}
+            </p>
+
+            <div class="course-action-single" style="margin-top: 10px;">
+                {% if user.is_authenticated %}
+                    <!-- Enroll Form -->
+                    <form method="post" action="{% url 'enroll_course' course.id %}" class="enroll-form" style="margin: 0;">
+                        {% csrf_token %}
+                        <button type="button"
+                                class="btn-enroll-course"
+                                style="width: 100%;"
+                                onclick="confirmEnroll(this.form, '{{ course.title }}')">
+                            Enroll to course
+                        </button>
+                    </form>
+                {% else %}
+                    <!-- Not logged in → redirect to login first -->
+                    <a href="{% url 'login' %}?next=#" class="btn-view-course" style="width: 100%; text-align: center; display: inline-block;">
+                        Login to Enroll
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </article>
+    {% endfor %}
+</section>
+{% endif %}
+
+
      </section>
 
 
@@ -232,99 +287,98 @@
 
 <style>
 
-/* --- STYLE POPUP INSCRIPTION --- */
-.popup-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.6); /* fond semi-transparent gris */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999; /* bien au-dessus du reste */
-    opacity: 1;
-    visibility: visible;
-    transition: opacity 0.3s ease;
-}
-
-/* Quand la popup est cachée */
-.popup-overlay.hidden {
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-}
-
-.popup-content {
-    background: #fff;
-    padding: 30px 40px;
-    border-radius: 12px;
-    text-align: center;
-    width: 400px;
-    max-width: 90%;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-    transform: translateY(0);
-    animation: popup-appear 0.3s ease;
-}
-
-
-.popup-content h3 {
-    font-size: 1.5rem;
-    color: #333;
-    margin-bottom: 10px;
-}
-
-.popup-content p {
-    color: #555;
-    font-size: 1rem;
-    margin-bottom: 20px;
-}
-
-.popup-buttons {
-    display: flex;
-    justify-content: space-around;
-}
-
-.btn-confirm {
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: 0.2s;
-}
-
-.btn-cancel {
-    background-color: #f44336;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: 0.2s;
-}
-
-.btn-confirm:hover {
-    background-color: #45a049;
-}
-
-.btn-cancel:hover {
-    background-color: #e53935;
-}
-
-/* Animation d’apparition */
-@keyframes popup-appear {
-    from {
-        transform: scale(0.9);
-        opacity: 0;
-    }
-    to {
-        transform: scale(1);
+    .popup-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.6); /* fond semi-transparent gris */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999; /* bien au-dessus du reste */
         opacity: 1;
+        visibility: visible;
+        transition: opacity 0.3s ease;
     }
-}
+
+    /* Quand la popup est cachée */
+    .popup-overlay.hidden {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+    }
+
+    .popup-content {
+        background: #fff;
+        padding: 30px 40px;
+        border-radius: 12px;
+        text-align: center;
+        width: 400px;
+        max-width: 90%;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        transform: translateY(0);
+        animation: popup-appear 0.3s ease;
+    }
+
+
+    .popup-content h3 {
+        font-size: 1.5rem;
+        color: #333;
+        margin-bottom: 10px;
+    }
+
+    .popup-content p {
+        color: #555;
+        font-size: 1rem;
+        margin-bottom: 20px;
+    }
+
+    .popup-buttons {
+        display: flex;
+        justify-content: space-around;
+    }
+
+    .btn-confirm {
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .btn-cancel {
+        background-color: #f44336;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .btn-confirm:hover {
+        background-color: #45a049;
+    }
+
+    .btn-cancel:hover {
+        background-color: #e53935;
+    }
+
+    /* Animation d’apparition */
+    @keyframes popup-appear {
+        from {
+            transform: scale(0.9);
+            opacity: 0;
+        }
+        to {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
 </style>
 
 

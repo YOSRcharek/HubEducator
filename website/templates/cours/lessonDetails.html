@@ -78,7 +78,13 @@
                         <div class="sub-lesson-description">{{ sub_lesson.description }}</div>
                      </div>
                      <div class="sub-lesson-controls">
-                        <button class="mark-complete-btn" onclick="toggleComplete(this, event)"> <span>✓</span> Mark as completed</button>
+                       <button 
+                        class="mark-complete-btn {% if sub_lesson.id in completed_subs %}completed{% endif %}" 
+                        onclick="toggleComplete(this, {{ sub_lesson.id }})">
+                        <span>✓</span>
+                        {% if sub_lesson.id in completed_subs %}Completed{% else %}Mark as completed{% endif %}
+                      </button>
+
                         <span class="expand-icon">+</span>
                      </div>
                   </div>
@@ -91,41 +97,41 @@
                      {% endif %}
 
                      {% if sub_lesson.resources.exists %}
-<div class="resources-grid">
-  {% for res in sub_lesson.resources.all %}
-    <div class="resource-card {% if res.resource_type == 'pdf' %}resource-pdf{% else %}resource-link{% endif %}"
-         onclick="
-            event.preventDefault();
-            {% if res.resource_type in 'pdf,image,audio,video' %}
-                openResource('{{ res.file.url }}', '{{ res.resource_type }}');
-            {% elif res.resource_type == 'external' %}
-                window.open('{{ res.get_embed_url }}', '_blank', 'noopener,noreferrer');
-            {% endif %}
-         ">
-      <div class="resource-header">
-        <div class="resource-icon">
-          {% if res.resource_type == 'pdf' %}📄
-          {% elif res.resource_type == 'video' %}🎬
-          {% elif res.resource_type == 'image' %}🖼️
-          {% elif res.resource_type == 'audio' %}🎵
-          {% else %}🔗
-          {% endif %}
-        </div>
-        <h4 class="resource-title">{{ res.title }}</h4>
-      </div>
-      <p class="resource-description">{{ res.description }}</p>
-      <div class="resource-meta">
-        {% if res.file %}
-          <span>{{ res.file.size|filesizeformat }}</span> 
-          <span>{{ res.resource_type|upper }}</span>
-        {% else %}
-          <span>Lien externe</span>
-        {% endif %}
-      </div>
-    </div>
-  {% endfor %}
-</div>
-{% endif %}
+                      <div class="resources-grid">
+                        {% for res in sub_lesson.resources.all %}
+                          <div class="resource-card {% if res.resource_type == 'pdf' %}resource-pdf{% else %}resource-link{% endif %}"
+                              onclick="
+                                  event.preventDefault();
+                                  {% if res.resource_type in 'pdf,image,audio,video' %}
+                                      openResource('{{ res.file.url }}', '{{ res.resource_type }}');
+                                  {% elif res.resource_type == 'external' %}
+                                      window.open('{{ res.get_embed_url }}', '_blank', 'noopener,noreferrer');
+                                  {% endif %}
+                              ">
+                            <div class="resource-header">
+                              <div class="resource-icon">
+                                {% if res.resource_type == 'pdf' %}📄
+                                {% elif res.resource_type == 'video' %}🎬
+                                {% elif res.resource_type == 'image' %}🖼️
+                                {% elif res.resource_type == 'audio' %}🎵
+                                {% else %}🔗
+                                {% endif %}
+                              </div>
+                              <h4 class="resource-title">{{ res.title }}</h4>
+                            </div>
+                            <p class="resource-description">{{ res.description }}</p>
+                            <div class="resource-meta">
+                              {% if res.file %}
+                                <span>{{ res.file.size|filesizeformat }}</span> 
+                                <span>{{ res.resource_type|upper }}</span>
+                              {% else %}
+                                <span>Lien externe</span>
+                              {% endif %}
+                            </div>
+                          </div>
+                        {% endfor %}
+                      </div>
+                      {% endif %}
 
                   </div>
                </div>
@@ -135,13 +141,19 @@
     </div>
     <div class="sidebar">
      <div class="info-card">
-      <div class="section-title"><i class="fas fa-chart-line"></i> Progression
+      <div class="section-title">
+        <i class="fas fa-chart-line"></i> Progression
       </div>
       <div class="progress-bar">
-       <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+        <div
+          class="progress-fill"
+          id="progressFill"
+          style="width: {{ progress_percent }}%"
+        ></div>
       </div>
-      <p id="progressText">0 sur 6 éléments complétés</p>
-     </div>
+      <p id="progressText">{{ completed_count }} sur {{ total_count }} leçons complétées</p>
+    </div>
+
    <div class="info-card">
     <div class="section-title"><i class="fas fa-info-circle"></i> Information</div>
 
@@ -202,7 +214,7 @@
     </div>
    </div>
   </div><!-- Modal PDF Viewer avec Chat -->
-<!-- =================== MODAL MULTI-TYPE (PDF / IMAGE / VIDEO / AUDIO) =================== -->
+<!-- =================== MODAL MULTI-TYPE ( IMAGE / VIDEO / AUDIO) =================== -->
 <div id="resourceModal" class="pdf-viewer-modal" style="display:none;">
   <div class="pdf-viewer-container">
     <div class="pdf-viewer">
@@ -235,7 +247,35 @@
     </div>
   </div>
 </div>
+<!-- =================== MODAL PDF =================== -->
 
+<div id="resourceModalPDF" class="pdf-viewer-modal" style="display:none;">
+  <div class="pdf-viewer-container">
+    
+    <!-- 🧾 Section PDF à gauche -->
+    <div class="pdf-viewer">
+      <div class="pdf-header">
+        <div class="pdf-title" id="modalTitle"></div>
+        <div class="pdf-controls">
+          <button id="prevBtn" class="pdf-btn" onclick="previousPage()" style="display:none;">←</button>
+          <span id="pageInfo" style="display:none;">Page 1 / 1</span>
+          <button id="nextBtn" class="pdf-btn" onclick="nextPage()" style="display:none;">→</button>
+          <button class="pdf-btn close-pdf" onclick="closeResourceModalPDF()">×</button>
+        </div>
+      </div>
+      <div id="modalContent"></div>
+    </div>
+
+    <!-- 💬 Chat IA à droite -->
+    <div class="chat-panel">
+      <div class="chat-header"><i class="fas fa-comments"></i> Assistant IA</div>
+      <div class="chat-messages" id="chatMessages">
+        <div class="chat-message ai">Loading your summary...</div>
+      </div>
+    </div>
+
+  </div>
+</div>
 
 <!-- ================= SCRIPTS ================= -->
 
@@ -246,56 +286,89 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs
 
 let pdfDoc = null, currentPage = 1, totalPages = 0, scale = 1.25;
 let currentType = null;
+let currentResourceUrl = null;
 
 async function openResource(url, type) {
-  const modal = document.getElementById('resourceModal');
-  const content = document.getElementById('modalContent');
-  const title = document.getElementById('modalTitle');
-  const prevBtn = document.getElementById('prevBtn');
-  const nextBtn = document.getElementById('nextBtn');
-  const pageInfo = document.getElementById('pageInfo');
+    if (type === 'pdf') {
+        const modal = document.getElementById('resourceModalPDF');
+        const title = modal.querySelector('#modalTitle');
+        const chatMessages = modal.querySelector('#chatMessages'); // ✅ zone du chat à droite
 
-  modal.style.display = 'flex';
-  title.textContent = url.split('/').pop();
-  content.innerHTML = ''; // Nettoyer le contenu précédent
-  currentType = type;
+        modal.style.display = 'flex';
+        title.textContent = url.split('/').pop();
 
-  // Réinitialiser la pagination
-  prevBtn.style.display = 'none';
-  nextBtn.style.display = 'none';
-  pageInfo.style.display = 'none';
+        // Réinitialiser le contenu du chat IA
+        chatMessages.innerHTML = `<div class="chat-message ai">⏳ Loading your summary...</div>`;
 
-  if (type === 'pdf') {
-    // PDF
-    content.innerHTML = `<canvas id="pdfCanvas" style="width:100%; border:1px solid #ddd;"></canvas>`;
-    pdfDoc = await pdfjsLib.getDocument(url).promise;
-    totalPages = pdfDoc.numPages;
-    currentPage = 1;
-    prevBtn.style.display = nextBtn.style.display = pageInfo.style.display = 'inline-block';
-    renderPage(currentPage);
-  } 
-  else if (type === 'image') {
-    // Image plein écran
-    content.innerHTML = `<img src="${url}" alt="Image" style="max-width:100%; max-height:80vh; border-radius:10px;">`;
-  } 
- else if (type === 'video') {
-  // ✅ Lecture directe de la vidéo
-  content.innerHTML = `
-    <video controls autoplay style="width:100%; border-radius:10px; max-height:80vh;">
-      <source src="${url}" type="video/mp4">
-      Votre navigateur ne supporte pas la lecture vidéo.
-    </video>`;
+        // Charger le PDF dans le canvas
+        const content = modal.querySelector('#modalContent');
+        content.innerHTML = `<canvas id="pdfCanvas" style="width:100%; border:1px solid #ddd;"></canvas>`;
+
+        try {
+            // Charger le PDF
+            pdfDoc = await pdfjsLib.getDocument(url).promise;
+            totalPages = pdfDoc.numPages;
+            currentPage = 1;
+            modal.querySelector('#prevBtn').style.display = 'inline-block';
+            modal.querySelector('#nextBtn').style.display = 'inline-block';
+            modal.querySelector('#pageInfo').style.display = 'inline-block';
+            renderPage(currentPage);
+        } catch (err) {
+            chatMessages.innerHTML = `<div class="chat-message ai error">❌ Erreur de chargement du PDF.</div>`;
+            return;
+        }
+
+        // Appeler le backend pour obtenir le résumé
+        try {
+            const file = await urlToFile(url);
+            const formData = new FormData();
+            formData.append('pdf', file);
+
+            const response = await fetch('/summarize-pdf/', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (data.summary) {
+                const formattedSummary = data.summary
+                    .replace(/\.\s+/g, '.<br>')
+                    .trim();
+
+                // ✅ Affichage dans le chat IA à droite
+                chatMessages.innerHTML = `
+                    <div class="chat-message ai">
+                        <strong>🧠 Résumé IA :</strong><br>${formattedSummary}
+                    </div>
+                `;
+            } else {
+                chatMessages.innerHTML = `<div class="chat-message ai">⚠️ Aucun résumé disponible pour ce document.</div>`;
+            }
+        } catch (error) {
+            console.error(error);
+            chatMessages.innerHTML = `<div class="chat-message ai">❌ Erreur lors de la récupération du résumé.</div>`;
+        }
+
+    } else {
+        // Autres types (image, vidéo, audio…)
+        const modal = document.getElementById('resourceModal');
+        const title = modal.querySelector('#modalTitle');
+        const content = modal.querySelector('#modalContent');
+        const chatMessages = modal.querySelector('#chatMessages');
+
+        modal.style.display = 'flex';
+        title.textContent = url.split('/').pop();
+        chatMessages.innerHTML = `<div class="chat-message ai">Bonjour 👋 Posez vos questions sur ce contenu.</div>`;
+
+        if (type === 'image') content.innerHTML = `<img src="${url}" style="max-width:100%; max-height:80vh;">`;
+        else if (type === 'video') content.innerHTML = `<video controls autoplay style="width:100%"><source src="${url}" type="video/mp4"></video>`;
+        else if (type === 'audio') content.innerHTML = `<audio controls style="width:100%"><source src="${url}" type="audio/mpeg"></audio>`;
+    }
 }
 
-  else if (type === 'audio') {
-    // Audio player
-    content.innerHTML = `
-      <audio controls style="width:100%; margin-top:20px;">
-        <source src="${url}" type="audio/mpeg">
-        Votre navigateur ne supporte pas la lecture audio.
-      </audio>`;
-  }
-}
+
+
 
 // ✅ Lecture vidéo avec effet “lecture en cours”
 function playVideo(url) {
@@ -341,6 +414,13 @@ function closeResourceModal() {
   modal.style.display = 'none';
   document.getElementById('modalContent').innerHTML = '';
 }
+// ✅ Fermer la modal
+function closeResourceModalPDF() {
+  const modal = document.getElementById('resourceModalPDF');
+  modal.style.display = 'none';
+  document.getElementById('modalContent').innerHTML = '';
+}
+
 
 // ✅ Mini chat IA
 function sendMessage() {
@@ -381,44 +461,7 @@ function handleChatKeyPress(e) {
             subLesson.classList.toggle('expanded');
         }
 
-        async function toggleComplete(button, event) {
-            event.stopPropagation();
-            
-            if (!window.dataSdk) return;
-
-            const subLesson = button.closest('.sub-lesson');
-            const lessonId = subLesson.dataset.lesson;
-            
-            button.classList.add('loading');
-            
-            const existingItem = completedItems.find(item => item.id === lessonId);
-            
-            if (existingItem) {
-                const deleteResult = await window.dataSdk.delete(existingItem);
-                if (!deleteResult.isOk) {
-                    showError("Erreur lors de la suppression");
-                }
-            } else {
-                if (completedItems.length >= 999) {
-                    showError("Limite de 999 éléments atteinte");
-                    button.classList.remove('loading');
-                    return;
-                }
-                
-                const createResult = await window.dataSdk.create({
-                    id: lessonId,
-                    type: "lesson_completion",
-                    completed: true,
-                    completedAt: new Date().toISOString()
-                });
-                
-                if (!createResult.isOk) {
-                    showError("Erreur lors de la sauvegarde");
-                }
-            }
-            
-            button.classList.remove('loading');
-        }
+   
 
 
        
@@ -451,31 +494,55 @@ function handleChatKeyPress(e) {
         
 
      
-        function updateProgress() {
-                    const totalItems = 4;
-                    const completedCount = completedItems.length;
-                    const percentage = (completedCount / totalItems) * 100;
-                    
-                    document.getElementById('progressFill').style.width = `${percentage}%`;
-                    document.getElementById('progressText').textContent = `${completedCount} sur ${totalItems} leçons complétées`;
+                async function toggleComplete(button, subLessonId) {
+                    button.disabled = true;
+
+                    try {
+                        const response = await fetch(`/toggle-completion/${subLessonId}/`, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRFToken': getCSRFToken(),
+                            }
+                        });
+
+                        const data = await response.json();
+
+                        if (data.success) {
+                            if (data.completed) {
+                                button.classList.add('completed');
+                                button.innerHTML = '<span>✓</span> Completed';
+                            } else {
+                                button.classList.remove('completed');
+                                button.innerHTML = '<span>✓</span> Mark as completed';
+                            }
+
+                            // ✅ Mise à jour animée de la barre
+                            const progressFill = document.getElementById('progressFill');
+                            const progressText = document.getElementById('progressText');
+
+                            progressFill.style.width = `${data.progress_percent}%`; // CSS transition gère l’animation
+                            progressText.textContent = `${data.completed_count} sur ${data.total_count} leçons complétées`;
+                        }
+
+                    } catch (error) {
+                        console.error("Erreur :", error);
+                    }
+
+                    button.disabled = false;
                 }
 
-        function updateCompletionStates() {
-            const buttons = document.querySelectorAll('.mark-complete-btn');
-            buttons.forEach(button => {
-                const subLesson = button.closest('.sub-lesson');
-                const lessonId = subLesson.dataset.lesson;
-                const isCompleted = completedItems.some(item => item.id === lessonId);
-                
-                if (isCompleted) {
-                    button.classList.add('completed');
-                    button.innerHTML = '<span>✓</span> completed';
-                } else {
-                    button.classList.remove('completed');
-                    button.innerHTML = '<span>✓</span> Mark as completed';
+
+                function getCSRFToken() {
+                    return document.cookie.split('; ')
+                        .find(row => row.startsWith('csrftoken'))
+                        ?.split('=')[1];
                 }
-            });
-        }
+
+      async function urlToFile(url) {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      return new File([blob], url.split('/').pop(), { type: blob.type });
+  }
 
 </script>
 

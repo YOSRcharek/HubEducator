@@ -59,19 +59,6 @@ class AddUserForm(UserCreationForm):
 
         return password2
 
-
-class EditUserForm(forms.ModelForm):
-    class Meta:
-        model = User
-        fields = ['username', 'email', 'role', 'profile_picture']
-
-    def clean_email(self):
-        email = self.cleaned_data.get('email')
-        # empêcher doublons sauf pour le même utilisateur
-        if User.objects.filter(email=email).exclude(pk=self.instance.pk).exists():
-            raise forms.ValidationError("This email already exists.")
-        return email
-
 class SpecialityForm(forms.ModelForm):
     class Meta:
         model = Speciality
@@ -198,6 +185,20 @@ class CertificatExerciseForm(forms.ModelForm):
 
         return cleaned_data
 
+    
+class EditUserForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'role', 'profile_picture']
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        # empêcher doublons sauf pour le même utilisateur
+        if User.objects.filter(email=email).exclude(pk=self.instance.pk).exists():
+            raise forms.ValidationError("This email already exists.")
+        return email
+
+
 # --------------------------
 # Form to add/edit a subscription
 # --------------------------
@@ -229,12 +230,91 @@ class SubscriptionForm(forms.ModelForm):
         model = Subscription
         fields = ['name', 'description', 'price', 'duration', 'features', 'user_type', 'is_active']
         widgets = {
-            'description': forms.Textarea(attrs={'rows': 3}),
-            'price': forms.NumberInput(attrs={'step': '0.01', 'min': '0'}),
+            'name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'e.g., Basic Plan',
+                'minlength': '3',
+                'maxlength': '100'
+            }),
+            'description': forms.Textarea(attrs={
+                'rows': 3,
+                'class': 'form-control',
+                'placeholder': 'Describe the subscription plan',
+                'minlength': '10',
+                'maxlength': '500'
+            }),
+            'price': forms.NumberInput(attrs={
+                'step': '0.01',
+                'min': '0',
+                'max': '10000',
+                'class': 'form-control',
+                'placeholder': '0.00'
+            }),
         }
     
+    def clean_name(self):
+        """Validate subscription name."""
+        name = self.cleaned_data.get('name')
+        if name:
+            # Vérifier la longueur minimale
+            if len(name.strip()) < 3:
+                raise forms.ValidationError("Name must be at least 3 characters long.")
+            
+            # Vérifier si le nom existe déjà (sauf pour l'édition)
+            existing = Subscription.objects.filter(name__iexact=name.strip())
+            if self.instance.pk:
+                existing = existing.exclude(pk=self.instance.pk)
+            
+            if existing.exists():
+                raise forms.ValidationError("A subscription with this name already exists.")
+        
+        return name.strip()
+    
+    def clean_description(self):
+        """Validate description."""
+        description = self.cleaned_data.get('description')
+        if description:
+            if len(description.strip()) < 10:
+                raise forms.ValidationError("Description must be at least 10 characters long.")
+            if len(description.strip()) > 500:
+                raise forms.ValidationError("Description cannot exceed 500 characters.")
+        return description.strip()
+    
     def clean_price(self):
+        """Validate price."""
         price = self.cleaned_data.get('price')
-        if price and price < 0:
-            raise forms.ValidationError("Price cannot be negative.")
+        if price is not None:
+            if price < 0:
+                raise forms.ValidationError("Price cannot be negative.")
+            if price > 10000:
+                raise forms.ValidationError("Price cannot exceed $10,000.")
+            if price == 0:
+                raise forms.ValidationError("Price must be greater than zero.")
         return price
+    
+    def clean_duration(self):
+        """Validate duration format."""
+        duration = self.cleaned_data.get('duration')
+        if duration:
+            duration = duration.strip().lower()
+            # Vérifier le format basique (nombre + unité)
+            import re
+            pattern = r'^\d+\s*(day|days|week|weeks|month|months|year|years)$'
+            if not re.match(pattern, duration):
+                raise forms.ValidationError(
+                    "Invalid duration format. Use format like: '30 days', '3 months', '1 year'"
+                )
+        return duration
+    
+    def clean_features(self):
+        """Validate features."""
+        features = self.cleaned_data.get('features')
+        if features:
+            features = features.strip()
+            # Vérifier qu'il y a au moins une feature
+            feature_lines = [line.strip() for line in features.split('\n') if line.strip()]
+            if len(feature_lines) < 1:
+                raise forms.ValidationError("Please add at least one feature.")
+            if len(feature_lines) > 20:
+                raise forms.ValidationError("Cannot exceed 20 features.")
+        return features

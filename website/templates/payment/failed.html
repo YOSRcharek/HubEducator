@@ -1,0 +1,154 @@
+{% extends 'baseF.html' %}
+{% load static %}
+
+{% block title %}Payment Failed{% endblock %}
+
+{% block content %}
+<style>
+    .failed-container {
+        min-height: 80vh;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        padding: 80px 0;
+        display: flex;
+        align-items: center;
+    }
+    
+    .failed-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        padding: 60px 40px;
+        text-align: center;
+    }
+    
+    .failed-icon {
+        width: 120px;
+        height: 120px;
+        background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 30px;
+        animation: shake 0.5s ease-out;
+    }
+    
+    .failed-icon i {
+        font-size: 60px;
+        color: white;
+    }
+    
+    @keyframes shake {
+        0%, 100% {
+            transform: translateX(0);
+        }
+        10%, 30%, 50%, 70%, 90% {
+            transform: translateX(-10px);
+        }
+        20%, 40%, 60%, 80% {
+            transform: translateX(10px);
+        }
+    }
+    
+    .failed-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 20px;
+    }
+    
+    .failed-message {
+        font-size: 1.2rem;
+        color: #6c757d;
+        margin-bottom: 40px;
+    }
+    
+    .btn-retry {
+        background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+        border: none;
+        padding: 18px 50px;
+        font-weight: 700;
+        font-size: 16px;
+        border-radius: 50px;
+        color: white;
+        transition: all 0.4s ease;
+        box-shadow: 0 8px 25px rgba(255, 193, 7, 0.4);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        text-decoration: none;
+        display: inline-block;
+        margin-right: 10px;
+    }
+    
+    .btn-retry:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 35px rgba(255, 193, 7, 0.6);
+        color: white;
+    }
+    
+    .btn-home {
+        background: #6c757d;
+        border: none;
+        padding: 18px 50px;
+        font-weight: 700;
+        font-size: 16px;
+        border-radius: 50px;
+        color: white;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        text-decoration: none;
+        display: inline-block;
+    }
+    
+    .btn-home:hover {
+        background: #5a6268;
+        color: white;
+        transform: translateY(-3px);
+    }
+</style>
+
+<div class="failed-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="failed-card">
+                    <div class="failed-icon">
+                        <i class="fas fa-times"></i>
+                    </div>
+                    
+                    <h1 class="failed-title">Payment Failed</h1>
+                    
+                    <p class="failed-message">
+                        Unfortunately, your payment could not be processed. 
+                        Please check your payment details and try again.
+                    </p>
+                    
+                    {% if messages %}
+                        <div class="alert alert-danger">
+                            {% for message in messages %}
+                                {{ message }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    
+                    <div class="mt-4">
+                        <a href="{% url 'pricing' %}" class="btn btn-retry">
+                            <i class="fas fa-redo"></i> Try Again
+                        </a>
+                        <a href="{% url 'home' %}" class="btn btn-home">
+                            <i class="fas fa-home"></i> Go Home
+                        </a>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <p class="text-muted">
+                            <i class="fas fa-question-circle"></i> Need help? Contact our support team.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
