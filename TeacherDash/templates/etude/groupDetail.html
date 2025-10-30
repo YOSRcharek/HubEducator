@@ -1,0 +1,64 @@
+{% extends 'baseT.html' %}
+{% block content %}
+<div class="container mt-5">
+  <div class="card shadow p-4">
+    <h2 class="text-center">{{ groupe.nom }}</h2>
+    <p class="text-muted text-center">Created on {{ groupe.date_creation|date:"d/m/Y" }}</p>
+    <hr>
+    <p>{{ groupe.description }}</p>
+
+    <h5 class="mt-4">Members</h5>
+    <ul>
+      {% for m in members %}
+        <li>{{ m.username }}</li>
+      {% empty %}
+        <li>No members yet.</li>
+      {% endfor %}
+    </ul>
+
+    <h5 class="mt-4">Resources</h5>
+    <ul>
+      {% for r in resources %}
+        <li><a href="{{ r.file.url }}" target="_blank">{{ r.title|default:r.file.name }}</a>
+            <small class="text-muted"> — {{ r.uploaded_by.username }} • {{ r.uploaded_at|date:"d/m/Y" }}</small>
+        </li>
+      {% empty %}
+        <li>No resources yet.</li>
+      {% endfor %}
+    </ul>
+
+    <div class="mt-3">
+      <a href="{% url 'add_group_meeting' groupe.id %}" class="btn btn-primary">📅 Plan meeting</a>
+      <a href="{% url 'add_group_resourceetude' groupe.id %}" class="btn btn-info">Add resource</a>
+    </div>
+
+    <div id="teacher-calendar" class="mt-4"></div>
+
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var calendarEl = document.getElementById('teacher-calendar');
+    if (!calendarEl) return;
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+      initialView: 'dayGridMonth',
+      events: "{% url 'group_meetings_json' groupe.id %}",
+      eventClick: function(info) { 
+          const meetLink = info.event.extendedProps.meet_link;
+          if (meetLink) {
+              window.open(meetLink, '_blank');  // opens Jitsi Meet
+          } else {
+              alert("No meeting link available for this event.");
+          }
+          info.jsEvent.preventDefault();
+      }
+
+
+    });
+    calendar.render();
+  });
+</script>
+
+  </div>
+</div>
+{% endblock %}

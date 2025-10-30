@@ -1,0 +1,44 @@
+{% extends 'baseF.html' %}
+{% block content %}
+<div class="container mt-5">
+  <h2 class="text-center mb-4">Study Groups</h2>
+  <div class="row">
+    {% for groupe in groupes %}
+      <div class="col-md-4 mb-4">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column">
+            <h5 class="card-title">
+              <a href="{% url 'etude_detail' groupe.id %}" class="text-decoration-none group-name">
+                {{ groupe.nom }}
+              </a>
+            </h5>
+            <p class="card-text">{{ groupe.description|truncatewords:20 }}</p>
+            <p class="text-muted mb-2">Created by {{ groupe.createur.username }} • {{ groupe.date_creation|date:"d/m/Y" }}</p>
+
+            <div class="mt-auto">
+              {% if request.user.is_authenticated %}
+                {% if request.user not in groupe.membres.all %}
+                  <form method="post" action="{% url 'join_group' groupe.id %}" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-primary">Join</button>
+                  </form>
+                {% else %}
+                  <span class="badge bg-secondary">Member</span>
+                {% endif %}
+              {% else %}
+                <a href="{% url 'login' %}?next={% url 'etude_detail' groupe.id %}" class="btn btn-sm btn-outline-primary">Log in to join</a>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <p class="text-center">No study groups available.</p>
+    {% endfor %}
+  </div>
+</div>
+
+<style>
+.group-name { color: #FFC107 !important; }
+</style>
+{% endblock %}

@@ -25,7 +25,5 @@ class Migration(migrations.Migration):
             name='visible',
             field=models.BooleanField(default=False),
         ),
-        migrations.DeleteModel(
-            name='Exercise',
-        ),
+
     ]
