@@ -1,0 +1,136 @@
+{% extends 'baseF.html' %}
+{% load static %}
+
+{% block title %}Payment Successful{% endblock %}
+
+{% block content %}
+<style>
+    .success-container {
+        min-height: 80vh;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        padding: 80px 0;
+        display: flex;
+        align-items: center;
+    }
+    
+    .success-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        padding: 60px 40px;
+        text-align: center;
+    }
+    
+    .success-icon {
+        width: 120px;
+        height: 120px;
+        background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 30px;
+        animation: scaleIn 0.5s ease-out;
+    }
+    
+    .success-icon i {
+        font-size: 60px;
+        color: white;
+    }
+    
+    @keyframes scaleIn {
+        0% {
+            transform: scale(0);
+            opacity: 0;
+        }
+        50% {
+            transform: scale(1.1);
+        }
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+    
+    .success-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 20px;
+    }
+    
+    .success-message {
+        font-size: 1.2rem;
+        color: #6c757d;
+        margin-bottom: 40px;
+    }
+    
+    .btn-home {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        padding: 18px 50px;
+        font-weight: 700;
+        font-size: 16px;
+        border-radius: 50px;
+        color: white;
+        transition: all 0.4s ease;
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        text-decoration: none;
+        display: inline-block;
+    }
+    
+    .btn-home:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 35px rgba(102, 126, 234, 0.6);
+        color: white;
+    }
+    
+    .checkmark {
+        animation: checkmark 0.8s ease-in-out 0.3s both;
+    }
+    
+    @keyframes checkmark {
+        0% {
+            stroke-dashoffset: 100;
+        }
+        100% {
+            stroke-dashoffset: 0;
+        }
+    }
+</style>
+
+<div class="success-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="success-card">
+                    <div class="success-icon">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    
+                    <h1 class="success-title">Payment Successful!</h1>
+                    
+                    <p class="success-message">
+                        Thank you for your purchase! Your subscription has been activated successfully.
+                        You now have full access to all features.
+                    </p>
+                    
+                    <div class="mt-4">
+                        <a href="{% url 'home' %}" class="btn btn-home">
+                            <i class="fas fa-home"></i> Return to Home
+                        </a>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <p class="text-muted">
+                            <i class="fas fa-envelope"></i> A confirmation email has been sent to your inbox.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

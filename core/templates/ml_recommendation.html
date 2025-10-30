@@ -1,0 +1,451 @@
+{% extends 'baseF.html' %}
+{% load static %}
+
+{% block title %}AI Subscription Recommendation - HubEducator{% endblock %}
+
+{% block content %}
+<style>
+    .recommendation-container {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 40px 0;
+    }
+    
+    .recommendation-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        overflow: hidden;
+        max-width: 900px;
+        margin: 0 auto;
+    }
+    
+    .card-header-custom {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 40px;
+        text-align: center;
+    }
+    
+    .card-header-custom h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+    
+    .card-header-custom p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+    }
+    
+    .questionnaire-section {
+        padding: 40px;
+    }
+    
+    .question-group {
+        margin-bottom: 30px;
+        padding: 25px;
+        background: #f8f9fa;
+        border-radius: 15px;
+        border-left: 4px solid #667eea;
+    }
+    
+    .question-label {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 15px;
+        display: block;
+    }
+    
+    .form-control, .form-select {
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        padding: 12px 15px;
+        font-size: 1rem;
+        transition: all 0.3s;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+    
+    .feature-checkbox {
+        display: flex;
+        align-items: center;
+        padding: 12px 15px;
+        background: white;
+        border-radius: 10px;
+        margin-bottom: 10px;
+        cursor: pointer;
+        transition: all 0.3s;
+        border: 2px solid #e0e0e0;
+    }
+    
+    .feature-checkbox:hover {
+        background: #f0f0f0;
+        border-color: #667eea;
+    }
+    
+    .feature-checkbox input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+        margin-right: 12px;
+        cursor: pointer;
+    }
+    
+    .feature-checkbox label {
+        margin: 0;
+        cursor: pointer;
+        font-weight: 500;
+    }
+    
+    .btn-submit {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 15px 50px;
+        border-radius: 25px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 30px rgba(102, 126, 234, 0.6);
+    }
+    
+    .results-section {
+        display: none;
+        padding: 40px;
+    }
+    
+    .recommendation-result {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .alternative-card {
+        background: white;
+        border: 2px solid #e0e0e0;
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 15px;
+        transition: all 0.3s;
+    }
+    
+    .alternative-card:hover {
+        border-color: #667eea;
+        box-shadow: 0 5px 20px rgba(102, 126, 234, 0.2);
+    }
+    
+    .progress-bar-custom {
+        height: 10px;
+        border-radius: 10px;
+        background: rgba(255,255,255,0.3);
+        overflow: hidden;
+    }
+    
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #ffd700 0%, #ffed4e 100%);
+        border-radius: 10px;
+        transition: width 0.5s ease;
+    }
+</style>
+
+<div class="recommendation-container">
+    <div class="container">
+        <!-- Back Button -->
+        <div class="mb-3">
+            <a href="javascript:history.back()" class="btn" style="background: rgba(255,255,255,0.9); color: #667eea; padding: 12px 25px; border-radius: 25px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: all 0.3s;">
+                <i class="mdi mdi-arrow-left" style="margin-right: 8px; font-size: 1.2rem;"></i>
+                Back
+            </a>
+        </div>
+        
+        <div class="recommendation-card">
+            <!-- Header -->
+            <div class="card-header-custom">
+                <i class="mdi mdi-robot" style="font-size: 4rem; margin-bottom: 20px;"></i>
+                <h1>🤖 AI Subscription Recommender</h1>
+                <p>Answer a few questions to get personalized subscription recommendations</p>
+            </div>
+            
+            <!-- Questionnaire Section -->
+            <div class="questionnaire-section" id="questionnaireSection">
+                <form id="preferenceForm">
+                    {% csrf_token %}
+                    
+                    <!-- User Type Badge -->
+                    <div class="text-center mb-4">
+                        <span class="badge" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 10px 20px; border-radius: 20px; font-size: 1rem;">
+                            {{ user_type|title }} Profile
+                        </span>
+                    </div>
+                    
+                    <!-- Basic Information -->
+                    <div class="question-group">
+                        <label class="question-label">
+                            <i class="mdi mdi-account-group"></i> 
+                            {% if user_type == 'teacher' %}
+                            How many students do you teach?
+                            {% else %}
+                            How many courses are you taking?
+                            {% endif %}
+                        </label>
+                        <input type="number" class="form-control" name="{% if user_type == 'teacher' %}student_count{% else %}course_count{% endif %}" min="0" max="1000" value="{% if preference %}{{ preference.student_count|default:preference.course_count }}{% else %}0{% endif %}" required>
+                    </div>
+                    
+                    <div class="question-group">
+                        <label class="question-label">
+                            <i class="mdi mdi-cash"></i> What's your monthly budget? (USD)
+                        </label>
+                        <input type="number" class="form-control" name="budget" min="0" max="10000" step="0.01" value="{% if preference %}{{ preference.budget }}{% else %}0{% endif %}" required>
+                    </div>
+                    
+                    <div class="question-group">
+                        <label class="question-label">
+                            <i class="mdi mdi-calendar-clock"></i> How often will you use the platform? (days per week)
+                        </label>
+                        <select class="form-select" name="usage_frequency" required>
+                            <option value="1" {% if preference and preference.usage_frequency == 1 %}selected{% endif %}>1 day/week - Occasional</option>
+                            <option value="3" {% if preference and preference.usage_frequency == 3 %}selected{% endif %}>3 days/week - Regular</option>
+                            <option value="5" {% if preference and preference.usage_frequency == 5 %}selected{% endif %}>5 days/week - Frequent</option>
+                            <option value="7" {% if preference and preference.usage_frequency == 7 %}selected{% endif %}>7 days/week - Daily</option>
+                        </select>
+                    </div>
+                    
+                    <div class="question-group">
+                        <label class="question-label">
+                            <i class="mdi mdi-clock-outline"></i> How many hours per day will you study/teach?
+                        </label>
+                        <input type="number" class="form-control" name="study_hours" min="0" max="24" step="0.5" value="{% if preference %}{{ preference.study_hours }}{% else %}0{% endif %}" required>
+                    </div>
+                    
+                    <div class="question-group">
+                        <label class="question-label">
+                            <i class="mdi mdi-chart-line"></i> What's your experience level?
+                        </label>
+                        <select class="form-select" name="experience_level" required>
+                            <option value="1" {% if preference and preference.experience_level == 1 %}selected{% endif %}>Beginner</option>
+                            <option value="2" {% if preference and preference.experience_level == 2 %}selected{% endif %}>Intermediate</option>
+                            <option value="3" {% if preference and preference.experience_level == 3 %}selected{% endif %}>Advanced</option>
+                            <option value="4" {% if preference and preference.experience_level == 4 %}selected{% endif %}>Professional</option>
+                            <option value="5" {% if preference and preference.experience_level == 5 %}selected{% endif %}>Expert</option>
+                        </select>
+                    </div>
+                    
+                    <div class="question-group">
+                        <label class="question-label">
+                            <i class="mdi mdi-target"></i> What's your primary goal?
+                        </label>
+                        <select class="form-select" name="goal_type" required>
+                            <option value="academic" {% if preference and preference.goal_type == 'academic' %}selected{% endif %}>Academic Achievement</option>
+                            <option value="professional" {% if preference and preference.goal_type == 'professional' %}selected{% endif %}>Professional Development</option>
+                            <option value="personal" {% if preference and preference.goal_type == 'personal' %}selected{% endif %}>Personal Interest</option>
+                        </select>
+                    </div>
+                    
+                    <div class="question-group">
+                        <label class="question-label">
+                            <i class="mdi mdi-school"></i> Education Level
+                        </label>
+                        <select class="form-select" name="education_level" required>
+                            <option value="high_school" {% if preference and preference.education_level == 'high_school' %}selected{% endif %}>High School</option>
+                            <option value="university" {% if preference and preference.education_level == 'university' %}selected{% endif %}>University</option>
+                            <option value="professional" {% if preference and preference.education_level == 'professional' %}selected{% endif %}>Professional Training</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Features Needed -->
+                    <div class="question-group">
+                        <label class="question-label">
+                            <i class="mdi mdi-feature-search"></i> What features do you need?
+                        </label>
+                        <div class="feature-checkbox">
+                            <input type="checkbox" id="needs_video" name="needs_video" {% if preference and preference.needs_video %}checked{% endif %}>
+                            <label for="needs_video">📹 Video Lessons</label>
+                        </div>
+                        <div class="feature-checkbox">
+                            <input type="checkbox" id="needs_quiz" name="needs_quiz" {% if preference and preference.needs_quiz %}checked{% endif %}>
+                            <label for="needs_quiz">📝 Quizzes & Tests</label>
+                        </div>
+                        <div class="feature-checkbox">
+                            <input type="checkbox" id="needs_forum" name="needs_forum" {% if preference and preference.needs_forum %}checked{% endif %}>
+                            <label for="needs_forum">💬 Discussion Forum</label>
+                        </div>
+                        <div class="feature-checkbox">
+                            <input type="checkbox" id="needs_analytics" name="needs_analytics" {% if preference and preference.needs_analytics %}checked{% endif %}>
+                            <label for="needs_analytics">📊 Analytics & Reports</label>
+                        </div>
+                        <div class="feature-checkbox">
+                            <input type="checkbox" id="needs_certificates" name="needs_certificates" {% if preference and preference.needs_certificates %}checked{% endif %}>
+                            <label for="needs_certificates">🏆 Certificates</label>
+                        </div>
+                        <div class="feature-checkbox">
+                            <input type="checkbox" id="needs_offline" name="needs_offline" {% if preference and preference.needs_offline %}checked{% endif %}>
+                            <label for="needs_offline">📱 Offline Access</label>
+                        </div>
+                        <div class="feature-checkbox">
+                            <input type="checkbox" id="needs_support" name="needs_support" {% if preference and preference.needs_support %}checked{% endif %}>
+                            <label for="needs_support">🎧 Priority Support</label>
+                        </div>
+                    </div>
+                    
+                    <!-- Submit Button -->
+                    <div class="text-center mt-4">
+                        <button type="submit" class="btn-submit">
+                            <i class="mdi mdi-robot"></i> Get AI Recommendations
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Results Section -->
+            <div class="results-section" id="resultsSection">
+                <div id="recommendationResults"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('preferenceForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    // Collect form data
+    const formData = new FormData(this);
+    const data = {};
+    
+    // Convert form data to object
+    for (let [key, value] of formData.entries()) {
+        if (key === 'csrfmiddlewaretoken') continue;
+        
+        // Handle checkboxes
+        if (key.startsWith('needs_')) {
+            data[key] = true;
+        } else {
+            data[key] = value;
+        }
+    }
+    
+    // Set unchecked checkboxes to false
+    ['needs_video', 'needs_quiz', 'needs_forum', 'needs_analytics', 'needs_certificates', 'needs_offline', 'needs_support'].forEach(field => {
+        if (!(field in data)) {
+            data[field] = false;
+        }
+    });
+    
+    // Add missing fields for compatibility
+    {% if user_type == 'teacher' %}
+    data.course_count = 0;
+    {% else %}
+    data.student_count = 0;
+    {% endif %}
+    
+    try {
+        // Save preferences
+        const saveResponse = await fetch('{% url "ml_save_preferences" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+            },
+            body: JSON.stringify(data)
+        });
+        
+        if (!saveResponse.ok) throw new Error('Failed to save preferences');
+        
+        // Get recommendations
+        const recResponse = await fetch('{% url "ml_get_recommendations" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+            }
+        });
+        
+        const result = await recResponse.json();
+        
+        if (result.success) {
+            displayRecommendations(result);
+        } else {
+            alert('Error: ' + result.error);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred. Please try again.');
+    }
+});
+
+function displayRecommendations(result) {
+    const resultsDiv = document.getElementById('recommendationResults');
+    const primary = result.primary_recommendation;
+    const alternatives = result.alternatives || [];
+    
+    let html = '<h2 style="text-align: center; color: #2c3e50; margin-bottom: 30px;">Your Personalized Recommendations</h2>';
+    
+    if (primary) {
+        html += `
+            <div class="recommendation-result">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <span style="background: rgba(255,255,255,0.2); padding: 10px 20px; border-radius: 20px; font-size: 1.1rem; font-weight: 600;">
+                        ⭐ Best Match
+                    </span>
+                </div>
+                <h3 style="font-size: 2rem; margin-bottom: 10px;">${primary.name}</h3>
+                <p style="font-size: 1.1rem; opacity: 0.9; margin-bottom: 20px;">${primary.description}</p>
+                
+                <div class="progress-bar-custom mb-3">
+                    <div class="progress-fill" style="width: ${primary.compatibility_score}%"></div>
+                </div>
+                <p style="font-size: 0.9rem; opacity: 0.9;">Compatibility Score: ${primary.compatibility_score.toFixed(0)}%</p>
+                
+                <div style="margin: 20px 0;">
+                    <div style="font-size: 2.5rem; font-weight: 700;">$${primary.price} <span style="font-size: 1rem; font-weight: 400;">/ ${primary.duration}</span></div>
+                </div>
+                
+                <a href="/payment/initiate/${primary.id}/" class="btn" style="background: white; color: #667eea; padding: 15px 40px; border-radius: 25px; font-weight: 600; text-decoration: none; display: inline-block; margin-top: 10px;">
+                    Choose This Plan <i class="mdi mdi-arrow-right"></i>
+                </a>
+            </div>
+        `;
+    }
+    
+    if (alternatives.length > 0) {
+        html += '<h4 style="color: #2c3e50; margin: 30px 0 20px 0;">Other Options:</h4>';
+        alternatives.forEach(alt => {
+            html += `
+                <div class="alternative-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 style="color: #2c3e50; margin-bottom: 5px;">${alt.name}</h5>
+                            <p style="color: #666; margin: 0; font-size: 0.9rem;">${alt.description.substring(0, 80)}...</p>
+                        </div>
+                        <div class="text-end">
+                            <div style="font-size: 1.5rem; font-weight: 700; color: #667eea;">$${alt.price}</div>
+                            <div style="font-size: 0.8rem; color: #999;">${alt.compatibility_score.toFixed(0)}% match</div>
+                            <a href="/payment/initiate/${alt.id}/" class="btn btn-sm" style="background: #667eea; color: white; padding: 8px 20px; border-radius: 15px; text-decoration: none; margin-top: 5px; display: inline-block;">
+                                Select
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+    }
+    
+    resultsDiv.innerHTML = html;
+    document.getElementById('questionnaireSection').style.display = 'none';
+    document.getElementById('resultsSection').style.display = 'block';
+}
+</script>
+{% endblock %}
