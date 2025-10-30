@@ -1,0 +1,567 @@
+{% extends 'baseB.html' %}
+{% load static %}
+
+{% block title %}Subscriptions{% endblock %}
+
+{% block content %}
+<style>
+    .subscription-header {
+        background: transparent;
+        border-radius: 0;
+        padding: 20px 0 20px 30px;
+        margin-bottom: 30px;
+        color: #333;
+        box-shadow: none;
+    }
+    
+    .subscription-header h2 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 5px;
+        color: #333;
+    }
+    
+    .subscription-header p {
+        opacity: 0.7;
+        margin-bottom: 0;
+        color: #6c757d;
+    }
+    
+    .card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        overflow: hidden;
+    }
+    
+    .card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+    }
+    
+    .card-body {
+        padding: 25px;
+    }
+    
+    .card-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 20px;
+    }
+    
+    .table {
+        margin-bottom: 0;
+    }
+    
+    .table thead th {
+        background: #f8f9fa;
+        border: none;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+        color: #495057;
+        padding: 15px;
+    }
+    
+    .table thead th:nth-child(1),
+    .table tbody td:nth-child(1) {
+        width: 20%;
+    }
+    
+    .table thead th:nth-child(2),
+    .table tbody td:nth-child(2) {
+        width: 12%;
+    }
+    
+    .table thead th:nth-child(3),
+    .table tbody td:nth-child(3) {
+        width: 10%;
+    }
+    
+    .table thead th:nth-child(4),
+    .table tbody td:nth-child(4) {
+        width: 12%;
+    }
+    
+    .table thead th:nth-child(5),
+    .table tbody td:nth-child(5) {
+        width: 12%;
+    }
+    
+    .table thead th:nth-child(6),
+    .table tbody td:nth-child(6) {
+        width: 14%;
+    }
+    
+    .table thead th:nth-child(7),
+    .table tbody td:nth-child(7) {
+        width: 10%;
+        text-align: center;
+    }
+    
+    .table tbody tr {
+        transition: background-color 0.2s ease;
+    }
+    
+    .table tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .table tbody td {
+        padding: 15px;
+        vertical-align: middle;
+        border-top: 1px solid #f0f0f0;
+    }
+    
+    .badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-weight: 500;
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+    }
+    
+    .badge-info {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+    
+    .badge-warning {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+    }
+    
+    .badge-success {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        color: white;
+    }
+    
+    .badge-danger {
+        background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        color: white;
+    }
+    
+    .btn-add-subscription {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        color: white;
+        padding: 12px 30px;
+        border-radius: 25px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-add-subscription:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        color: white;
+    }
+    
+    .btn-outline-secondary {
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-outline-secondary:hover {
+        background-color: #6c757d;
+        color: white;
+        transform: scale(1.1);
+    }
+    
+    .dropdown-menu {
+        border: none;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        border-radius: 10px;
+        padding: 10px 0;
+    }
+    
+    .dropdown-item {
+        padding: 10px 20px;
+        transition: all 0.2s ease;
+    }
+    
+    .dropdown-item:hover {
+        background-color: #f8f9fa;
+        padding-left: 25px;
+    }
+    
+    .pagination {
+        gap: 5px;
+    }
+    
+    .page-item .page-link {
+        border-radius: 8px;
+        border: 1px solid #dee2e6;
+        color: #667eea;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        padding: 8px 12px;
+        min-width: 40px;
+        text-align: center;
+    }
+    
+    .page-item.active .page-link {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-color: #667eea;
+        color: white;
+    }
+    
+    .page-item .page-link:hover:not(.page-item.disabled .page-link) {
+        background-color: #667eea;
+        color: white;
+        border-color: #667eea;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
+    }
+    
+    .page-item.disabled .page-link {
+        opacity: 0.5;
+        cursor: not-allowed;
+        background-color: #f8f9fa;
+    }
+    
+    .pagination-info {
+        font-size: 0.9rem;
+    }
+    
+    .pagination-info strong {
+        color: #667eea;
+        font-weight: 600;
+    }
+    
+    .section-badge {
+        display: inline-block;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-left: 10px;
+    }
+    
+    .empty-state {
+        padding: 60px 20px;
+        text-align: center;
+        color: #6c757d;
+    }
+    
+    .empty-state i {
+        font-size: 4rem;
+        opacity: 0.3;
+        margin-bottom: 20px;
+    }
+</style>
+
+<!-- Header Section -->
+<div class="col-lg-12 mb-4">
+    <div class="subscription-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h2><i class="mdi mdi-credit-card-multiple"></i> Subscriptions Management</h2>
+                <p>Manage student and teacher subscription plans</p>
+            </div>
+            <div>
+                <a href="{% url 'add_subscription' %}" class="btn btn-add-subscription">
+                    <i class="mdi mdi-plus-circle"></i> Add New Subscription
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Student Subscriptions Table -->
+<div class="col-lg-12 grid-margin stretch-card">
+    <div class="card">
+        <div class="card-body">
+            <div class="text-center mb-4">
+                <h4 class="card-title mb-0">
+                    <i class="mdi mdi-school text-info"></i> Student Subscriptions
+                </h4>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>User Type</th>
+                            <th>Price</th>
+                            <th>Duration</th>
+                            <th>Status</th>
+                            <th>Created At</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for subscription in student_page_obj %}
+                        <tr>
+                            <td>{{ subscription.name }}</td>
+                            <td>
+                                <span class="badge badge-info">Student</span>
+                            </td>
+                            <td>${{ subscription.price }}</td>
+                            <td>{{ subscription.duration }}</td>
+                            <td>
+                                {% if subscription.is_active %}
+                                    <span class="badge badge-success">Active</span>
+                                {% else %}
+                                    <span class="badge badge-danger">Inactive</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ subscription.created_at|date:"M d, Y" }}</td>
+                            <td>
+                                <div class="input-group mb-2 mr-sm-2">
+                                    <button type="button" class="btn btn-outline-secondary" data-bs-toggle="dropdown">
+                                        <i class="mdi mdi-dots-vertical"></i>
+                                    </button>
+                                    <div class="dropdown-menu">
+                                        <a href="{% url 'subscription_detail' subscription.id %}" class="dropdown-item">
+                                            <i class="mdi mdi-eye btn-icon-prepend"></i> View
+                                        </a>
+                                        <a href="{% url 'edit_subscription' subscription.id %}" class="dropdown-item">
+                                            <i class="mdi mdi-pencil btn-icon-prepend"></i> Edit
+                                        </a>
+                                        <a href="{% url 'delete_subscription' subscription.id %}" 
+                                           class="dropdown-item text-danger"
+                                           onclick="return confirm('Are you sure you want to delete this subscription?');">
+                                            <i class="mdi mdi-delete btn-icon-prepend"></i> Delete
+                                        </a>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7">
+                                <div class="empty-state">
+                                    <i class="mdi mdi-package-variant"></i>
+                                    <h5>No Student Subscriptions</h5>
+                                    <p class="text-muted">Start by creating your first student subscription plan</p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                <!-- Student Pagination -->
+                <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+                    <div class="pagination-info">
+                        <span class="text-muted">
+                            Showing 
+                            <strong>{{ student_page_obj.start_index }}</strong> to 
+                            <strong>{{ student_page_obj.end_index }}</strong> of 
+                            <strong>{{ student_page_obj.paginator.count }}</strong> entries
+                        </span>
+                    </div>
+                    
+                    <nav>
+                        <ul class="pagination mb-0">
+                            {% if student_page_obj.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?student_page=1{% if teacher_page_obj.number %}&teacher_page={{ teacher_page_obj.number }}{% endif %}" title="First">
+                                        <i class="mdi mdi-chevron-double-left"></i>
+                                    </a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?student_page={{ student_page_obj.previous_page_number }}{% if teacher_page_obj.number %}&teacher_page={{ teacher_page_obj.number }}{% endif %}" title="Previous">
+                                        <i class="mdi mdi-chevron-left"></i>
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link"><i class="mdi mdi-chevron-double-left"></i></span>
+                                </li>
+                                <li class="page-item disabled">
+                                    <span class="page-link"><i class="mdi mdi-chevron-left"></i></span>
+                                </li>
+                            {% endif %}
+
+                            {% for num in student_page_obj.paginator.page_range %}
+                                {% if student_page_obj.number == num %}
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ num }}</span>
+                                    </li>
+                                {% elif num > student_page_obj.number|add:'-3' and num < student_page_obj.number|add:'3' %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?student_page={{ num }}{% if teacher_page_obj.number %}&teacher_page={{ teacher_page_obj.number }}{% endif %}">{{ num }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if student_page_obj.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?student_page={{ student_page_obj.next_page_number }}{% if teacher_page_obj.number %}&teacher_page={{ teacher_page_obj.number }}{% endif %}" title="Next">
+                                        <i class="mdi mdi-chevron-right"></i>
+                                    </a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?student_page={{ student_page_obj.paginator.num_pages }}{% if teacher_page_obj.number %}&teacher_page={{ teacher_page_obj.number }}{% endif %}" title="Last">
+                                        <i class="mdi mdi-chevron-double-right"></i>
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link"><i class="mdi mdi-chevron-right"></i></span>
+                                </li>
+                                <li class="page-item disabled">
+                                    <span class="page-link"><i class="mdi mdi-chevron-double-right"></i></span>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Teacher Subscriptions Table -->
+<div class="col-lg-12 grid-margin stretch-card">
+    <div class="card">
+        <div class="card-body">
+            <div class="text-center mb-4">
+                <h4 class="card-title mb-0">
+                    <i class="mdi mdi-account-tie text-warning"></i> Teacher Subscriptions
+                </h4>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>User Type</th>
+                            <th>Price</th>
+                            <th>Duration</th>
+                            <th>Status</th>
+                            <th>Created At</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for subscription in teacher_page_obj %}
+                        <tr>
+                            <td>{{ subscription.name }}</td>
+                            <td>
+                                <span class="badge badge-warning">Teacher</span>
+                            </td>
+                            <td>${{ subscription.price }}</td>
+                            <td>{{ subscription.duration }}</td>
+                            <td>
+                                {% if subscription.is_active %}
+                                    <span class="badge badge-success">Active</span>
+                                {% else %}
+                                    <span class="badge badge-danger">Inactive</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ subscription.created_at|date:"M d, Y" }}</td>
+                            <td>
+                                <div class="input-group mb-2 mr-sm-2">
+                                    <button type="button" class="btn btn-outline-secondary" data-bs-toggle="dropdown">
+                                        <i class="mdi mdi-dots-vertical"></i>
+                                    </button>
+                                    <div class="dropdown-menu">
+                                        <a href="{% url 'subscription_detail' subscription.id %}" class="dropdown-item">
+                                            <i class="mdi mdi-eye btn-icon-prepend"></i> View
+                                        </a>
+                                        <a href="{% url 'edit_subscription' subscription.id %}" class="dropdown-item">
+                                            <i class="mdi mdi-pencil btn-icon-prepend"></i> Edit
+                                        </a>
+                                        <a href="{% url 'delete_subscription' subscription.id %}" 
+                                           class="dropdown-item text-danger"
+                                           onclick="return confirm('Are you sure you want to delete this subscription?');">
+                                            <i class="mdi mdi-delete btn-icon-prepend"></i> Delete
+                                        </a>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7">
+                                <div class="empty-state">
+                                    <i class="mdi mdi-package-variant"></i>
+                                    <h5>No Teacher Subscriptions</h5>
+                                    <p class="text-muted">Start by creating your first teacher subscription plan</p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                <!-- Teacher Pagination -->
+                <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+                    <div class="pagination-info">
+                        <span class="text-muted">
+                            Showing 
+                            <strong>{{ teacher_page_obj.start_index }}</strong> to 
+                            <strong>{{ teacher_page_obj.end_index }}</strong> of 
+                            <strong>{{ teacher_page_obj.paginator.count }}</strong> entries
+                        </span>
+                    </div>
+                    
+                    <nav>
+                        <ul class="pagination mb-0">
+                            {% if teacher_page_obj.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?teacher_page=1{% if student_page_obj.number %}&student_page={{ student_page_obj.number }}{% endif %}" title="First">
+                                        <i class="mdi mdi-chevron-double-left"></i>
+                                    </a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?teacher_page={{ teacher_page_obj.previous_page_number }}{% if student_page_obj.number %}&student_page={{ student_page_obj.number }}{% endif %}" title="Previous">
+                                        <i class="mdi mdi-chevron-left"></i>
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link"><i class="mdi mdi-chevron-double-left"></i></span>
+                                </li>
+                                <li class="page-item disabled">
+                                    <span class="page-link"><i class="mdi mdi-chevron-left"></i></span>
+                                </li>
+                            {% endif %}
+
+                            {% for num in teacher_page_obj.paginator.page_range %}
+                                {% if teacher_page_obj.number == num %}
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ num }}</span>
+                                    </li>
+                                {% elif num > teacher_page_obj.number|add:'-3' and num < teacher_page_obj.number|add:'3' %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?teacher_page={{ num }}{% if student_page_obj.number %}&student_page={{ student_page_obj.number }}{% endif %}">{{ num }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if teacher_page_obj.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?teacher_page={{ teacher_page_obj.next_page_number }}{% if student_page_obj.number %}&student_page={{ student_page_obj.number }}{% endif %}" title="Next">
+                                        <i class="mdi mdi-chevron-right"></i>
+                                    </a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?teacher_page={{ teacher_page_obj.paginator.num_pages }}{% if student_page_obj.number %}&student_page={{ student_page_obj.number }}{% endif %}" title="Last">
+                                        <i class="mdi mdi-chevron-double-right"></i>
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link"><i class="mdi mdi-chevron-right"></i></span>
+                                </li>
+                                <li class="page-item disabled">
+                                    <span class="page-link"><i class="mdi mdi-chevron-double-right"></i></span>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

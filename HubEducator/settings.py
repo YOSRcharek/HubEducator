@@ -4,7 +4,6 @@ from dotenv import load_dotenv
 from decouple import config
 
 
-
 # Charger le fichier .env
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -36,7 +35,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.humanize',
     'django.contrib.sites',  # nécessaire pour allauth
+    'django_celery_beat',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
@@ -126,11 +127,12 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+USE_TZ = True
+TIME_ZONE = 'Africa/Tunis'
 
 USE_I18N = True
 
-USE_TZ = True
+
 
 
 # Static files (CSS, JavaScript, Images)
@@ -170,7 +172,18 @@ STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")  # must be different from ST
 # WhiteNoise for serving static files in production
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
+# settings.py
+CELERY_BEAT_SCHEDULE = {
+    'publish-scheduled-courses-every-minute': {
+        'task': 'TeacherDash.tasks.publish_scheduled_courses',  # nom exact
+        'schedule': 60.0,  # toutes les 60 secondes
+    },
+}
 
+
+
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -184,6 +197,7 @@ DEFAULT_FROM_EMAIL = 'HubEducator HubEducator@gmail.com'
 SITE_ID = 1
 
 # Redirect après login
+LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 # Automatically redirect to the provider login
@@ -212,3 +226,9 @@ SOCIALACCOUNT_PROVIDERS = {
         "AUTH_PARAMS": {"access_type": "offline"},
     }
 }
+
+
+
+
+STRIPE_PUBLIC_KEY = 'pk_test_51SEeCW69Sb3Q4dCaaizkiHSAWIXjHz8MgUUjcMSOTDup5dkH0t9BmboltyACSdLUu6HTh7n65rCGQTwrTRNto06H00gT4itReA'
+STRIPE_SECRET_KEY = 'sk_test_51SEeCW69Sb3Q4dCawL4mbZLdSzp1yV3RnykFQUMgu2a99zlCS4QLfhL1o5MIJ5hDp4qwAxSJUlywoCS8D2oRjV9r00tw0dkCtD'

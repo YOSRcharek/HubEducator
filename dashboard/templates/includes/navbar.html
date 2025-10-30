@@ -161,6 +161,39 @@
               <span class="menu-title">Users</span>
             </a>
           </li>
+          <li class="nav-item {% if request.resolver_match.url_name == 'specialities' %}active{% endif %}">
+              <a class="nav-link" href="{% url 'specialities' %}">
+                  <i class="mdi mdi-tag menu-icon"></i>
+                  <span class="menu-title">Specialities</span>
+              </a>
+          </li>
+
+          <li class="nav-item {% if request.resolver_match.url_name == 'list_certificates' %}active{% endif %}">
+              <a class="nav-link" href="{% url 'list_certificates' %}">
+                  <i class="mdi mdi-certificate menu-icon"></i>
+                  <span class="menu-title">Certificates</span>
+              </a>
+          </li>
+
+          <li class="nav-item {% if request.resolver_match.url_name == 'subscriptions' %}active{% endif %}">
+            <a class="nav-link" href="{% url 'subscriptions' %}">
+              <i class="mdi mdi-credit-card-multiple menu-icon"></i>
+              <span class="menu-title">Subscriptions</span>
+            </a>
+          </li>
+          <li class="nav-item {% if request.resolver_match.url_name == 'user_subscriptions' %}active{% endif %}">
+            <a class="nav-link" href="{% url 'user_subscriptions' %}">
+              <i class="mdi mdi-account-check menu-icon"></i>
+              <span class="menu-title">User Subscriptions</span>
+            </a>
+          </li>
+
+          <li class="nav-item {% if request.resolver_match.url_name == 'transactions' %}active{% endif %}">
+            <a class="nav-link" href="{% url 'transactions' %}">
+              <i class="mdi mdi-cash-multiple menu-icon"></i>
+              <span class="menu-title">Transactions</span>
+            </a>
+          </li>
 
               <li class="nav-item">
                   <a href="pages/forms/basic_elements.html" class="nav-link">
