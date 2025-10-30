@@ -160,14 +160,19 @@ function openUpdateSubLessonModal(id, title, content, resources, url) {
 }
 
 
-function removeSubResource(resourceId, button) {
-    let input = document.createElement('input');
-    input.type = 'hidden';
-    input.name = 'delete_resources[]';
-    input.value = resourceId;
-    document.getElementById('updateSubLessonForm').appendChild(input);
-    button.parentElement.remove();
+function removeSubResource(id, button) {
+  // Visuellement, on enlève la ressource
+  button.parentElement.remove();
+
+  // On ajoute l’ID supprimé dans un champ caché
+  const form = document.getElementById('updateSubLessonForm');
+  let hidden = document.createElement('input');
+  hidden.type = 'hidden';
+  hidden.name = 'delete_resources[]';
+  hidden.value = id;
+  form.appendChild(hidden);
 }
+
 
 
 function closeModal(modalId) {

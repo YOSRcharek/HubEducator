@@ -21,7 +21,7 @@ from django.db import transaction
 import csv
 from django.http import HttpResponse
 from openpyxl import Workbook
-
+from django.views.decorators.http import require_http_methods
 from core.models import User, Course,CourseCategory, Lesson, SubLesson, Resource
 
 # --------------------------
@@ -129,13 +129,16 @@ def student_detail(request, user_id):
     })
 
 
+
 @login_required
 def courses(request):
     if request.user.role != 'teacher':
         return redirect('unauthorized')
 
-    # ⚡ Mettre à jour le status des cours en fonction des leçons
+    # Tous les cours du prof
     teacher_courses = Course.objects.filter(teacher=request.user)
+
+    # Mettre à jour le status des cours
     for course in teacher_courses:
         if course.lessons.exists() and course.status == 'pending':
             course.status = 'inprogress'
@@ -148,24 +151,41 @@ def courses(request):
             course.save()
 
     # Filtre par status
-    status_filter = request.GET.get('status', '')  # vide = tous
+    status_filter = request.GET.get('status', '')
     if status_filter:
         courses_list = teacher_courses.filter(status=status_filter)
     else:
         courses_list = teacher_courses
 
-    # Pagination : 6 cours par page
+    # Pagination
     paginator = Paginator(courses_list.distinct(), 6)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
-    # Options de status pour le filtre
-    status_options = ['pending', 'inprogress', 'completed']
+    # Stats
+    current_courses_count = teacher_courses.count()
+    active_courses = teacher_courses.filter(status='inprogress').count()
+    completed_courses = teacher_courses.filter(status='completed').count()
+    pending_courses = teacher_courses.filter(status='pending').count()
+
+    # 🔹 Tous les étudiants assignés aux cours du prof
+    my_students = User.objects.filter(
+        enrolled_courses__teacher=request.user,
+        role='student'
+    ).distinct()
+
+    my_students_count = my_students.count()
 
     return render(request, 'courses/courses.html', {
         'page_obj': page_obj,
-        'status_options': status_options,
+        'status_options': ['pending', 'inprogress', 'completed'],
         'current_status': status_filter,
+        'current_courses_count': current_courses_count,
+        'active_courses': active_courses,
+        'completed_courses': completed_courses,
+        'pending_courses': pending_courses,
+        'my_students': my_students,
+        'my_students_count': my_students_count,
     })
 
 @login_required
@@ -669,22 +689,28 @@ def update_sublesson(request):
         sublesson_id = request.POST.get('sublesson_id')
         sub = get_object_or_404(SubLesson, id=sublesson_id, lesson__course__teacher=request.user)
 
+        # Mise à jour des champs de base
         sub.title = request.POST.get('title')
         sub.content = request.POST.get('content')
         sub.save()
 
-        # Ajout des URLs externes
+        # ✅ Suppression des ressources cochées ou marquées pour suppression
+        resources_to_delete = request.POST.getlist('delete_resources[]')
+        if resources_to_delete:
+            Resource.objects.filter(id__in=resources_to_delete, sub_lesson=sub).delete()
+
+        # ✅ Ajout des URLs externes
         external_urls = request.POST.getlist('external_url[]')
         for url in external_urls:
             if url.strip():
                 Resource.objects.create(
-                    sub_lesson=sub,  # ✅ correct
+                    sub_lesson=sub,
                     title=url.split('/')[-1],
                     external_url=url,
                     resource_type='external'
                 )
 
-        # Ajout des nouvelles ressources uploadées
+        # ✅ Ajout des nouvelles ressources uploadées
         for file in request.FILES.getlist('resources'):
             ext = file.name.split('.')[-1].lower()
             if ext in ['jpg', 'jpeg', 'png', 'gif', 'bmp']:
@@ -699,14 +725,14 @@ def update_sublesson(request):
                 r_type = 'other'
 
             Resource.objects.create(
-                sub_lesson=sub,  # ou lesson=lesson si c’est pour add_lesson
+                sub_lesson=sub,
                 title=file.name,
                 resource_type=r_type,
                 file=file
             )
 
-
         return JsonResponse({'success': True})
+
     return JsonResponse({'success': False}, status=400)
 
 
@@ -1123,3 +1149,18 @@ def export_certificate_results_csv(request, cert_id):
 
     wb.save(response)
     return response
+
+
+
+
+@login_required
+@csrf_exempt  # facultatif si tu passes bien le token CSRF dans fetch
+def delete_resource(request, resource_id):
+    # Vérifie que la requête simule bien une suppression
+    if request.method == 'POST' and request.POST.get('_method') == 'DELETE':
+        resource = get_object_or_404(Resource, id=resource_id, sub_lesson__lesson__course__teacher=request.user)
+        resource.delete()
+        return JsonResponse({'success': True})
+    
+    return JsonResponse({'success': False, 'error': 'Méthode non autorisée'}, status=400)
+

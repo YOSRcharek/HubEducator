@@ -29,7 +29,8 @@ urlpatterns = [
     path('course/<int:course_id>/remove-student/', views.remove_student_from_course, name='remove_student_from_course'),
     path('review-like/<int:review_id>/', views.toggle_like_review, name='toggle_like_review'),
     path('review-delete/<int:review_id>/', views.delete_review, name='delete_review'),
-    
+    path('delete-resource/<int:resource_id>/', views.delete_resource, name='delete_resource'),
+
     path('specialities/', views.SpecialityListView.as_view(), name='specialities'),
     path('specialities/add', views.SpecialityCreateView.as_view(), name='addSpecialities'),
     path('specialities/edit/<int:speciality_id>/', views.SpecialityUpdateView.as_view(), name='editSpecialities'),
