@@ -98,7 +98,7 @@
                                                 {% elif prediction.churn_probability > 0.3 %}bg-warning
                                                 {% else %}bg-success{% endif %}"
                                                 role="progressbar"
-                                                style="width: {{ prediction.churn_probability|floatformat:0|add:'%' }}%"
+                                               
                                                 aria-valuenow="{{ prediction.churn_probability|floatformat:0 }}"
                                                 aria-valuemin="0"
                                                 aria-valuemax="100">

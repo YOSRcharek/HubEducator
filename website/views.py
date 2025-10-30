@@ -1,8 +1,5 @@
-<<<<<<< HEAD
 from django.shortcuts import render, redirect, get_object_or_404
-=======
 from django.shortcuts import get_object_or_404, render, redirect
->>>>>>> 772594ae8608acbcc2a9bee888b6d70bd127e27d
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout, get_user_model
 from django.contrib import messages
 from .forms import RegisterForm
@@ -18,10 +15,8 @@ from django.utils.crypto import get_random_string
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 import requests
-<<<<<<< HEAD
 import json
 from core.models import Subscription
-=======
 from django.contrib.auth import get_user_model, login
 from django.core.paginator import Paginator
 from core.models import Course
@@ -36,7 +31,6 @@ import requests
 from django.views.decorators.csrf import csrf_exempt
 import json
 from django.utils import timezone
->>>>>>> 772594ae8608acbcc2a9bee888b6d70bd127e27d
 
 User = get_user_model()  # Always use custom user
 
@@ -259,12 +253,8 @@ def login_view(request):
                     return redirect("verify_code")
 
                 auth_login(request, user)
-<<<<<<< HEAD
-                # messages.success(request, "Connecté avec succès.")
-=======
                 messages.success(request, "Connecté avec succès.")
                 
->>>>>>> 772594ae8608acbcc2a9bee888b6d70bd127e27d
                 if user.role == 'admin':
                     return redirect('dashboard')
                 elif user.role == 'teacher':
@@ -459,9 +449,6 @@ def google_callback(request):
     # Connecter l'utilisateur
     login(request, user)
     return redirect('/')
-
-<<<<<<< HEAD
-    return redirect('/')  # Redirect to homepage after login
 
 
 # ----------------------------- Payment System -----------------------------
@@ -716,7 +703,6 @@ def stripe_webhook(request):
     except Exception as e:
         print(f"❌ Webhook error: {e}")
         return HttpResponse(status=500)
-=======
 
 @login_required
 def submit_review(request, course_id):
@@ -817,4 +803,3 @@ def schedule_course(request, course_id):
         course.visible = False  # assure que ce sera publié plus tard
         course.save()
         return JsonResponse({"success": True})
->>>>>>> 772594ae8608acbcc2a9bee888b6d70bd127e27d

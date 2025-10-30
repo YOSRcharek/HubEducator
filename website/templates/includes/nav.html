@@ -75,7 +75,7 @@
               <li class="nav-item px-2"><a class="nav-link" aria-current="page" href="{% url 'coursesUser' %}">Courses</a></li>
               <li class="nav-item px-2"><a class="nav-link" aria-current="page" href="{% url 'user-research' %}">User Research</a></li>
               <li class="nav-item px-2"><a class="nav-link" aria-current="page" href="{% url 'etude_list' %}">Study Groups</a></li>
-
+              <li class="nav-item px-2"><a class="nav-link" aria-current="page" href="{% url 'certificates' %}">Certificate</a></li>
             </ul>
             {% if user.is_authenticated %}
               <div class="user-dropdown" style="position: relative; display: inline-block;">
@@ -86,14 +86,11 @@
                 </button>
 
                 <!-- Dropdown content -->
-<<<<<<< HEAD
-                <div class="dropdown-content" style="display: none; position: absolute; background-color: #fff; min-width: 160px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-radius: 5px; z-index: 1000;">
-=======
                 <div class="dropdown-content" style="display: none; position: absolute; background-color: #fff; min-width: 120px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-radius: 5px; z-index: 1000;">
                     <a href="{% url 'mycourses' %}" style="display: block; padding: 8px 12px; text-decoration: none; color: #333;">My courses</a>
->>>>>>> 772594ae8608acbcc2a9bee888b6d70bd127e27d
                     <a href="{% url 'profil' %}" style="display: block; padding: 8px 12px; text-decoration: none; color: #333;">Profil</a>
                     {% if user.role == 'student' %}
+                    <a href="{% url 'my_certificates' %}" style="display: block; padding: 8px 12px; text-decoration: none; color: #333;">My Certificates</a>
                     <a href="{% url 'my_subscription_student' %}" style="display: block; padding: 8px 12px; text-decoration: none; color: #333;">My Subscription</a>
                     {% elif user.role == 'teacher' %}
                     <a href="{% url 'my_subscription_teacher' %}" style="display: block; padding: 8px 12px; text-decoration: none; color: #333;">My Subscription</a>
